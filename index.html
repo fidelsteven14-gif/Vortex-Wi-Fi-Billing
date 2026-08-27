@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iscotech Express Wi-Fi</title>
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
+    
+    body { 
+      background: #0b131f; 
+      color: #ffffff; 
+      display: flex; 
+      justify-content: center; 
+      padding: 12px;
+      min-height: 100vh;
+    }
+
+    .wrapper { 
+      width: 100%; 
+      max-width: 420px; 
+      text-align: center;
+    }
+
+    /* Top Wi-Fi Icon & Header */
+    .header-section { margin: 15px 0 20px 0; }
+    .wifi-circle {
+      width: 65px;
+      height: 65px;
+      background: rgba(16, 185, 129, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 50%;
+      margin: 0 auto 12px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+    }
+    .wifi-circle svg { width: 32px; height: 32px; fill: #10b981; }
+    .brand-title { font-size: 18px; font-weight: 800; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.5px; }
+    .customer-care { font-size: 13px; font-weight: 700; color: #ffffff; margin-top: 4px; }
+    .subline { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+    /* Main Dark Glass Outer Container */
+    .portal-box {
+      background: #111c2e;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 16px 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    /* Top Icon Navigation Menu Bar */
+    .top-nav {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 12px;
+      margin-bottom: 15px;
+    }
+    .nav-item {
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: 0.2s;
+    }
+    .nav-item.active, .nav-item:hover { color: #ffffff; }
+    .nav-item svg { width: 14px; height: 14px; fill: currentColor; }
+
+    .section-heading {
+      text-align: left;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      padding-left: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* 2-Column Grid of Package Cards */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .pkg-card {
+      background: #172439;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 16px 10px 12px 10px;
+      text-align: center;
+      position: relative;
+    }
+    .pkg-card.popular { border: 1.5px solid #10b981; }
+
+    .badge-popular {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #10b981;
+      color: #0b131f;
+      font-size: 8px;
+      font-weight: 900;
+      padding: 2px 8px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card-icon {
+      width: 32px;
+      height: 32px;
+      background: #2563eb;
+      border-radius: 8px;
+      margin: 0 auto 8px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-icon.green { background: #10b981; }
+    .card-icon svg { width: 18px; height: 18px; fill: #ffffff; }
+
+    .card-title { font-size: 12px; font-weight: 700; color: #ffffff; }
+    .card-speed { font-size: 10px; color: #94a3b8; margin: 3px 0 8px 0; display: flex; align-items: center; justify-content: center; gap: 2px; }
+    .card-speed svg { width: 10px; height: 10px; fill: #fbbf24; }
+    
+    .card-price { font-size: 16px; font-weight: 900; color: #ffffff; margin-bottom: 10px; }
+
+    .btn-buy {
+      width: 100%;
+      background: linear-gradient(90deg, #8b5cf6, #ec4899);
+      border: none;
+      color: #ffffff;
+      padding: 8px 0;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+      transition: 0.2s;
+    }
+    .btn-buy:active { transform: scale(0.96); }
+
+    /* Modal Popup Box */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(6px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 15px;
+    }
+    .modal-content {
+      background: #172439;
+      border: 1px solid rgba(255,255,255,0.15);
+      width: 100%;
+      max-width: 350px;
+      border-radius: 16px;
+      padding: 22px 18px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    }
+    .modal-title { font-size: 17px; font-weight: 800; color: #ffffff; margin-bottom: 4px; }
+    .modal-sub { font-size: 12px; color: #94a3b8; margin-bottom: 15px; }
+    .modal-sub b { color: #fbbf24; }
+    
+    .phone-label { font-size: 11px; color: #38bdf8; text-transform: uppercase; font-weight: 700; text-align: left; display: block; margin-bottom: 6px; }
+    
+    .modal-input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: 2px solid #334155;
+      background: #0b131f;
+      color: #38ef7d;
+      font-size: 16px;
+      text-align: center;
+      font-weight: bold;
+      outline: none;
+      margin-bottom: 15px;
+      letter-spacing: 1px;
+    }
+    .modal-input:focus { border-color: #10b981; }
+
+    .modal-btn {
+      width: 100%;
+      background: linear-gradient(90deg, #10b981, #059669);
+      border: none;
+      color: #ffffff;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 900;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+      text-transform: uppercase;
+    }
+    .close-modal { position: absolute; top: 12px; right: 15px; font-size: 20px; color: #94a3b8; cursor: pointer; }
+
+    .stk-status { display: none; margin-top: 15px; padding: 12px; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 8px; font-size: 12px; color: #38ef7d; font-weight: 700; }
+
+    .footer-note { font-size: 11px; color: #64748b; margin-top: 15px; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+    <!-- Top Header -->
+    <div class="header-section">
+      <div class="wifi-circle">
+        <svg viewBox="0 0 24 24"><path d="M12 3C7.95 3 4.21 4.64 1.44 7.32L3 8.88C5.36 6.58 8.52 5.16 12 5.16C15.48 5.16 18.64 6.58 21 8.88L22.56 7.32C19.79 4.64 16.05 3 12 3ZM12 8C9.21 8 6.63 9.13 4.73 10.97L6.29 12.53C7.77 11.08 9.78 10.16 12 10.16C14.22 10.16 16.23 11.08 17.71 12.53L19.27 10.97C17.37 9.13 14.79 8 12 8ZM12 13C10.46 13 9.06 13.62 8.02 14.64L9.58 16.2C10.21 15.58 11.06 15.16 12 15.16C12.94 15.16 13.79 15.58 14.42 16.2L15.98 14.64C14.94 13.62 13.54 13 12 13ZM12 18C11.17 18 10.5 18.67 10.5 19.5C10.5 20.33 11.17 21 12 21C12.83 21 13.5 20.33 13.5 19.5C13.5 18.67 12.83 18 12 18Z"/></svg>
+      </div>
+      <div class="brand-title">Iscotech Express</div>
+      <div class="customer-care">Customer Care: 0746939408</div>
+      <div class="subline">Premium High-Speed Internet Access</div>
+    </div>
+
+    <!-- Main Portal Frame -->
+    <div class="portal-box">
+      <!-- Navigation Tabs -->
+      <div class="top-nav">
+        <div class="nav-item active">
+          <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg> Plans
+        </div>
+        <div class="nav-item" onclick="openModal('tv')">
+          <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg> TV
+        </div>
+        <div class="nav-item" onclick="openModal('voucher')">
+          <svg viewBox="0 0 24 24"><path d="M22 10V6c0-1.11-.9-2-2-2H4c-1.1 0-1.99.89-1.99 2v4c1.1 0 1.99.9 1.99 2s-.89 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-4c-1.1 0-2-.9-2-2s.9-2 2-2z"/></svg> Voucher
+        </div>
+        <div class="nav-item" onclick="openModal('sync')">
+          <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg> Sync
+        </div>
+        <div class="nav-item" onclick="openModal('admin')">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg> Login
+        </div>
+      </div>
+
+      <div class="section-heading">
+        <svg style="width:14px;height:14px;fill:#fbbf24;" viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+        Choose Your Package
+      </div>
+
+      <!-- Package Grid -->
+      <div class="cards-grid">
+        <div class="pkg-card">
+          <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg></div>
+          <div class="card-title">45 Mins Express</div>
+          <div class="card-speed"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg> Unlimited</div>
+          <div class="card-price">KSH 5</div>
+          <button class="btn-buy" onclick="openPay('45 Mins Express', 5)">Buy Now</button>
+        </div>
+
+        <div class="pkg-card">
+          <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg></div>
+          <div class="card-title">2 Hours Pass</div>
+          <div class="card-speed"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg> 5 Mbps</div>
+          <div class="card-price">KSH 10</div>
+          <button class="btn-buy" onclick="openPay('2 Hours Pass', 10)">Buy Now</button>
+        </div>
+
+        <div class="pkg-card popular">
+          <span class="badge-popular">POPULAR</span>
+          <div class="card-icon green"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg></div>
+          <div class="card-title">6 Hours Half-Day</div>
+          <div class="card-speed"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg> 10 Mbps</div>
+          <div class="card-price">KSH 20</div>
+          <button class="btn-buy" onclick="openPay('6 Hours Half-Day', 20)">Buy Now</button>
+        </div>
+
+        <div class="pkg-card">
+          <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg></div>
+          <div class="card-title">12 Hours Power Pass</div>
+          <div class="card-speed"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg> 10 Mbps</div>
+          <div class="card-price">KSH 30</div>
+          <button class="btn-buy" onclick="openPay('12 Hours Power Pass', 30)">Buy Now</button>
+        </div>
+
+        <div class="pkg-card">
+          <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg></div>
+          <div class="card-title">24 Hours (1 Day)</div>
+          <div class="card-speed"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg> Unlimited</div>
+          <div class="card-price">KSH 40</div>
+          <button class="btn-buy" onclick="openPay('24 Hours (1 Day)', 40)">Buy Now</button>
+        </div>
+
+        <div class="pkg-card">
+          <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg></div>
+          <div class="card-title">3 Days Pass</div>
+          <div class="card-speed"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg> 10 Mbps</div>
+          <div class="card-price">KSH 80</div>
+          <button class="btn-buy" onclick="openPay('3 Days Pass', 80)">Buy Now</button>
+        </div>
+
+        <div class="pkg-card">
+          <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg></div>
+          <div class="card-title">7 Days (1 Week)</div>
+          <div class="card-speed"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg> Unlimited</div>
+          <div class="card-price">KSH 200</div>
+          <button class="btn-buy" onclick="openPay('7 Days (1 Week)', 200)">Buy Now</button>
+        </div>
+
+        <div class="pkg-card">
+          <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg></div>
+          <div class="card-title">30 Days (1 Month)</div>
+          <div class="card-speed"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg> Unlimited</div>
+          <div class="card-price">KSH 580</div>
+          <button class="btn-buy" onclick="openPay('30 Days (1 Month)', 580)">Buy Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-note">Powered by Iscotech Express • All Rights Reserved</div>
+  </div>
+
+  <!-- STK Checkout Pop-up Screen -->
+  <div class="modal-overlay" id="modal-box">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal()">&times;</span>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    let activePackage = '';
+    let activePrice = 0;
+
+    function closeModal() {
+      document.getElementById('modal-box').style.display = 'none';
+    }
+
+    // Opens M-Pesa Phone Input Modal (Empty for user entry)
+    function openPay(pkgName, price) {
+      activePackage = pkgName;
+      activePrice = price;
+      const body = document.getElementById('modal-body');
+      body.innerHTML = `
+        <div class="modal-title">M-Pesa STK Payment</div>
+        <div class="modal-sub">Selected: <b>${pkgName}</b> (KSH ${price})</div>
+        <span class="phone-label">Enter Phone Number:</span>
+        <input type="tel" id="pay-phone" class="modal-input" placeholder="07XXXXXXXX" maxlength="10">
+        <button class="modal-btn" onclick="triggerSTK()">PAY KSH ${price}</button>
+        <div id="stk-box" class="stk-status">
+          📲 STK Push Sent!<br>Check your phone and enter M-Pesa PIN to connect...
+        </div>
+      `;
+      document.getElementById('modal-box').style.display = 'flex';
+    }
+
+    // Trigger STK Push Prompt
+    function triggerSTK() {
+      const phone = document.getElementById('pay-phone').value;
+      if (!phone || phone.length < 10) return alert('Please enter a valid 10-digit M-Pesa phone number.');
+      
+      const stkBox = document.getElementById('stk-box');
+      stkBox.style.display = 'block';
+      
+      setTimeout(() => {
+        alert(`STK Push Request sent to ${phone} for KSH ${activePrice}. Enter your M-Pesa PIN to complete payment.`);
+      }, 500);
+    }
+
+    function openModal(type) {
+      const body = document.getElementById('modal-body');
+      if (type === 'tv') {
+        body.innerHTML = `
+          <div class="modal-title">Connect Smart TV</div>
+          <div class="modal-sub">Enter Smart TV MAC Address</div>
+          <input type="text" class="modal-input" placeholder="e.g. AA:BB:CC:DD:EE:FF">
+          <button class="modal-btn" onclick="alert('Device MAC Linked!')">LINK DEVICE</button>
+        `;
+      } else if (type === 'voucher') {
+        body.innerHTML = `
+          <div class="modal-title">Have a Voucher?</div>
+          <div class="modal-sub">Enter voucher code below</div>
+          <input type="text" class="modal-input" placeholder="Enter Voucher Code">
+          <button class="modal-btn" onclick="alert('Voucher activated!')">CONNECT</button>
+        `;
+      } else if (type === 'sync') {
+        body.innerHTML = `
+          <div class="modal-title">Sync M-Pesa Payment</div>
+          <div class="modal-sub">Paste SMS code if delayed</div>
+          <input type="text" class="modal-input" placeholder="e.g. SHG87219XX">
+          <button class="modal-btn" onclick="alert('Code verified!')">SYNC & CONNECT</button>
+        `;
+      } else if (type === 'admin') {
+        body.innerHTML = `
+          <div class="modal-title">Admin System Login</div>
+          <div class="modal-sub">Iscotech Express Admin</div>
+          <input type="text" class="modal-input" placeholder="Username">
+          <input type="password" class="modal-input" placeholder="Password">
+          <button class="modal-btn" onclick="alert('Authenticating...')">LOGIN</button>
+        `;
+      }
+      document.getElementById('modal-box').style.display = 'flex';
+    }
+  </script>
+
+</body>
+  </html>
