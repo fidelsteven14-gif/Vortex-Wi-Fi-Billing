@@ -5,116 +5,177 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">Wi-Fi Hotspot Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glow-emerald {
+            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.3);
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col justify-between">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
+
+    <!-- Background Ambient Glow Effects -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute -top-40 -left-40 w-96 h-96 bg-emerald-600/15 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/2 -right-40 w-96 h-96 bg-cyan-600/10 rounded-full blur-3xl"></div>
+    </div>
 
     <!-- Attendant Login Modal -->
-    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
-            <h2 class="text-lg font-bold text-emerald-400 mb-2 text-center">Attendant Supervision Portal</h2>
-            <p class="text-xs text-gray-400 mb-4 text-center">Log in to view revenue & connected users</p>
+    <div id="login-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-card rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-700/50">
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto mb-3 text-emerald-400 font-bold text-xl border border-emerald-500/20">🛡️</div>
+                <h2 class="text-xl font-extrabold text-white tracking-tight">Supervisor Portal</h2>
+                <p class="text-xs text-slate-400 mt-1">Log in to oversee connected devices & MAC addresses</p>
+            </div>
             
-            <input type="text" id="login-user" placeholder="Username" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm mb-3 text-white focus:outline-none focus:border-emerald-500">
-            <input type="password" id="login-pass" placeholder="Password" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm mb-4 text-white focus:outline-none focus:border-emerald-500">
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Username</label>
+                    <input type="text" id="login-user" placeholder="e.g. elite_admin" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 transition">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Password</label>
+                    <input type="password" id="login-pass" placeholder="••••••••" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 transition">
+                </div>
+            </div>
             
-            <button onclick="handleAttendantLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg text-sm transition">
-                Access Dashboard
+            <button onclick="handleAttendantLogin()" class="w-full mt-6 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-extrabold py-3.5 rounded-xl text-sm transition shadow-lg shadow-emerald-500/20 active:scale-[0.98]">
+                Sign In to Dashboard
             </button>
-            <button onclick="closeLoginModal()" class="w-full mt-2 bg-transparent text-gray-400 text-xs py-2">Cancel</button>
-            <p id="login-error" class="text-red-400 text-xs text-center mt-3 hidden"></p>
+            <button onclick="closeLoginModal()" class="w-full mt-2 bg-transparent text-slate-400 hover:text-slate-200 text-xs py-2 font-medium transition">Cancel</button>
+            <p id="login-error" class="text-rose-400 text-xs text-center mt-3 font-medium hidden bg-rose-500/10 py-2 rounded-lg border border-rose-500/20"></p>
         </div>
     </div>
 
     <!-- Header / Branding -->
-    <header class="bg-gray-800 border-b border-gray-700 p-4 text-center flex justify-between items-center px-6">
+    <header class="relative z-10 glass-card border-b border-slate-800/80 px-6 py-4 flex justify-between items-center shadow-sm">
         <div>
-            <h1 id="business-name" class="text-lg font-bold tracking-wider text-emerald-400">Loading Hotspot...</h1>
-            <p class="text-xs text-gray-400">Support: <span id="customer-care" class="text-gray-200">--</span></p>
+            <h1 id="business-name" class="text-base font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">Loading Hotspot...</h1>
+            <p class="text-[11px] text-slate-400 font-medium">Customer Support: <span id="customer-care" class="text-slate-200 font-semibold">--</span></p>
         </div>
         <div id="header-action">
-            <button onclick="openLoginModal()" class="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded text-gray-300">Attendant Login</button>
+            <button onclick="openLoginModal()" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 px-3.5 py-2 rounded-xl border border-slate-700/60 transition shadow-sm flex items-center gap-1.5">
+                <span>🔐</span> Attendant
+            </button>
         </div>
     </header>
 
-    <!-- Main Container (Dynamic: Client Payment or Attendant Dashboard) -->
-    <main id="main-content" class="max-w-md mx-auto p-4 w-full flex-grow flex flex-col justify-center">
-        <!-- Client Payment View (Default) -->
-        <div id="client-view" class="bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-700">
-            <h2 class="text-md font-semibold mb-4 text-center">Select Internet Package</h2>
+    <!-- Main Container -->
+    <main class="relative z-10 max-w-md mx-auto p-4 w-full flex-grow flex flex-col justify-center">
+        <!-- Client Payment View -->
+        <div id="client-view" class="glass-card rounded-3xl p-6 shadow-2xl border border-slate-800/80">
+            <h2 class="text-lg font-bold mb-4 text-center tracking-tight">Select Internet Package</h2>
             
+            <!-- Packages List Container -->
             <div id="packages-container" class="space-y-3">
-                <p class="text-center text-gray-400 text-sm">Loading packages...</p>
+                <p class="text-center text-slate-400 text-sm py-2">Fetching available packages...</p>
             </div>
 
-            <div class="mt-6 border-t border-gray-700 pt-4">
-                <label class="block text-xs font-medium text-gray-300 mb-1">M-Pesa Phone Number</label>
-                <input type="tel" id="phone-input" placeholder="07XXXXXXXX" class="w-full bg-gray-900 border border-gray-600 rounded-lg p-3 text-white text-sm focus:outline-none focus:border-emerald-500">
+            <!-- Payment Form -->
+            <div class="mt-6 border-t border-slate-800 pt-4">
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">M-Pesa Phone Number</label>
+                <input type="tel" id="phone-input" placeholder="07XXXXXXXX" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl p-3.5 text-white text-sm focus:outline-none focus:border-emerald-500 transition">
                 
-                <button onclick="initiatePayment()" class="w-full mt-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg text-sm transition shadow-lg">
-                    Pay with M-Pesa
+                <button onclick="initiatePayment()" class="w-full mt-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-extrabold py-3.5 rounded-xl text-sm transition glow-emerald shadow-lg active:scale-[0.98]">
+                    Pay with M-Pesa STK Push
                 </button>
+            </div>
+
+            <!-- Voucher Section -->
+            <div class="mt-4 text-center">
+                <details class="text-xs text-slate-400">
+                    <summary class="cursor-pointer hover:text-white transition font-medium">Have a Voucher Code?</summary>
+                    <div class="mt-3 flex gap-2">
+                        <input type="text" id="voucher-input" placeholder="Enter code" class="flex-grow bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-emerald-500">
+                        <button onclick="redeemVoucher()" class="bg-slate-800 hover:bg-slate-700 px-4 py-2.5 rounded-xl text-xs text-white font-bold transition border border-slate-700">Redeem</button>
+                    </div>
+                </details>
             </div>
         </div>
 
-        <!-- Attendant Supervisor Dashboard View (Hidden until login) -->
-        <div id="dashboard-view" class="hidden space-y-4 w-full max-w-lg mx-auto py-4">
-            <div class="flex justify-between items-center bg-gray-800 p-4 rounded-xl border border-gray-700">
+        <!-- Attendant Supervisor Dashboard View -->
+        <div id="dashboard-view" class="hidden space-y-4 w-full max-w-lg mx-auto py-2">
+            <div class="flex justify-between items-center glass-card p-4 rounded-2xl border border-slate-800">
                 <div>
-                    <h3 class="text-sm font-bold text-emerald-400" id="dash-business-name">Hotspot Supervisor</h3>
-                    <p class="text-xs text-gray-400">Live Router Telemetry</p>
+                    <h3 class="text-sm font-extrabold text-emerald-400" id="dash-business-name">Hotspot Supervisor</h3>
+                    <p class="text-[11px] text-slate-400 font-medium">Live MAC Monitor & Revenue Tracking</p>
                 </div>
-                <button onclick="logoutAttendant()" class="text-xs bg-red-600 hover:bg-red-500 px-3 py-1 rounded">Logout</button>
+                <button onclick="logoutAttendant()" class="text-xs font-bold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 px-3.5 py-2 rounded-xl border border-rose-500/20 transition">Logout</button>
             </div>
 
-            <!-- Revenue Cards -->
+            <!-- Revenue Cards Grid -->
             <div class="grid grid-cols-2 gap-3">
-                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
-                    <div class="text-xs text-gray-400">Today Revenue</div>
-                    <div class="text-lg font-bold text-emerald-400 mt-1" id="rev-daily">KES 0</div>
+                <div class="glass-card p-4 rounded-2xl border border-slate-800">
+                    <div class="text-[11px] font-semibold text-slate-400 uppercase">Today Revenue</div>
+                    <div class="text-xl font-black text-emerald-400 mt-1" id="rev-daily">KES 0</div>
                 </div>
-                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
-                    <div class="text-xs text-gray-400">This Week</div>
-                    <div class="text-lg font-bold text-emerald-400 mt-1" id="rev-weekly">KES 0</div>
+                <div class="glass-card p-4 rounded-2xl border border-slate-800">
+                    <div class="text-[11px] font-semibold text-slate-400 uppercase">This Week</div>
+                    <div class="text-xl font-black text-emerald-400 mt-1" id="rev-weekly">KES 0</div>
                 </div>
-                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
-                    <div class="text-xs text-gray-400">This Month</div>
-                    <div class="text-lg font-bold text-emerald-400 mt-1" id="rev-monthly">KES 0</div>
+                <div class="glass-card p-4 rounded-2xl border border-slate-800">
+                    <div class="text-[11px] font-semibold text-slate-400 uppercase">This Month</div>
+                    <div class="text-xl font-black text-emerald-400 mt-1" id="rev-monthly">KES 0</div>
                 </div>
-                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
-                    <div class="text-xs text-gray-400">Active Devices</div>
-                    <div class="text-lg font-bold text-blue-400 mt-1" id="active-count">0 Connected</div>
+                <div class="glass-card p-4 rounded-2xl border border-slate-800">
+                    <div class="text-[11px] font-semibold text-slate-400 uppercase">Active Devices</div>
+                    <div class="text-xl font-black text-cyan-400 mt-1" id="active-count">0 Online</div>
                 </div>
             </div>
 
             <!-- Connected Users & MAC Table -->
-            <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                <h4 class="text-xs font-bold text-gray-300 mb-3 uppercase tracking-wider">Connected Devices & MAC Addresses</h4>
-                <div id="connected-users-list" class="space-y-2 max-h-48 overflow-y-auto text-xs">
-                    <p class="text-gray-500 text-center py-2">No active devices found.</p>
+            <div class="glass-card rounded-2xl p-4 border border-slate-800">
+                <h4 class="text-xs font-extrabold text-slate-300 mb-3 uppercase tracking-wider flex items-center gap-2">
+                    <span>💻</span> Connected Devices & MAC Addresses
+                </h4>
+                <div id="connected-users-list" class="space-y-2 max-h-48 overflow-y-auto text-xs pr-1">
+                    <p class="text-slate-500 text-center py-4">No active devices found.</p>
                 </div>
             </div>
 
-            <!-- Recent Transactions -->
-            <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                <h4 class="text-xs font-bold text-gray-300 mb-3 uppercase tracking-wider">Recent Transactions</h4>
-                <div id="transactions-list" class="space-y-2 max-h-40 overflow-y-auto text-xs">
-                    <p class="text-gray-500 text-center py-2">No transactions recorded yet.</p>
+            <!-- Recent Transactions & 5% Super Admin Commission -->
+            <div class="glass-card rounded-2xl p-4 border border-slate-800">
+                <h4 class="text-xs font-extrabold text-slate-300 mb-3 uppercase tracking-wider flex items-center gap-2">
+                    <span>💵</span> Recent Transactions (5% Super Admin Cut)
+                </h4>
+                <div id="transactions-list" class="space-y-2 max-h-40 overflow-y-auto text-xs pr-1">
+                    <p class="text-slate-500 text-center py-4">No transactions recorded yet.</p>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer class="text-center p-4 text-xs text-gray-500 border-t border-gray-800">
+    <!-- Footer -->
+    <footer class="relative z-10 text-center p-4 text-[11px] text-slate-500 border-t border-slate-900 font-medium">
         Powered by Vortex Multi-Tenant Billing Systems
     </footer>
 
+    <!-- JavaScript Logic -->
     <script>
         let selectedPackage = null;
-        let urlParams = new URLSearchParams(window.location.search);
-        let tenantId = localStorage.getItem('active_tenant') || urlParams.get('tenant') || 'router1';
-        let isAttendantLoggedIn = localStorage.getItem('attendant_logged_in') === 'true';
+        let tenantId = "router1"; // Default fallback
 
-        async function loadConfig() {
+        // Extract tenant parameter from URL (e.g. ?tenant=router2)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('tenant')) {
+            tenantId = urlParams.get('tenant');
+        }
+
+        let isAttendantLoggedIn = localStorage.getItem('attendant_logged_in') === 'true';
+        if (localStorage.getItem('active_tenant')) {
+            tenantId = localStorage.getItem('active_tenant');
+        }
+
+        // Fetch white-label configuration for this specific router/tenant on load
+        async function loadTenantConfig() {
             if (isAttendantLoggedIn) {
                 showDashboard();
                 return;
@@ -127,39 +188,40 @@
                 if (result.success && result.data) {
                     const data = result.data;
                     document.getElementById('business-name').innerText = data.businessName;
-                    document.getElementById('page-title').innerText = `${data.businessName} - Portal`;
+                    document.getElementById('page-title').innerText = `${data.businessName} - Hotspot Login`;
                     document.getElementById('customer-care').innerText = data.customerCare;
 
                     const container = document.getElementById('packages-container');
                     container.innerHTML = '';
 
-                    data.packages.forEach(pkg => {
+                    data.packages.forEach((pkg, index) => {
+                        if (index === 0) selectedPackage = pkg; // Default select first pkg
                         const div = document.createElement('div');
-                        div.className = `p-3 rounded-xl border cursor-pointer flex justify-between items-center transition ${selectedPackage?.id === pkg.id ? 'border-emerald-500 bg-gray-700' : 'border-gray-700 bg-gray-900 hover:border-gray-500'}`;
+                        div.className = `p-3.5 rounded-2xl border cursor-pointer flex justify-between items-center transition ${selectedPackage?.id === pkg.id ? 'border-emerald-500 bg-emerald-500/10' : 'border-slate-800 bg-slate-900/60 hover:border-slate-700'}`;
                         div.onclick = () => selectPkg(pkg, div);
                         div.innerHTML = `
                             <div>
                                 <div class="font-bold text-sm text-white">${pkg.name}</div>
-                                <div class="text-xs text-gray-400">High Speed</div>
+                                <div class="text-xs text-slate-400 font-medium">${pkg.speed || 'High Speed Uncapped'}</div>
                             </div>
-                            <div class="text-emerald-400 font-bold text-sm">KES ${pkg.price}</div>
+                            <div class="text-emerald-400 font-extrabold text-sm">KES ${pkg.price}</div>
                         `;
                         container.appendChild(div);
                     });
                 }
             } catch (err) {
-                console.error("Error loading config:", err);
+                console.error("Failed to load tenant configuration:", err);
             }
         }
 
         function selectPkg(pkg, element) {
             selectedPackage = pkg;
             document.querySelectorAll('#packages-container > div').forEach(el => {
-                el.classList.remove('border-emerald-500', 'bg-gray-700');
-                el.classList.add('border-gray-700', 'bg-gray-900');
+                el.classList.remove('border-emerald-500', 'bg-emerald-500/10');
+                el.classList.add('border-slate-800', 'bg-slate-900/60');
             });
-            element.classList.remove('border-gray-700', 'bg-gray-900');
-            element.classList.add('border-emerald-500', 'bg-gray-700');
+            element.classList.remove('border-slate-800', 'bg-slate-900/60');
+            element.classList.add('border-emerald-500', 'bg-emerald-500/10');
         }
 
         function openLoginModal() {
@@ -176,7 +238,7 @@
             const errEl = document.getElementById('login-error');
 
             if (!username || !password) {
-                errEl.innerText = "Fill in both fields.";
+                errEl.innerText = "Please enter both fields.";
                 errEl.classList.remove('hidden');
                 return;
             }
@@ -208,10 +270,12 @@
 
         function logoutAttendant() {
             localStorage.removeItem('attendant_logged_in');
+            localStorage.removeItem('active_tenant');
             isAttendantLoggedIn = false;
             document.getElementById('dashboard-view').classList.add('hidden');
             document.getElementById('client-view').classList.remove('hidden');
-            loadConfig();
+            document.getElementById('header-action').innerHTML = `<button onclick="openLoginModal()" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 px-3.5 py-2 rounded-xl border border-slate-700/60 transition shadow-sm flex items-center gap-1.5"><span>🔐</span> Attendant</button>`;
+            loadTenantConfig();
         }
 
         async function showDashboard() {
@@ -230,41 +294,41 @@
                     document.getElementById('rev-daily').innerText = `KES ${stats.revenue.daily}`;
                     document.getElementById('rev-weekly').innerText = `KES ${stats.revenue.weekly}`;
                     document.getElementById('rev-monthly').innerText = `KES ${stats.revenue.monthly}`;
-                    document.getElementById('active-count').innerText = `${stats.activeConnectionsCount} Connected`;
+                    document.getElementById('active-count').innerText = `${stats.activeConnectionsCount} Online`;
 
-                    // Render active users MAC addresses
+                    // Render connected devices with MAC addresses
                     const usersList = document.getElementById('connected-users-list');
                     if (stats.activeUsers.length > 0) {
                         usersList.innerHTML = stats.activeUsers.map(u => `
-                            <div class="flex justify-between items-center bg-gray-900 p-2 rounded border border-gray-700">
+                            <div class="flex justify-between items-center bg-slate-900/80 p-3 rounded-xl border border-slate-800">
                                 <div>
-                                    <span class="font-bold text-emerald-400">${u.user}</span>
-                                    <div class="text-gray-400 text-[10px]">MAC: ${u.mac || 'N/A'} | IP: ${u.ip}</div>
+                                    <span class="font-extrabold text-emerald-400">${u.user}</span>
+                                    <div class="text-slate-400 text-[10px] mt-0.5">MAC: <span class="text-slate-200 font-mono">${u.mac || 'N/A'}</span> | IP: ${u.ip}</div>
                                 </div>
-                                <span class="text-gray-400 text-[10px]">${u.uptime}</span>
+                                <span class="text-slate-400 text-[10px] font-mono bg-slate-800 px-2 py-1 rounded-lg">${u.uptime}</span>
                             </div>
                         `).join('');
                     } else {
-                        usersList.innerHTML = `<p class="text-gray-500 text-center py-2">No active devices currently online.</p>`;
+                        usersList.innerHTML = `<p class="text-slate-500 text-center py-4">No active devices currently online.</p>`;
                     }
 
-                    // Render transactions
+                    // Render recent transactions
                     const txList = document.getElementById('transactions-list');
                     if (stats.recentTransactions.length > 0) {
                         txList.innerHTML = stats.recentTransactions.map(tx => `
-                            <div class="flex justify-between items-center bg-gray-900 p-2 rounded border border-gray-700">
+                            <div class="flex justify-between items-center bg-slate-900/80 p-3 rounded-xl border border-slate-800">
                                 <div>
                                     <span class="font-bold text-white">${tx.phoneNumber}</span>
-                                    <div class="text-gray-400 text-[10px]">MAC: ${tx.macAddress}</div>
+                                    <div class="text-slate-400 text-[10px] mt-0.5">MAC: <span class="font-mono">${tx.macAddress}</span></div>
                                 </div>
                                 <div class="text-right">
-                                    <span class="text-emerald-400 font-bold">KES ${tx.amount}</span>
-                                    <div class="text-gray-500 text-[10px]">${new Date(tx.timestamp).toLocaleTimeString()}</div>
+                                    <span class="text-emerald-400 font-extrabold">KES ${tx.amount}</span>
+                                    <div class="text-slate-500 text-[10px]">${new Date(tx.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
                                 </div>
                             </div>
                         `).join('');
                     } else {
-                        txList.innerHTML = `<p class="text-gray-500 text-center py-2">No transactions recorded yet.</p>`;
+                        txList.innerHTML = `<p class="text-slate-500 text-center py-4">No transactions recorded yet.</p>`;
                     }
                 }
             } catch (e) {
@@ -274,24 +338,48 @@
 
         async function initiatePayment() {
             const phone = document.getElementById('phone-input').value.trim();
-            if (!phone) return alert('Enter M-Pesa phone number.');
-            if (!selectedPackage) return alert('Select a package.');
+            if (!phone) {
+                alert('Please enter your M-Pesa phone number.');
+                return;
+            }
+            if (!selectedPackage) {
+                alert('Please select an internet package first.');
+                return;
+            }
 
-            alert(`STK Push triggered for KES ${selectedPackage.price}.`);
+            alert(`STK Push sent to ${phone} for KES ${selectedPackage.price}. Complete payment on your phone to connect.`);
             
-            await fetch('/api/sync-transaction', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    phoneNumber: phone,
-                    amount: selectedPackage.price,
-                    macAddress: urlParams.get('mac') || 'unknown',
-                    tenant: tenantId
-                })
-            });
+            try {
+                await fetch('/api/sync-transaction', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phoneNumber: phone,
+                        amount: selectedPackage.price,
+                        macAddress: urlParams.get('mac') || 'unknown',
+                        tenant: tenantId
+                    })
+                });
+            } catch (e) {
+                console.error(e);
+            }
         }
 
-        loadConfig();
+        async function redeemVoucher() {
+            const code = document.getElementById('voucher-input').value.trim();
+            if (!code) return alert('Enter voucher code.');
+
+            const res = await fetch('/api/verify-voucher', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, macAddress: urlParams.get('mac') || 'unknown', domain: tenantId })
+            });
+            const data = await res.json();
+            alert(data.message);
+            if(data.success) location.reload();
+        }
+
+        loadTenantConfig();
     </script>
 </body>
 </html>
