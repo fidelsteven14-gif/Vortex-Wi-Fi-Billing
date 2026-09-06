@@ -44,10 +44,6 @@
                 <p id="header-subtitle" class="text-[11px] text-slate-400">vortex.spot</p>
             </div>
             <div class="flex items-center gap-2">
-                <!-- Attendant Supervisor Trigger Button -->
-                <button onclick="openLoginModal()" class="text-[11px] font-semibold bg-[#1e293b] hover:bg-[#334155] text-cyan-400 px-3 py-1.5 rounded-xl border border-cyan-500/30 transition shadow-sm flex items-center gap-1.5">
-                    <i class="fa-solid fa-shield-halved"></i> Attendant
-                </button>
                 <div class="bg-[#1e293b] p-2.5 rounded-full border border-cyan-500/30 text-cyan-400 shadow-inner">
                     <i class="fa-solid fa-wifi text-base"></i>
                 </div>
@@ -193,32 +189,50 @@
             </div>
         </section>
 
-        <!-- TAB CONTENT: LOGIN / REAL-TIME AUTHENTICATION PORTAL -->
+        <!-- TAB CONTENT: LOGIN / REAL-TIME AUTHENTICATION PORTAL (Dual-purpose: Attendant Supervisor & User Portal) -->
         <section id="tab-login" class="tab-content hidden">
-            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
-                <div class="text-center mb-4">
-                    <h2 class="text-sm font-bold text-cyan-400">Hotspot Account Portal</h2>
-                    <p id="auth-mode-subtitle" class="text-[11px] text-slate-400 mt-0.5">Enter your hotspot username and password to sign in or register automatically</p>
-                </div>
-                
-                <div class="space-y-3">
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Hotspot Username</label>
-                        <input type="text" id="auth-username" placeholder="e.g. vortex-wifi" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
-                    </div>
-                    
-                    <div id="password-field-container">
-                        <label class="block text-xs text-slate-400 mb-1">Password</label>
-                        <div class="relative">
-                            <input type="password" id="auth-pass" placeholder="Enter secure password" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 pr-10 text-xs text-white focus:outline-none focus:border-cyan-500">
-                            <button type="button" onclick="togglePasswordVisibility('auth-pass', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white text-xs">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
+            <div class="space-y-4">
+                <!-- Quick Attendant Supervisor Quick-Action Banner inside LOGIN tab -->
+                <div class="bg-gradient-to-r from-cyan-950/40 to-slate-900 border border-cyan-500/30 rounded-xl p-4 flex items-center justify-between shadow-lg">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-cyan-500/10 rounded-xl flex items-center justify-center text-cyan-400 border border-cyan-500/20">
+                            <i class="fa-solid fa-shield-halved text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-bold text-cyan-300">Attendant / Supervisor Portal</h3>
+                            <p class="text-[10px] text-slate-400">Manage live router telemetry, MACs & revenue</p>
                         </div>
                     </div>
+                    <button onclick="openLoginModal()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-[11px] px-3.5 py-2 rounded-xl transition shadow-md flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Login
+                    </button>
+                </div>
 
-                    <div id="action-buttons-container" class="space-y-2 pt-1">
-                        <button onclick="handlePrimaryAuthAction()" id="primary-auth-btn" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">Login</button>
+                <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
+                    <div class="text-center mb-4">
+                        <h2 class="text-sm font-bold text-white">Hotspot Account Portal</h2>
+                        <p id="auth-mode-subtitle" class="text-[11px] text-slate-400 mt-0.5">Enter your hotspot username and password to sign in or register automatically</p>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Hotspot Username</label>
+                            <input type="text" id="auth-username" placeholder="e.g. vortex-wifi" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        </div>
+                        
+                        <div id="password-field-container">
+                            <label class="block text-xs text-slate-400 mb-1">Password</label>
+                            <div class="relative">
+                                <input type="password" id="auth-pass" placeholder="Enter secure password" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 pr-10 text-xs text-white focus:outline-none focus:border-cyan-500">
+                                <button type="button" onclick="togglePasswordVisibility('auth-pass', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white text-xs">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="action-buttons-container" class="space-y-2 pt-1">
+                            <button onclick="handlePrimaryAuthAction()" id="primary-auth-btn" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">Login</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -879,6 +893,7 @@
         }
 
         function showAttendantDashboard() {
+            document.querySelectorAll('.tab-content').Error?.();
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById('tab-attendant-dash').classList.remove('hidden');
             document.getElementById('dash-business-name').innerText = hotspotBrandName;
