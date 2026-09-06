@@ -233,12 +233,12 @@
                     </div>
                 </div>
 
-                <!-- Admin Sub: Manual Routers Configuration (Synced with Hardware Label Specs) -->
+                <!-- Admin Sub: Manual Routers Configuration (Fully Editable Specs) -->
                 <div id="admin-sub-routers" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3 hidden">
-                    <h3 class="text-xs font-bold text-white mb-2">Hardware Router Setup (Tenda N301 Spec)</h3>
-                    <p class="text-[11px] text-slate-400">Configure your hardware nodes. You can customize the Wi-Fi Name (SSID) while maintaining the original hardware default credentials and MAC addresses from the device label.</p>
+                    <h3 class="text-xs font-bold text-white mb-2">Hardware Router Setup (Fully Editable Specs)</h3>
+                    <p class="text-[11px] text-slate-400">Configure your hardware nodes. You can now completely edit the Factory MAC Address, Default IP Address, and Factory SSID directly below.</p>
                     <div id="admin-router-list" class="space-y-3">
-                        <!-- Populated dynamically with exact router label data -->
+                        <!-- Populated dynamically with fully editable router specs -->
                     </div>
                     <button onclick="addNewRouterNode()" class="w-full bg-[#1e293b] hover:bg-[#334155] text-cyan-400 border border-cyan-500/30 font-medium py-2 rounded-lg text-xs transition">+ Add Router Node</button>
                 </div>
@@ -415,7 +415,7 @@
             { id: 8, name: "3days plan", speed: "5 Mbps", price: 100 }
         ];
 
-        // Updated Router Configuration mapped precisely from hardware label specs (Tenda N301)
+        // Fully Editable Router Configuration Specs (MAC Address, Default IP, Factory SSID)
         let routersList = JSON.parse(localStorage.getItem('vortex_routers_config')) || [
             { 
                 id: 1, 
@@ -551,26 +551,26 @@
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-[10px] text-slate-400">Router Model</label>
-                                <input type="text" value="${r.model}" disabled class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-slate-400 cursor-not-allowed">
+                                <input type="text" value="${r.model}" onchange="updateRouterField(${idx}, 'model', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white">
                             </div>
                             <div>
-                                <label class="block text-[10px] text-slate-400">Configurable Wi-Fi SSID Name</label>
+                                <label class="block text-[10px] text-slate-400">Factory SSID (Wi-Fi Name)</label>
                                 <input type="text" value="${r.ssid}" onchange="updateRouterField(${idx}, 'ssid', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white border-cyan-500/50">
                             </div>
                             <div>
-                                <label class="block text-[10px] text-slate-400">Hardware MAC Address (Locked)</label>
-                                <input type="text" value="${r.mac}" disabled class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-slate-400 font-mono cursor-not-allowed">
+                                <label class="block text-[10px] text-slate-400">Factory MAC Address</label>
+                                <input type="text" value="${r.mac}" onchange="updateRouterField(${idx}, 'mac', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white font-mono uppercase">
                             </div>
                             <div>
-                                <label class="block text-[10px] text-slate-400">Default Router IP Address</label>
-                                <input type="text" value="${r.ip}" disabled class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-slate-400 font-mono cursor-not-allowed">
+                                <label class="block text-[10px] text-slate-400">Default IP Address</label>
+                                <input type="text" value="${r.ip}" onchange="updateRouterField(${idx}, 'ip', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white font-mono">
                             </div>
                             <div class="col-span-2">
                                 <label class="block text-[10px] text-slate-400">Serial Number (S/N)</label>
-                                <input type="text" value="${r.serial}" disabled class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-slate-400 font-mono cursor-not-allowed">
+                                <input type="text" value="${r.serial}" onchange="updateRouterField(${idx}, 'serial', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white font-mono">
                             </div>
                         </div>
-                        <button onclick="saveRouterManualConfig(${idx})" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white py-1.5 rounded text-xs transition mt-1">Save SSID Configuration & Maintain Original Hardware Keys</button>
+                        <button onclick="saveRouterManualConfig(${idx})" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white py-1.5 rounded text-xs transition mt-1">Save Router Node Settings</button>
                     </div>
                 `;
             });
@@ -582,7 +582,7 @@
 
         function saveRouterManualConfig(idx) {
             localStorage.setItem('vortex_routers_config', JSON.stringify(routersList));
-            alert(`Router "${routersList[idx].name}" updated! New customizable SSID: "${routersList[idx].ssid}" saved while keeping original hardware MAC [${routersList[idx].mac}] and IP [${routersList[idx].ip}] locked.`);
+            alert(`Router "${routersList[idx].name}" updated successfully!\n- SSID: ${routersList[idx].ssid}\n- MAC: ${routersList[idx].mac}\n- IP: ${routersList[idx].ip}`);
         }
 
         function addNewRouterNode() {
@@ -590,7 +590,7 @@
                 id: Date.now(), 
                 model: "Tenda N301", 
                 name: `Router Node-${routersList.length + 1}`, 
-                ssid: `Tenda_NEW${Math.floor(Math.random()*10000)}`, 
+                ssid: `Tenda_${Math.floor(Math.random()*10000)}`, 
                 mac: "D8:32:14:XX:XX:XX", 
                 ip: "192.168.0.1", 
                 serial: "E0686019452000XXX", 
