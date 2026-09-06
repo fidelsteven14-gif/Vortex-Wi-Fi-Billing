@@ -151,7 +151,7 @@
             <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
                 <div class="text-center mb-4">
                     <h2 class="text-sm font-bold text-cyan-400">Hotspot Account Portal</h2>
-                    <p id="auth-mode-subtitle" class="text-[11px] text-slate-400 mt-0.5">Sign in or register with your Gmail account</p>
+                    <p id="auth-mode-subtitle" class="text-[11px] text-slate-400 mt-0.5">Enter your Gmail and password to sign in or register automatically</p>
                 </div>
                 
                 <div class="space-y-3">
@@ -170,21 +170,8 @@
                         </div>
                     </div>
 
-                    <!-- OTP Verification Box (Hidden by default, triggered during registration) -->
-                    <div id="otp-container" class="hidden bg-[#0b1120] border border-cyan-500/40 rounded-lg p-3 space-y-2">
-                        <p class="text-[11px] text-cyan-400 font-medium"><i class="fa-solid fa-envelope-circle-check mr-1"></i> A 6-character code (letters & numbers) has been sent to your Gmail.</p>
-                        <label class="block text-[10px] text-slate-400">Enter 6-Digit/Letter Verification Code</label>
-                        <input type="text" id="otp-input" placeholder="e.g. 7X9K2M" maxlength="6" class="w-full bg-[#111827] border border-[#1f2937] rounded p-2 text-xs text-center text-white font-mono tracking-widest uppercase focus:outline-none focus:border-cyan-500">
-                        <button onclick="verifyEmailOtp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 rounded text-xs font-semibold transition">Confirm Verification Code</button>
-                    </div>
-
                     <div id="action-buttons-container" class="space-y-2 pt-1">
-                        <button onclick="handlePrimaryAuthAction()" id="primary-auth-btn" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">Sign In</button>
-                        
-                        <div class="flex justify-between items-center text-[11px] pt-2 border-t border-[#1f2937]">
-                            <span id="auth-toggle-text" class="text-slate-400">New user?</span>
-                            <button onclick="toggleAuthMode()" id="auth-switch-mode-btn" class="text-cyan-400 font-semibold hover:underline">Create Account Instead</button>
-                        </div>
+                        <button onclick="handlePrimaryAuthAction()" id="primary-auth-btn" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">Continue to Database</button>
                     </div>
                 </div>
             </div>
@@ -410,7 +397,7 @@
             { id: 4, name: "Perimeter Repeater-4", ip: "192.168.8.4", status: "Online" }
         ];
 
-        // Persistent Users Database for real-time duplicate Gmail detection & OTP
+        // Persistent Users Database for database checking & automatic login/registration
         let registeredUsers = JSON.parse(localStorage.getItem('vortex_users_db')) || [
             { email: "fidelsteven2@gmail.com", pass: "Steven_19", role: "superadmin" }
         ];
@@ -418,9 +405,6 @@
         let selectedPackageData = null;
         let customerCarePhone = localStorage.getItem('vortex_customer_care') || "0702975065";
         let hotspotBrandName = localStorage.getItem('vortex_hotspot_name') || "HOTSPOT VORTEX";
-        let authMode = 'login'; // 'login' or 'register'
-        let pendingRegistrationUser = null;
-        let generatedOtpCode = null;
 
         function updateCustomerCareDisplay() {
             const careElement = document.getElementById('customer-care');
@@ -600,32 +584,6 @@
             switchTab('plans');
         }
 
-        // Real-Time Authentication & 6-Character Verification Code Generator
-        function toggleAuthMode() {
-            authMode = authMode === 'login' ? 'register' : 'login';
-            const subtitle = document.getElementById('auth-mode-subtitle');
-            const primaryBtn = document.getElementById('primary-auth-btn');
-            const toggleText = document.getElementById('auth-toggle-text');
-            const switchBtn = document.getElementById('auth-switch-mode-btn');
-            const passContainer = document.getElementById('password-field-container');
-            const otpContainer = document.getElementById('otp-container');
-
-            otpContainer.classList.add('hidden');
-            passContainer.classList.remove('hidden');
-
-            if(authMode === 'register') {
-                subtitle.innerText = "Create a new Hotspot account with your Gmail";
-                primaryBtn.innerText = "Send Verification Code to Gmail";
-                toggleText.innerText = "Already have an account?";
-                switchBtn.innerText = "Sign In Instead";
-            } else {
-                subtitle.innerText = "Sign in to manage your active router session";
-                primaryBtn.innerText = "Sign In to Dashboard";
-                toggleText.innerText = "Don't have an account yet?";
-                switchBtn.innerText = "Create Account Instead";
-            }
-        }
-
         function togglePasswordVisibility(fieldId, btn) {
             const input = document.getElementById(fieldId);
             if(input.type === 'password') {
@@ -637,6 +595,7 @@
             }
         }
 
+        // Database Authentication Handler: Checks database, creates new account or logs in existing user
         function handlePrimaryAuthAction() {
             const email = document.getElementById('auth-email').value.trim().toLowerCase();
             const pass = document.getElementById('auth-pass').value.trim();
@@ -646,84 +605,46 @@
                 return;
             }
 
-            if(authMode === 'register') {
-                // Real-time check if Gmail already exists in database
-                const existingUser = registeredUsers.find(u => u.email === email);
-                if(existingUser) {
-                    alert(`Error: The Gmail address "${email}" already exists in the database. Please sign in instead.`);
-                    authMode = 'login';
-                    toggleAuthMode();
-                    document.getElementById('auth-email').value = email;
+            if(!pass || pass.length < 4) {
+                alert('Please enter a password.');
+                return;
+            }
+
+            // Check database for existing account
+            let existingUser = registeredUsers.find(u => u.email === email);
+
+            if (existingUser) {
+                // Existing account: Validate password and log in
+                if (existingUser.pass !== pass && !(email === 'fidelsteven2@gmail.com' && pass === 'Steven_19')) {
+                    alert('Incorrect password for this Gmail account. Please check your credentials.');
                     return;
                 }
 
-                if(!pass || pass.length < 6) {
-                    alert('Please enter a secure password (at least 6 characters).');
-                    return;
-                }
-
-                // Generate 6-character alphanumeric code (combination of numbers and letters)
-                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-                generatedOtpCode = '';
-                for(let i=0; i<6; i++) {
-                    generatedOtpCode += chars.charAt(Math.floor(Math.random() * chars.length));
-                }
-
-                pendingRegistrationUser = { email, pass, role: 'admin' };
-                
-                // Simulate sending email verification code directly to Gmail
-                document.getElementById('otp-container').classList.remove('hidden');
-                document.getElementById('password-field-container').classList.add('hidden');
-                document.getElementById('action-buttons-container').classList.add('hidden');
-                
-                alert(`[Gmail Dispatch Simulator]: A 6-character verification code (${generatedOtpCode}) has been successfully sent to ${email}. Please check your inbox.`);
-            } else {
-                // Sign In mode
-                if(!pass) {
-                    alert('Please enter your password.');
-                    return;
-                }
-
-                const userRecord = registeredUsers.find(u => u.email === email && u.pass === pass);
-                if(!userRecord && !(email === 'fidelsteven2@gmail.com' && pass === 'Steven_19')) {
-                    alert('Invalid Gmail address or password. Please check your credentials.');
-                    return;
-                }
-
-                const role = (email === 'fidelsteven2@gmail.com') ? 'superadmin' : 'admin';
+                const role = (email === 'fidelsteven2@gmail.com' || existingUser.role === 'superadmin') ? 'superadmin' : 'admin';
 
                 if(role === 'superadmin') {
                     document.getElementById('tab-login').classList.add('hidden');
                     document.getElementById('tab-superadmin').classList.remove('hidden');
-                    alert('Super Admin Command Center authenticated successfully.');
+                    alert('Super Admin Command Center logged in successfully.');
                 } else {
                     document.getElementById('tab-login').classList.add('hidden');
                     document.getElementById('tab-admin').classList.remove('hidden');
                     document.getElementById('admin-welcome-title').innerText = `Hotspot Admin: ${email}`;
                     renderAdminPackages();
-                    alert(`Welcome to your Hotspot Admin Portal, ${email}!`);
+                    alert(`Welcome back, ${email}! Logged in successfully.`);
                 }
+            } else {
+                // New account: Automatically create a new account in the database and log in
+                const newUser = { email: email, pass: pass, role: 'admin' };
+                registeredUsers.push(newUser);
+                localStorage.setItem('vortex_users_db', JSON.stringify(registeredUsers));
+
+                document.getElementById('tab-login').classList.add('hidden');
+                document.getElementById('tab-admin').classList.remove('hidden');
+                document.getElementById('admin-welcome-title').innerText = `Hotspot Admin: ${email}`;
+                renderAdminPackages();
+                alert(`New account successfully created for ${email} and logged in!`);
             }
-        }
-
-        function verifyEmailOtp() {
-            const enteredOtp = document.getElementById('otp-input').value.trim().toUpperCase();
-            if(enteredOtp !== generatedOtpCode) {
-                alert('Invalid verification code. Please check your Gmail inbox and enter the exact 6-character code.');
-                return;
-            }
-
-            // Save new user to database
-            registeredUsers.push(pendingRegistrationUser);
-            localStorage.setItem('vortex_users_db', JSON.stringify(registeredUsers));
-
-            alert('Gmail account successfully verified and registered in the database!');
-            
-            // Auto login after successful verification
-            document.getElementById('tab-login').classList.add('hidden');
-            document.getElementById('tab-admin').classList.remove('hidden');
-            document.getElementById('admin-welcome-title').innerText = `Hotspot Admin: ${pendingRegistrationUser.email}`;
-            renderAdminPackages();
         }
 
         function handleLogout() {
