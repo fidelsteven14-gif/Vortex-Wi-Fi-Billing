@@ -171,7 +171,7 @@
                     </div>
 
                     <div id="action-buttons-container" class="space-y-2 pt-1">
-                        <button onclick="handlePrimaryAuthAction()" id="primary-auth-btn" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">Continue to Database</button>
+                        <button onclick="handlePrimaryAuthAction()" id="primary-auth-btn" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">Login</button>
                     </div>
                 </div>
             </div>
@@ -183,7 +183,7 @@
                 <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 flex justify-between items-center">
                     <div>
                         <h2 id="admin-welcome-title" class="text-xs font-bold text-cyan-400">Hotspot Admin Portal</h2>
-                        <p class="text-[10px] text-slate-400">Manage packages, routers, vouchers & MikroTik</p>
+                        <p class="text-[10px] text-slate-400">Manage packages, routers, custom vouchers & monetization</p>
                     </div>
                     <button onclick="handleLogout()" class="bg-red-500/20 text-red-400 hover:bg-red-500/30 text-[10px] font-bold px-3 py-1.5 rounded-lg transition">Logout</button>
                 </div>
@@ -196,12 +196,26 @@
                     <button onclick="switchAdminSub('mikrotik')" id="sub-btn-mikrotik" class="bg-[#111827] border border-[#1f2937] text-slate-300 py-2 rounded-lg transition">MikroTik</button>
                 </div>
 
-                <!-- Admin Sub: Packages -->
+                <!-- Admin Sub: Packages & Monetization -->
                 <div id="admin-sub-packages" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3">
-                    <h3 class="text-xs font-bold text-white mb-2">Edit Billing Packages</h3>
+                    <h3 class="text-xs font-bold text-white mb-2">Edit Billing Packages & Hotspot Monetization</h3>
                     <div id="admin-package-editor-list" class="space-y-2"></div>
                     <button onclick="addNewPackage()" class="w-full bg-[#1e293b] hover:bg-[#334155] text-cyan-400 border border-cyan-500/30 font-medium py-2 rounded-lg text-xs transition">+ Add New Package</button>
                     
+                    <!-- Hotspot Owner Monetization Settings -->
+                    <div class="border-t border-[#1f2937] pt-3 mt-3 space-y-3">
+                        <h3 class="text-xs font-bold text-white">Monetization & Payout Configuration</h3>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">M-Pesa Till / Paybill Number for Revenue Collection</label>
+                            <input type="text" id="admin-till-input" placeholder="e.g. 174379 or Business Till" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 mb-2">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Profit Share / Pricing Markup Rate (%)</label>
+                            <input type="number" id="admin-markup-input" value="100" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 mb-2">
+                        </div>
+                        <button onclick="saveMonetizationSettings()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2 rounded-lg text-xs transition">Save Monetization Settings</button>
+                    </div>
+
                     <!-- Customer Care Helpline Settings -->
                     <div class="border-t border-[#1f2937] pt-3 mt-3">
                         <h3 class="text-xs font-bold text-white mb-2">Customer Care / WhatsApp Helpline</h3>
@@ -219,37 +233,48 @@
                     </div>
                 </div>
 
-                <!-- Admin Sub: Routers Management -->
+                <!-- Admin Sub: Manual Routers Configuration -->
                 <div id="admin-sub-routers" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3 hidden">
-                    <h3 class="text-xs font-bold text-white mb-2">Hotspot Routers Fleet Management</h3>
-                    <div class="bg-[#0b1120] p-3 rounded-lg border border-[#1f2937] space-y-2">
-                        <label class="block text-[11px] text-slate-400">Total Active Routers Deployed</label>
-                        <div class="flex items-center gap-2">
-                            <input type="number" id="admin-router-count" value="4" min="1" class="w-24 bg-[#111827] border border-[#1f2937] rounded p-2 text-xs text-white text-center font-bold">
-                            <button onclick="saveRouterCount()" class="flex-1 bg-[#0891b2] hover:bg-[#0e7490] text-white py-2 rounded text-xs transition">Update Router Quota</button>
-                        </div>
+                    <h3 class="text-xs font-bold text-white mb-2">Manual Router Configuration & Credentials</h3>
+                    <p class="text-[11px] text-slate-400">Manually configure your hardware routers with required SSID, gateway IPs, and wireless security credentials.</p>
+                    <div id="admin-router-list" class="space-y-3">
+                        <!-- Populated dynamically with manual configuration fields -->
                     </div>
-                    <div id="admin-router-list" class="space-y-2">
-                        <!-- Populated dynamically -->
-                    </div>
-                    <button onclick="addNewRouterNode()" class="w-full bg-[#1e293b] hover:bg-[#334155] text-cyan-400 border border-cyan-500/30 font-medium py-2 rounded-lg text-xs transition">+ Register New Router Node</button>
+                    <button onclick="addNewRouterNode()" class="w-full bg-[#1e293b] hover:bg-[#334155] text-cyan-400 border border-cyan-500/30 font-medium py-2 rounded-lg text-xs transition">+ Add Router Node</button>
                 </div>
 
-                <!-- Admin Sub: Vouchers -->
+                <!-- Admin Sub: Vouchers (Updated with Custom Package Name & Long-Term Duration Generator) -->
                 <div id="admin-sub-vouchers" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3 hidden">
-                    <h3 class="text-xs font-bold text-white mb-2">Free Voucher Code Generator</h3>
+                    <h3 class="text-xs font-bold text-white mb-2">Custom Package & Long-Term Voucher Generator</h3>
+                    <p class="text-[11px] text-slate-400 mb-2">Manually type any package name and choose or type any duration (including multi-year passes like 2 years or 5 years).</p>
+                    
                     <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">Quantity of Vouchers</label>
-                        <input type="number" id="voucher-gen-qty" value="5" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        <label class="block text-[11px] text-slate-400 mb-1">Custom Package Name</label>
+                        <input type="text" id="voucher-custom-pkg-name" placeholder="e.g. VIP 2-Year Unlimited Pass" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
                     </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Duration Value</label>
+                            <input type="number" id="voucher-duration-val" value="2" min="1" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Duration Unit</label>
+                            <select id="voucher-duration-unit" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                                <option value="Hours">Hours</option>
+                                <option value="Days">Days</option>
+                                <option value="Months">Months</option>
+                                <option value="Years" selected>Years (e.g. 2 or 5 Years)</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">Package Assignment</label>
-                        <select id="voucher-gen-pkg" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
-                            <option>NDOVU 12hrs (KSH 35)</option>
-                            <option>JINICE 24hrs (KSH 50)</option>
-                        </select>
+                        <label class="block text-[11px] text-slate-400 mb-1">Quantity of Vouchers to Generate</label>
+                        <input type="number" id="voucher-gen-qty" value="5" min="1" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
                     </div>
-                    <button onclick="generateFreeVouchers()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition">Generate & Export Vouchers</button>
+
+                    <button onclick="generateCustomVouchers()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">Generate Custom Vouchers</button>
                     <div id="generated-vouchers-output" class="bg-[#0b1120] p-3 rounded-lg text-[11px] text-slate-300 font-mono mt-2 hidden"></div>
                 </div>
 
@@ -390,11 +415,9 @@
             { id: 8, name: "3days plan", speed: "5 Mbps", price: 100 }
         ];
 
-        let routersList = [
-            { id: 1, name: "Main Gateway AP-1", ip: "192.168.8.1", status: "Online" },
-            { id: 2, name: "Sub-Station Hub-2", ip: "192.168.8.2", status: "Online" },
-            { id: 3, name: "Gendia Sector Node-3", ip: "192.168.8.3", status: "Online" },
-            { id: 4, name: "Perimeter Repeater-4", ip: "192.168.8.4", status: "Online" }
+        let routersList = JSON.parse(localStorage.getItem('vortex_routers_config')) || [
+            { id: 1, name: "Main Gateway AP-1", ssid: "Hotspot_Vortex_01", ip: "192.168.8.1", gateway: "192.168.8.254", password: "vortex_secure_pass1", channel: "Auto (6)", status: "Configured" },
+            { id: 2, name: "Sub-Station Hub-2", ssid: "Hotspot_Vortex_02", ip: "192.168.8.2", gateway: "192.168.8.254", password: "vortex_secure_pass2", channel: "11", status: "Configured" }
         ];
 
         // Persistent Users Database for database checking & automatic login/registration
@@ -405,6 +428,8 @@
         let selectedPackageData = null;
         let customerCarePhone = localStorage.getItem('vortex_customer_care') || "0702975065";
         let hotspotBrandName = localStorage.getItem('vortex_hotspot_name') || "HOTSPOT VORTEX";
+        let monetizationTill = localStorage.getItem('vortex_monetization_till') || "174379";
+        let monetizationMarkup = localStorage.getItem('vortex_monetization_markup') || "100";
 
         function updateCustomerCareDisplay() {
             const careElement = document.getElementById('customer-care');
@@ -415,6 +440,10 @@
             if (titleElement) titleElement.innerText = `Sign in to ${hotspotBrandName}`;
             const nameInput = document.getElementById('admin-custom-hotspot-name');
             if (nameInput) nameInput.value = hotspotBrandName;
+            const tillInput = document.getElementById('admin-till-input');
+            if (tillInput) tillInput.value = monetizationTill;
+            const markupInput = document.getElementById('admin-markup-input');
+            if (markupInput) markupInput.value = monetizationMarkup;
         }
 
         function saveCustomerCareNumber() {
@@ -441,6 +470,20 @@
             alert('Hotspot name updated successfully!');
         }
 
+        function saveMonetizationSettings() {
+            const tillVal = document.getElementById('admin-till-input').value.trim();
+            const markupVal = document.getElementById('admin-markup-input').value.trim();
+            if (!tillVal) {
+                alert('Please enter a valid M-Pesa Till or Paybill number.');
+                return;
+            }
+            monetizationTill = tillVal;
+            monetizationMarkup = markupVal;
+            localStorage.setItem('vortex_monetization_till', monetizationTill);
+            localStorage.setItem('vortex_monetization_markup', monetizationMarkup);
+            alert(`Monetization updated! Revenue will route to Till: ${monetizationTill} with ${monetizationMarkup}% pricing markup.`);
+        }
+
         function openWhatsAppChat() {
             let formattedNumber = customerCarePhone.replace(/^0/, '');
             window.open(`https://wa.me/254${formattedNumber}?text=Hello,%20I%20need%20help%20with%20my%20${encodeURIComponent(hotspotBrandName)}%20internet%20connection.`, '_blank');
@@ -451,6 +494,7 @@
             if (!grid) return;
             grid.innerHTML = '';
             packages.forEach(pkg => {
+                let adjustedPrice = Math.round(pkg.price * (parseFloat(monetizationMarkup) / 100));
                 grid.innerHTML += `
                     <div class="bg-[#111827] border ${pkg.popular ? 'border-emerald-500/50' : 'border-[#1f2937]'} rounded-xl p-3.5 flex flex-col justify-between relative shadow-md">
                         ${pkg.popular ? '<span class="absolute -top-2.5 right-3 bg-emerald-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">POPULAR</span>' : ''}
@@ -459,8 +503,8 @@
                             <div class="text-[11px] text-slate-400 mb-3 flex items-center gap-1.5"><i class="fa-solid fa-gauge-high text-[10px]"></i> ${pkg.speed}</div>
                         </div>
                         <div>
-                            <div class="text-base font-extrabold text-white mb-2">KSH ${pkg.price}</div>
-                            <button onclick="openPaymentPage('${pkg.name}', ${pkg.price})" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-1.5 rounded-lg text-xs transition shadow-md">Buy Now</button>
+                            <div class="text-base font-extrabold text-white mb-2">KSH ${adjustedPrice}</div>
+                            <button onclick="openPaymentPage('${pkg.name}', ${adjustedPrice})" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-1.5 rounded-lg text-xs transition shadow-md">Buy Now</button>
                         </div>
                     </div>
                 `;
@@ -486,43 +530,56 @@
 
         function renderAdminRouters() {
             const rList = document.getElementById('admin-router-list');
-            const countInput = document.getElementById('admin-router-count');
-            if (countInput) countInput.value = routersList.length;
             if (!rList) return;
             rList.innerHTML = '';
             routersList.forEach((r, idx) => {
                 rList.innerHTML += `
-                    <div class="bg-[#0b1120] p-2.5 rounded-lg border border-[#1f2937] flex justify-between items-center text-xs">
-                        <div>
-                            <p class="font-bold text-cyan-400">${r.name}</p>
-                            <p class="text-[10px] text-slate-400">IP: ${r.ip} • Status: <span class="text-emerald-400">${r.status}</span></p>
+                    <div class="bg-[#0b1120] p-3 rounded-lg border border-[#1f2937] space-y-2 text-xs">
+                        <div class="flex justify-between items-center">
+                            <input type="text" value="${r.name}" onchange="updateRouterField(${idx}, 'name', this.value)" class="bg-[#111827] border border-[#1f2937] rounded p-1 text-cyan-400 font-bold w-2/3">
+                            <button onclick="deleteRouter(${idx})" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash"></i> Delete</button>
                         </div>
-                        <button onclick="deleteRouter(${idx})" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash"></i></button>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] text-slate-400">Wi-Fi SSID Name</label>
+                                <input type="text" value="${r.ssid}" onchange="updateRouterField(${idx}, 'ssid', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400">Router IP Address</label>
+                                <input type="text" value="${r.ip}" onchange="updateRouterField(${idx}, 'ip', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400">Default Gateway</label>
+                                <input type="text" value="${r.gateway}" onchange="updateRouterField(${idx}, 'gateway', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400">Wireless Password / Key</label>
+                                <input type="text" value="${r.password}" onchange="updateRouterField(${idx}, 'password', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white">
+                            </div>
+                        </div>
+                        <button onclick="saveRouterManualConfig(${idx})" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white py-1.5 rounded text-xs transition mt-1">Apply Manual Configuration</button>
                     </div>
                 `;
             });
         }
 
-        function saveRouterCount() {
-            const count = parseInt(document.getElementById('admin-router-count').value);
-            if (isNaN(count) || count < 1) return;
-            while(routersList.length < count) {
-                routersList.push({ id: Date.now() + routersList.length, name: `Router Node-${routersList.length + 1}`, ip: `192.168.8.${routersList.length + 1}`, status: "Online" });
-            }
-            while(routersList.length > count) {
-                routersList.pop();
-            }
-            renderAdminRouters();
-            alert(`Router count updated successfully to ${count} active nodes!`);
+        function updateRouterField(idx, field, val) {
+            routersList[idx][field] = val;
+        }
+
+        function saveRouterManualConfig(idx) {
+            localStorage.setItem('vortex_routers_config', JSON.stringify(routersList));
+            alert(`Router "${routersList[idx].name}" manually configured with SSID: ${routersList[idx].ssid} and IP: ${routersList[idx].ip}!`);
         }
 
         function addNewRouterNode() {
-            routersList.push({ id: Date.now(), name: `Router Node-${routersList.length + 1}`, ip: `192.168.8.${routersList.length + 1}`, status: "Online" });
+            routersList.push({ id: Date.now(), name: `Router Node-${routersList.length + 1}`, ssid: `Hotspot_Vortex_0${routersList.length + 1}`, ip: `192.168.8.${routersList.length + 1}`, gateway: "192.168.8.254", password: "vortex_pass", channel: "Auto", status: "Configured" });
             renderAdminRouters();
         }
 
         function deleteRouter(idx) {
             routersList.splice(idx, 1);
+            localStorage.setItem('vortex_routers_config', JSON.stringify(routersList));
             renderAdminRouters();
         }
 
@@ -563,7 +620,7 @@
                 alert('Please enter a valid M-Pesa phone number.');
                 return;
             }
-            alert(`STK Push prompt successfully sent to +254${phone} for ${selectedPackageData.name} (KSH ${selectedPackageData.price}). Enter PIN to complete.`);
+            alert(`STK Push prompt successfully sent to +254${phone} for ${selectedPackageData.name} (KSH ${selectedPackageData.price}) routed to Till ${monetizationTill}. Enter PIN to complete.`);
             switchTab('plans');
         }
 
@@ -595,7 +652,7 @@
             }
         }
 
-        // Database Authentication Handler: Checks database, creates new account or logs in existing user
+        // Database Authentication Handler: Checks database, creates new account or logs in existing user upon clicking Login
         function handlePrimaryAuthAction() {
             const email = document.getElementById('auth-email').value.trim().toLowerCase();
             const pass = document.getElementById('auth-pass').value.trim();
@@ -669,15 +726,21 @@
             });
         }
 
-        function generateFreeVouchers() {
+        // Updated Custom Package & Long-Term Voucher Generator (Supports multi-year durations e.g., 2 years, 5 years)
+        function generateCustomVouchers() {
+            const customPkgName = document.getElementById('voucher-custom-pkg-name').value.trim() || "Custom Unlimited Pass";
+            const durationVal = document.getElementById('voucher-duration-val').value;
+            const durationUnit = document.getElementById('voucher-duration-unit').value;
             const qty = document.getElementById('voucher-gen-qty').value;
             const output = document.getElementById('generated-vouchers-output');
+
             output.classList.remove('hidden');
             let codes = [];
             for(let i=0; i<qty; i++) {
                 codes.push(`VORTEX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`);
             }
-            output.innerHTML = `<b>Generated ${qty} Free Vouchers:</b><br>` + codes.join('<br>');
+
+            output.innerHTML = `<b>Generated ${qty} Vouchers for "${customPkgName}"</b><br><span class="text-cyan-400">Validity / Duration: ${durationVal} ${durationUnit}</span><br><br>` + codes.join('<br>');
         }
 
         function verifyVoucherCode() {
