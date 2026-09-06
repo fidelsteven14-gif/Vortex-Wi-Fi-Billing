@@ -42,8 +42,8 @@
     <main class="max-w-md mx-auto p-4">
 
         <!-- Customer Care Banner -->
-        <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 mb-5 text-center shadow-md">
-            <p class="text-[11px] text-slate-400 tracking-wider">Customer Care: <span id="customer-care" class="text-cyan-400 font-bold">0702975065</span></p>
+        <div onclick="openWhatsAppChat()" class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 mb-5 text-center shadow-md cursor-pointer hover:border-cyan-500/50 transition">
+            <p class="text-[11px] text-slate-400 tracking-wider">Customer Care <span class="text-[10px] text-cyan-400">(Tap to Chat)</span>: <span id="customer-care" class="text-cyan-400 font-bold">0702975065</span></p>
             <p class="text-[11px] text-slate-400 mt-1 font-medium">Premium High-Speed Internet Access</p>
         </div>
 
@@ -153,6 +153,14 @@
                     <h3 class="text-xs font-bold text-white mb-2">Edit Billing Packages</h3>
                     <div id="admin-package-editor-list" class="space-y-2"></div>
                     <button onclick="addNewPackage()" class="w-full bg-[#1e293b] hover:bg-[#334155] text-cyan-400 border border-cyan-500/30 font-medium py-2 rounded-lg text-xs transition">+ Add New Package</button>
+                    
+                    <!-- CUSTOMER CARE HELPLINE SETTINGS BOX -->
+                    <div class="border-t border-[#1f2937] pt-3 mt-3">
+                        <h3 class="text-xs font-bold text-white mb-2">Customer Care / WhatsApp Helpline</h3>
+                        <label class="block text-[11px] text-slate-400 mb-1">WhatsApp Phone Number</label>
+                        <input type="text" id="admin-custom-phone" placeholder="0702975065" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 mb-2">
+                        <button onclick="saveCustomerCareNumber()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2 rounded-lg text-xs transition">Save Helpline Number</button>
+                    </div>
                 </div>
 
                 <!-- Admin Sub: Vouchers -->
@@ -342,6 +350,37 @@
         let generatedOtpCode = "4912";
         let registeredUsers = [];
 
+        // Customer Care Phone State (Loads from localStorage if previously changed by admin)
+        let customerCarePhone = localStorage.getItem('vortex_customer_care') || "0702975065";
+
+        function updateCustomerCareDisplay() {
+            const careElement = document.getElementById('customer-care');
+            if (careElement) {
+                careElement.innerText = customerCarePhone;
+            }
+            const phoneInput = document.getElementById('admin-custom-phone');
+            if (phoneInput) {
+                phoneInput.value = customerCarePhone;
+            }
+        }
+
+        function saveCustomerCareNumber() {
+            const inputVal = document.getElementById('admin-custom-phone').value.trim();
+            if (!inputVal || inputVal.length < 9) {
+                alert('Please enter a valid phone number.');
+                return;
+            }
+            customerCarePhone = inputVal;
+            localStorage.setItem('vortex_customer_care', customerCarePhone);
+            updateCustomerCareDisplay();
+            alert('Customer care WhatsApp helpline updated successfully!');
+        }
+
+        function openWhatsAppChat() {
+            let formattedNumber = customerCarePhone.replace(/^0/, '');
+            window.open(`https://wa.me/254${formattedNumber}?text=Hello,%20I%20need%20help%20with%20my%20Hotspot%20Vortex%20internet%20connection.`, '_blank');
+        }
+
         function renderPackages() {
             const grid = document.getElementById('package-grid');
             grid.innerHTML = '';
@@ -374,6 +413,7 @@
                     </div>
                 `;
             });
+            updateCustomerCareDisplay();
         }
 
         function updatePkgName(index, val) { packages[index].name = val; renderPackages(); }
@@ -609,6 +649,7 @@
 
         // Initialize App
         renderPackages();
+        updateCustomerCareDisplay();
     </script>
 </body>
 </html>
