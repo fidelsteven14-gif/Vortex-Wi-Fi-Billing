@@ -151,13 +151,13 @@
             <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
                 <div class="text-center mb-4">
                     <h2 class="text-sm font-bold text-cyan-400">Hotspot Account Portal</h2>
-                    <p id="auth-mode-subtitle" class="text-[11px] text-slate-400 mt-0.5">Enter your Gmail and password to sign in or register automatically</p>
+                    <p id="auth-mode-subtitle" class="text-[11px] text-slate-400 mt-0.5">Enter your hotspot username and password to sign in or register automatically</p>
                 </div>
                 
                 <div class="space-y-3">
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Gmail Address</label>
-                        <input type="email" id="auth-email" placeholder="username@gmail.com" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        <label class="block text-xs text-slate-400 mb-1">Hotspot Username</label>
+                        <input type="text" id="auth-username" placeholder="e.g. vortex-wifi" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
                     </div>
                     
                     <div id="password-field-container">
@@ -358,14 +358,14 @@
                         <div class="bg-[#0b1120] p-2.5 rounded-lg flex justify-between items-center border border-[#1f2937]">
                             <div>
                                 <p class="font-bold text-cyan-400">Steven Fidel (Super Admin)</p>
-                                <p class="text-[10px] text-slate-400">fidelsteven2@gmail.com</p>
+                                <p class="text-[10px] text-slate-400">vortex-admin</p>
                             </div>
                             <span class="text-xs text-emerald-400 font-mono">0702975065</span>
                         </div>
                         <div class="bg-[#0b1120] p-2.5 rounded-lg flex justify-between items-center border border-[#1f2937]">
                             <div>
                                 <p class="font-bold text-white">Alexia Web Hotspot</p>
-                                <p class="text-[10px] text-slate-400">alexia@vortex.spot</p>
+                                <p class="text-[10px] text-slate-400">alexia-wifi</p>
                             </div>
                             <span class="text-xs text-slate-300 font-mono">0712345678</span>
                         </div>
@@ -429,9 +429,9 @@
             }
         ];
 
-        // Persistent Users Database for database checking & automatic login/registration
+        // Persistent Users Database for database checking & automatic login/registration using Hotspot Username
         let registeredUsers = JSON.parse(localStorage.getItem('vortex_users_db')) || [
-            { email: "fidelsteven2@gmail.com", pass: "Steven_19", role: "superadmin" }
+            { username: "vortex-admin", pass: "Steven_19", role: "superadmin" }
         ];
 
         let selectedPackageData = null;
@@ -674,13 +674,13 @@
             }
         }
 
-        // Database Authentication Handler
+        // Database Authentication Handler using Hotspot Username
         function handlePrimaryAuthAction() {
-            const email = document.getElementById('auth-email').value.trim().toLowerCase();
+            const username = document.getElementById('auth-username').value.trim().toLowerCase();
             const pass = document.getElementById('auth-pass').value.trim();
 
-            if(!email || !email.includes('@')) {
-                alert('Please enter a valid Gmail address.');
+            if(!username || username.length < 2) {
+                alert('Please enter a valid hotspot username.');
                 return;
             }
 
@@ -689,15 +689,15 @@
                 return;
             }
 
-            let existingUser = registeredUsers.find(u => u.email === email);
+            let existingUser = registeredUsers.find(u => u.username === username);
 
             if (existingUser) {
-                if (existingUser.pass !== pass && !(email === 'fidelsteven2@gmail.com' && pass === 'Steven_19')) {
-                    alert('Incorrect password for this Gmail account. Please check your credentials.');
+                if (existingUser.pass !== pass && !(username === 'vortex-admin' && pass === 'Steven_19')) {
+                    alert('Incorrect password for this hotspot account. Please check your credentials.');
                     return;
                 }
 
-                const role = (email === 'fidelsteven2@gmail.com' || existingUser.role === 'superadmin') ? 'superadmin' : 'admin';
+                const role = (username === 'vortex-admin' || existingUser.role === 'superadmin') ? 'superadmin' : 'admin';
 
                 if(role === 'superadmin') {
                     document.getElementById('tab-login').classList.add('hidden');
@@ -706,20 +706,20 @@
                 } else {
                     document.getElementById('tab-login').classList.add('hidden');
                     document.getElementById('tab-admin').classList.remove('hidden');
-                    document.getElementById('admin-welcome-title').innerText = `Hotspot Admin: ${email}`;
+                    document.getElementById('admin-welcome-title').innerText = `Hotspot Admin: ${username}`;
                     renderAdminPackages();
-                    alert(`Welcome back, ${email}! Logged in successfully.`);
+                    alert(`Welcome back, ${username}! Logged in successfully.`);
                 }
             } else {
-                const newUser = { email: email, pass: pass, role: 'admin' };
+                const newUser = { username: username, pass: pass, role: 'admin' };
                 registeredUsers.push(newUser);
                 localStorage.setItem('vortex_users_db', JSON.stringify(registeredUsers));
 
                 document.getElementById('tab-login').classList.add('hidden');
                 document.getElementById('tab-admin').classList.remove('hidden');
-                document.getElementById('admin-welcome-title').innerText = `Hotspot Admin: ${email}`;
+                document.getElementById('admin-welcome-title').innerText = `Hotspot Admin: ${username}`;
                 renderAdminPackages();
-                alert(`New account successfully created for ${email} and logged in!`);
+                alert(`New hotspot account "${username}" successfully created and logged in!`);
             }
         }
 
