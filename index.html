@@ -119,14 +119,38 @@
             </div>
         </section>
 
-        <!-- TAB CONTENT: LOGIN / REGISTER -->
+        <!-- TAB CONTENT: LOGIN ONLY -->
         <section id="tab-login" class="tab-content hidden">
             <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
-                <div class="flex border-b border-[#1f2937] mb-4 text-xs font-semibold">
-                    <button id="btn-mode-signin" onclick="setAuthMode('signin')" class="flex-1 pb-2 text-cyan-400 border-b-2 border-cyan-400 transition">Sign In</button>
-                    <button id="btn-mode-signup" onclick="setAuthMode('signup')" class="flex-1 pb-2 text-slate-400 hover:text-slate-200 transition">Create Account</button>
+                <div class="text-center mb-4">
+                    <h2 class="text-sm font-bold text-cyan-400">Hotspot Login Portal</h2>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Sign in to manage your active router session</p>
                 </div>
-                <div id="auth-form-container"></div>
+                
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Email or Username</label>
+                        <input type="text" id="signin-user" placeholder="name@gmail.com or username" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Password</label>
+                        <div class="relative">
+                            <input type="password" id="signin-pass" placeholder="Enter password" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 pr-10 text-xs text-white focus:outline-none focus:border-cyan-500">
+                            <button type="button" onclick="togglePasswordVisibility('signin-pass', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white text-xs">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button onclick="handleSignIn()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition mt-2">Sign In to Dashboard</button>
+                    
+                    <!-- External Registration Redirect Link -->
+                    <div class="border-t border-[#1f2937] pt-3 mt-4 text-center">
+                        <p class="text-[11px] text-slate-400">Don't have an account yet?</p>
+                        <a href="https://vortex.spot/register" target="_blank" class="inline-block mt-2 w-full bg-[#1e293b] hover:bg-[#334155] text-cyan-400 border border-cyan-500/30 font-medium py-2 rounded-lg text-xs transition">
+                            Create Account <i class="fa-solid fa-external-link text-[10px] ml-1"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -160,6 +184,14 @@
                         <label class="block text-[11px] text-slate-400 mb-1">WhatsApp Phone Number</label>
                         <input type="text" id="admin-custom-phone" placeholder="0702975065" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 mb-2">
                         <button onclick="saveCustomerCareNumber()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2 rounded-lg text-xs transition">Save Helpline Number</button>
+                    </div>
+
+                    <!-- HOTSPOT NAME SETTINGS BOX -->
+                    <div class="border-t border-[#1f2937] pt-3 mt-3">
+                        <h3 class="text-xs font-bold text-white mb-2">Hotspot Branding Name</h3>
+                        <label class="block text-[11px] text-slate-400 mb-1">Hotspot Network Name</label>
+                        <input type="text" id="admin-custom-hotspot-name" placeholder="HOTSPOT VORTEX" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 mb-2">
+                        <button onclick="saveHotspotName()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2 rounded-lg text-xs transition">Save Hotspot Name</button>
                     </div>
                 </div>
 
@@ -311,28 +343,6 @@
         </div>
     </nav>
 
-    <!-- Modal for 4-Digit Google/Email Code Verification -->
-    <div id="otp-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5 max-w-sm w-full text-center shadow-xl">
-            <div class="text-cyan-400 text-xl mb-2"><i class="fa-solid fa-envelope-circle-check"></i></div>
-            <h3 class="text-sm font-bold text-white mb-1">Google Verification Code</h3>
-            <p class="text-[11px] text-slate-400 mb-2">Simulated email dispatch sent to <span id="target-email-display" class="text-cyan-300 font-semibold">your email</span>.</p>
-            <div class="bg-cyan-500/10 border border-cyan-500/30 rounded p-2 mb-4 text-cyan-300 text-[11px] font-mono">
-                Your 4-Digit Code is: <b id="simulated-code-badge" class="text-white tracking-widest text-sm">4912</b>
-            </div>
-            
-            <div class="flex justify-center gap-2 mb-4">
-                <input type="text" maxlength="1" class="otp-input w-10 h-10 text-center bg-[#0b1120] border border-[#1f2937] rounded-lg text-white font-bold text-sm focus:border-cyan-500 focus:outline-none" />
-                <input type="text" maxlength="1" class="otp-input w-10 h-10 text-center bg-[#0b1120] border border-[#1f2937] rounded-lg text-white font-bold text-sm focus:border-cyan-500 focus:outline-none" />
-                <input type="text" maxlength="1" class="otp-input w-10 h-10 text-center bg-[#0b1120] border border-[#1f2937] rounded-lg text-white font-bold text-sm focus:border-cyan-500 focus:outline-none" />
-                <input type="text" maxlength="1" class="otp-input w-10 h-10 text-center bg-[#0b1120] border border-[#1f2937] rounded-lg text-white font-bold text-sm focus:border-cyan-500 focus:outline-none" />
-            </div>
-
-            <button onclick="verifyOtpCode()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2 rounded-lg text-xs transition mb-2">Confirm Code</button>
-            <button onclick="closeOtpModal()" class="text-[11px] text-slate-400 hover:text-white transition">Cancel</button>
-        </div>
-    </div>
-
     <script>
         // Packages Data Structure (Editable by Admin)
         let packages = [
@@ -347,11 +357,10 @@
         ];
 
         let selectedPackageData = null;
-        let generatedOtpCode = "4912";
-        let registeredUsers = [];
 
-        // Customer Care Phone State (Loads from localStorage if previously changed by admin)
+        // Customer Care & Hotspot Branding State (Loads from localStorage)
         let customerCarePhone = localStorage.getItem('vortex_customer_care') || "0702975065";
+        let hotspotBrandName = localStorage.getItem('vortex_hotspot_name') || "HOTSPOT VORTEX";
 
         function updateCustomerCareDisplay() {
             const careElement = document.getElementById('customer-care');
@@ -361,6 +370,14 @@
             const phoneInput = document.getElementById('admin-custom-phone');
             if (phoneInput) {
                 phoneInput.value = customerCarePhone;
+            }
+            const titleElement = document.getElementById('header-title');
+            if (titleElement) {
+                titleElement.innerText = `Sign in to ${hotspotBrandName}`;
+            }
+            const nameInput = document.getElementById('admin-custom-hotspot-name');
+            if (nameInput) {
+                nameInput.value = hotspotBrandName;
             }
         }
 
@@ -376,9 +393,21 @@
             alert('Customer care WhatsApp helpline updated successfully!');
         }
 
+        function saveHotspotName() {
+            const inputVal = document.getElementById('admin-custom-hotspot-name').value.trim();
+            if (!inputVal) {
+                alert('Please enter a valid hotspot name.');
+                return;
+            }
+            hotspotBrandName = inputVal;
+            localStorage.setItem('vortex_hotspot_name', hotspotBrandName);
+            updateCustomerCareDisplay();
+            alert('Hotspot name updated successfully!');
+        }
+
         function openWhatsAppChat() {
             let formattedNumber = customerCarePhone.replace(/^0/, '');
-            window.open(`https://wa.me/254${formattedNumber}?text=Hello,%20I%20need%20help%20with%20my%20Hotspot%20Vortex%20internet%20connection.`, '_blank');
+            window.open(`https://wa.me/254${formattedNumber}?text=Hello,%20I%20need%20help%20with%20my%20${encodeURIComponent(hotspotBrandName)}%20internet%20connection.`, '_blank');
         }
 
         function renderPackages() {
@@ -438,10 +467,6 @@
                 activeBtn.classList.remove('text-slate-400');
                 activeBtn.classList.add('text-cyan-400');
             }
-
-            if(tabId === 'login') {
-                setAuthMode('signin');
-            }
         }
 
         function openPaymentPage(name, price) {
@@ -459,73 +484,6 @@
             }
             alert(`STK Push prompt successfully sent to +254${phone} for ${selectedPackageData.name} (KSH ${selectedPackageData.price}). Enter PIN to complete.`);
             switchTab('plans');
-        }
-
-        let currentAuthMode = 'signin';
-        function setAuthMode(mode) {
-            currentAuthMode = mode;
-            const container = document.getElementById('auth-form-container');
-            const btnSignin = document.getElementById('btn-mode-signin');
-            const btnSignup = document.getElementById('btn-mode-signup');
-
-            if (mode === 'signin') {
-                btnSignin.className = "flex-1 pb-2 text-cyan-400 border-b-2 border-cyan-400 transition";
-                btnSignup.className = "flex-1 pb-2 text-slate-400 hover:text-slate-200 transition";
-                
-                container.innerHTML = `
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-xs text-slate-400 mb-1">Email or Username</label>
-                            <input type="text" id="signin-user" placeholder="name@gmail.com or username" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-slate-400 mb-1">Password</label>
-                            <div class="relative">
-                                <input type="password" id="signin-pass" placeholder="Enter password" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 pr-10 text-xs text-white focus:outline-none focus:border-cyan-500">
-                                <button type="button" onclick="togglePasswordVisibility('signin-pass', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white text-xs">
-                                    <i class="fa-solid fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <button onclick="handleSignIn()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition mt-2">Sign In to Dashboard</button>
-                    </div>
-                `;
-            } else {
-                btnSignup.className = "flex-1 pb-2 text-cyan-400 border-b-2 border-cyan-400 transition";
-                btnSignin.className = "flex-1 pb-2 text-slate-400 hover:text-slate-200 transition";
-                
-                container.innerHTML = `
-                    <div class="space-y-2.5">
-                        <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">Username</label>
-                            <input type="text" id="signup-user" placeholder="Choose a username" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2 text-xs text-white focus:outline-none focus:border-cyan-500">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">Email Address</label>
-                            <input type="email" id="signup-email" placeholder="name@example.com" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2 text-xs text-white focus:outline-none focus:border-cyan-500">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">Password</label>
-                            <div class="relative">
-                                <input type="password" id="signup-pass" placeholder="Create password" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2 pr-10 text-xs text-white focus:outline-none focus:border-cyan-500">
-                                <button type="button" onclick="togglePasswordVisibility('signup-pass', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white text-xs">
-                                    <i class="fa-solid fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">Confirm Password</label>
-                            <div class="relative">
-                                <input type="password" id="signup-confirm" placeholder="Confirm password" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2 pr-10 text-xs text-white focus:outline-none focus:border-cyan-500">
-                                <button type="button" onclick="togglePasswordVisibility('signup-confirm', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white text-xs">
-                                    <i class="fa-solid fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <button onclick="handleSignUp()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition mt-1">Create Account & Verify Email</button>
-                    </div>
-                `;
-            }
         }
 
         function togglePasswordVisibility(fieldId, btn) {
@@ -562,38 +520,6 @@
             document.getElementById('admin-welcome-title').innerText = `Hotspot Admin: ${user}`;
             renderAdminPackages();
             alert(`Welcome to your Hotspot Admin Portal, ${user}!`);
-        }
-
-        function handleSignUp() {
-            const user = document.getElementById('signup-user').value.trim();
-            const email = document.getElementById('signup-email').value.trim();
-            const pass = document.getElementById('signup-pass').value;
-            const confirmPass = document.getElementById('signup-confirm').value;
-
-            if(!user || !email || !pass || !confirmPass) {
-                alert('Please fill in all fields.');
-                return;
-            }
-            if(pass !== confirmPass) {
-                alert('Passwords do not match.');
-                return;
-            }
-
-            generatedOtpCode = Math.floor(1000 + Math.random() * 9000).toString();
-            document.getElementById('simulated-code-badge').innerText = generatedOtpCode;
-            document.getElementById('target-email-display').innerText = email;
-            document.getElementById('otp-modal').classList.remove('hidden');
-        }
-
-        function closeOtpModal() {
-            document.getElementById('otp-modal').classList.add('hidden');
-        }
-
-        function verifyOtpCode() {
-            alert('Google Verification code confirmed successfully! Account created and activated.');
-            closeOtpModal();
-            switchTab('admin');
-            renderAdminPackages();
         }
 
         function handleLogout() {
