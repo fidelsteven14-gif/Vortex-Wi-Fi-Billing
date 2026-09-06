@@ -3,787 +3,295 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign in to HOTSPOT VORTEX</title>
+    <title id="page-title">Wi-Fi Hotspot Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            background-color: #0b1120;
-            color: #f8fafc;
-        }
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0b1120;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1e293b;
-            border-radius: 4px;
-        }
-    </style>
 </head>
-<body class="font-sans pb-24">
+<body class="bg-gray-900 text-white min-h-screen flex flex-col justify-between">
 
-    <!-- Top Header / Banner -->
-    <header class="bg-[#0f172a] border-b border-[#1e293b] p-4 sticky top-0 z-50">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <div>
-                <h1 id="header-title" class="text-sm font-bold tracking-tight text-cyan-400">Sign in to HOTSPOT VORTEX</h1>
-                <p id="header-subtitle" class="text-[11px] text-slate-400">vortex.spot</p>
-            </div>
-            <div class="bg-[#1e293b] p-2.5 rounded-full border border-cyan-500/30 text-cyan-400 shadow-inner">
-                <i class="fa-solid fa-wifi text-base"></i>
-            </div>
+    <!-- Attendant Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <h2 class="text-lg font-bold text-emerald-400 mb-2 text-center">Attendant Supervision Portal</h2>
+            <p class="text-xs text-gray-400 mb-4 text-center">Log in to view revenue & connected users</p>
+            
+            <input type="text" id="login-user" placeholder="Username" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm mb-3 text-white focus:outline-none focus:border-emerald-500">
+            <input type="password" id="login-pass" placeholder="Password" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm mb-4 text-white focus:outline-none focus:border-emerald-500">
+            
+            <button onclick="handleAttendantLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg text-sm transition">
+                Access Dashboard
+            </button>
+            <button onclick="closeLoginModal()" class="w-full mt-2 bg-transparent text-gray-400 text-xs py-2">Cancel</button>
+            <p id="login-error" class="text-red-400 text-xs text-center mt-3 hidden"></p>
+        </div>
+    </div>
+
+    <!-- Header / Branding -->
+    <header class="bg-gray-800 border-b border-gray-700 p-4 text-center flex justify-between items-center px-6">
+        <div>
+            <h1 id="business-name" class="text-lg font-bold tracking-wider text-emerald-400">Loading Hotspot...</h1>
+            <p class="text-xs text-gray-400">Support: <span id="customer-care" class="text-gray-200">--</span></p>
+        </div>
+        <div id="header-action">
+            <button onclick="openLoginModal()" class="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded text-gray-300">Attendant Login</button>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="max-w-md mx-auto p-4">
+    <!-- Main Container (Dynamic: Client Payment or Attendant Dashboard) -->
+    <main id="main-content" class="max-w-md mx-auto p-4 w-full flex-grow flex flex-col justify-center">
+        <!-- Client Payment View (Default) -->
+        <div id="client-view" class="bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-700">
+            <h2 class="text-md font-semibold mb-4 text-center">Select Internet Package</h2>
+            
+            <div id="packages-container" class="space-y-3">
+                <p class="text-center text-gray-400 text-sm">Loading packages...</p>
+            </div>
 
-        <!-- Customer Care Banner -->
-        <div onclick="openWhatsAppChat()" class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 mb-5 text-center shadow-md cursor-pointer hover:border-cyan-500/50 transition">
-            <p class="text-[11px] text-slate-400 tracking-wider">Customer Care <span class="text-[10px] text-cyan-400">(Tap to Chat)</span>: <span id="customer-care" class="text-cyan-400 font-bold">0702975065</span></p>
-            <p class="text-[11px] text-slate-400 mt-1 font-medium">Premium High-Speed Internet Access</p>
+            <div class="mt-6 border-t border-gray-700 pt-4">
+                <label class="block text-xs font-medium text-gray-300 mb-1">M-Pesa Phone Number</label>
+                <input type="tel" id="phone-input" placeholder="07XXXXXXXX" class="w-full bg-gray-900 border border-gray-600 rounded-lg p-3 text-white text-sm focus:outline-none focus:border-emerald-500">
+                
+                <button onclick="initiatePayment()" class="w-full mt-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg text-sm transition shadow-lg">
+                    Pay with M-Pesa
+                </button>
+            </div>
         </div>
 
-        <!-- TAB CONTENT: PLANS -->
-        <section id="tab-plans" class="tab-content">
-            <div class="flex items-center gap-2 mb-4">
-                <i class="fa-solid fa-bolt text-amber-400 text-sm"></i>
-                <h2 class="text-sm font-semibold tracking-wide text-slate-200">Choose Your Package</h2>
+        <!-- Attendant Supervisor Dashboard View (Hidden until login) -->
+        <div id="dashboard-view" class="hidden space-y-4 w-full max-w-lg mx-auto py-4">
+            <div class="flex justify-between items-center bg-gray-800 p-4 rounded-xl border border-gray-700">
+                <div>
+                    <h3 class="text-sm font-bold text-emerald-400" id="dash-business-name">Hotspot Supervisor</h3>
+                    <p class="text-xs text-gray-400">Live Router Telemetry</p>
+                </div>
+                <button onclick="logoutAttendant()" class="text-xs bg-red-600 hover:bg-red-500 px-3 py-1 rounded">Logout</button>
             </div>
 
-            <!-- Package Grid -->
-            <div id="package-grid" class="grid grid-cols-2 gap-3">
-                <!-- Populated dynamically -->
-            </div>
-        </section>
-
-        <!-- TAB CONTENT: PAYMENT PROMPT -->
-        <section id="tab-payment" class="tab-content hidden">
-            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-2 text-cyan-400">
-                        <i class="fa-solid fa-mobile-screen-button"></i>
-                        <h2 class="text-sm font-semibold text-white">M-Pesa Express Checkout</h2>
-                    </div>
-                    <button onclick="switchTab('plans')" class="text-xs text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i> Back</button>
+            <!-- Revenue Cards -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                    <div class="text-xs text-gray-400">Today Revenue</div>
+                    <div class="text-lg font-bold text-emerald-400 mt-1" id="rev-daily">KES 0</div>
                 </div>
-                <div class="bg-[#0b1120] border border-[#1f2937] rounded-lg p-3 mb-4 text-xs">
-                    <p class="text-slate-400">Selected Package: <span id="pay-pkg-name" class="text-cyan-400 font-bold">--</span></p>
-                    <p class="text-slate-400 mt-1">Amount to Pay: <span id="pay-pkg-price" class="text-white font-extrabold">--</span></p>
+                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                    <div class="text-xs text-gray-400">This Week</div>
+                    <div class="text-lg font-bold text-emerald-400 mt-1" id="rev-weekly">KES 0</div>
                 </div>
-                <label class="block text-xs text-slate-400 mb-2">M-Pesa Phone Number</label>
-                <div class="relative mb-4">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-xs text-slate-400">+254</span>
-                    <input type="tel" id="mpesa-phone-input" placeholder="702975065" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-3 pl-14 text-xs text-white focus:outline-none focus:border-cyan-500">
+                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                    <div class="text-xs text-gray-400">This Month</div>
+                    <div class="text-lg font-bold text-emerald-400 mt-1" id="rev-monthly">KES 0</div>
                 </div>
-                <button onclick="submitMpesaPayment()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">STK Push Payment</button>
-            </div>
-        </section>
-
-        <!-- TAB CONTENT: TV (Smart Billing Integration) -->
-        <section id="tab-tv" class="tab-content hidden">
-            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5 space-y-4">
-                <div class="text-center">
-                    <div class="text-cyan-400 text-xl mb-1"><i class="fa-solid fa-tv"></i></div>
-                    <h2 class="text-sm font-semibold text-white">Smart TV & Media Streaming Access</h2>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Link your Smart TV MAC address or decoder account to high-speed bandwidth allocation.</p>
-                </div>
-
-                <div class="bg-[#0b1120] border border-[#1f2937] rounded-lg p-3.5 space-y-3">
-                    <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">Select TV Brand / Device Type</label>
-                        <select id="tv-brand-select" class="w-full bg-[#111827] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
-                            <option value="samsung">Samsung Smart TV (Tizen OS)</option>
-                            <option value="lg">LG Smart TV (webOS)</option>
-                            <option value="android">Android TV / Google TV / Xiaomi Stick</option>
-                            <option value="decoder">Local DVB-T2 / Satellite Decoder Box</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">Device MAC Address / Serial Number</label>
-                        <input type="text" id="tv-mac-input" placeholder="e.g. AA:BB:CC:DD:EE:FF" class="w-full bg-[#111827] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white uppercase focus:outline-none focus:border-cyan-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">Choose Streaming / Dedicated TV Bandwidth Plan</label>
-                        <select id="tv-plan-select" class="w-full bg-[#111827] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
-                            <option value="300">TV Unlimited Daily Pass (KSH 70)</option>
-                            <option value="500">4K Ultra HD Streaming Booster - 3 Days (KSH 200)</option>
-                            <option value="1200">Monthly Smart TV Unlimited Stream (KSH 1,200)</option>
-                        </select>
-                    </div>
-                    <button onclick="activateTvBilling()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">Bind TV & Proceed to Payment</button>
+                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                    <div class="text-xs text-gray-400">Active Devices</div>
+                    <div class="text-lg font-bold text-blue-400 mt-1" id="active-count">0 Connected</div>
                 </div>
             </div>
-        </section>
 
-        <!-- TAB CONTENT: VOUCHER -->
-        <section id="tab-voucher" class="tab-content hidden">
-            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
-                <div class="flex items-center gap-2 mb-4 text-cyan-400">
-                    <i class="fa-solid fa-ticket"></i>
-                    <h2 class="text-sm font-semibold text-white">Activate Voucher Code</h2>
-                </div>
-                <label class="block text-xs text-slate-400 mb-2">Access Code</label>
-                <input type="text" id="voucher-code-input" placeholder="Enter your activation code" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-3 text-xs text-white mb-4 uppercase focus:outline-none focus:border-cyan-500">
-                <button onclick="verifyVoucherCode()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition">Activate Now</button>
-            </div>
-        </section>
-
-        <!-- TAB CONTENT: SYNC -->
-        <section id="tab-sync" class="tab-content hidden">
-            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
-                <div class="flex items-center gap-2 mb-2 text-cyan-400">
-                    <i class="fa-solid fa-rotate"></i>
-                    <h2 class="text-sm font-semibold text-white">Re-establish Connection</h2>
-                </div>
-                <p class="text-xs text-slate-400 mb-4">Already paid? Enter your M-Pesa code to go online instantly.</p>
-                <label class="block text-xs text-slate-400 mb-2">Transaction Reference</label>
-                <input type="text" id="sync-ref-input" placeholder="e.g. QJI5HNTXYZ" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-3 text-xs text-white mb-4 uppercase focus:outline-none focus:border-cyan-500">
-                <button onclick="syncTransaction()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition">Go Online Now</button>
-            </div>
-        </section>
-
-        <!-- TAB CONTENT: LOGIN / REAL-TIME AUTHENTICATION PORTAL -->
-        <section id="tab-login" class="tab-content hidden">
-            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
-                <div class="text-center mb-4">
-                    <h2 class="text-sm font-bold text-cyan-400">Hotspot Account Portal</h2>
-                    <p id="auth-mode-subtitle" class="text-[11px] text-slate-400 mt-0.5">Enter your hotspot username and password to sign in or register automatically</p>
-                </div>
-                
-                <div class="space-y-3">
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Hotspot Username</label>
-                        <input type="text" id="auth-username" placeholder="e.g. vortex-wifi" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
-                    </div>
-                    
-                    <div id="password-field-container">
-                        <label class="block text-xs text-slate-400 mb-1">Password</label>
-                        <div class="relative">
-                            <input type="password" id="auth-pass" placeholder="Enter secure password" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 pr-10 text-xs text-white focus:outline-none focus:border-cyan-500">
-                            <button type="button" onclick="togglePasswordVisibility('auth-pass', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white text-xs">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="action-buttons-container" class="space-y-2 pt-1">
-                        <button onclick="handlePrimaryAuthAction()" id="primary-auth-btn" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">Login</button>
-                    </div>
+            <!-- Connected Users & MAC Table -->
+            <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
+                <h4 class="text-xs font-bold text-gray-300 mb-3 uppercase tracking-wider">Connected Devices & MAC Addresses</h4>
+                <div id="connected-users-list" class="space-y-2 max-h-48 overflow-y-auto text-xs">
+                    <p class="text-gray-500 text-center py-2">No active devices found.</p>
                 </div>
             </div>
-        </section>
 
-        <!-- TAB CONTENT: ADMIN PORTAL -->
-        <section id="tab-admin" class="tab-content hidden">
-            <div class="space-y-4">
-                <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 flex justify-between items-center">
-                    <div>
-                        <h2 id="admin-welcome-title" class="text-xs font-bold text-cyan-400">Hotspot Admin Portal</h2>
-                        <p class="text-[10px] text-slate-400">Manage packages, routers, custom vouchers & monetization</p>
-                    </div>
-                    <button onclick="handleLogout()" class="bg-red-500/20 text-red-400 hover:bg-red-500/30 text-[10px] font-bold px-3 py-1.5 rounded-lg transition">Logout</button>
-                </div>
-
-                <!-- Admin Tab Controller -->
-                <div class="grid grid-cols-4 gap-1 text-center text-[10px] font-semibold">
-                    <button onclick="switchAdminSub('packages')" id="sub-btn-packages" class="bg-[#0891b2] text-white py-2 rounded-lg transition">Packages</button>
-                    <button onclick="switchAdminSub('routers')" id="sub-btn-routers" class="bg-[#111827] border border-[#1f2937] text-slate-300 py-2 rounded-lg transition">Routers</button>
-                    <button onclick="switchAdminSub('vouchers')" id="sub-btn-vouchers" class="bg-[#111827] border border-[#1f2937] text-slate-300 py-2 rounded-lg transition">Vouchers</button>
-                    <button onclick="switchAdminSub('mikrotik')" id="sub-btn-mikrotik" class="bg-[#111827] border border-[#1f2937] text-slate-300 py-2 rounded-lg transition">MikroTik</button>
-                </div>
-
-                <!-- Admin Sub: Packages & Monetization -->
-                <div id="admin-sub-packages" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3">
-                    <h3 class="text-xs font-bold text-white mb-2">Edit Billing Packages & Hotspot Monetization</h3>
-                    <div id="admin-package-editor-list" class="space-y-2"></div>
-                    <button onclick="addNewPackage()" class="w-full bg-[#1e293b] hover:bg-[#334155] text-cyan-400 border border-cyan-500/30 font-medium py-2 rounded-lg text-xs transition">+ Add New Package</button>
-                    
-                    <!-- Hotspot Owner Monetization Settings -->
-                    <div class="border-t border-[#1f2937] pt-3 mt-3 space-y-3">
-                        <h3 class="text-xs font-bold text-white">Monetization & Payout Configuration</h3>
-                        <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">M-Pesa Till / Paybill Number for Revenue Collection</label>
-                            <input type="text" id="admin-till-input" placeholder="e.g. 174379 or Business Till" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 mb-2">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">Profit Share / Pricing Markup Rate (%)</label>
-                            <input type="number" id="admin-markup-input" value="100" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 mb-2">
-                        </div>
-                        <button onclick="saveMonetizationSettings()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2 rounded-lg text-xs transition">Save Monetization Settings</button>
-                    </div>
-
-                    <!-- Customer Care Helpline Settings -->
-                    <div class="border-t border-[#1f2937] pt-3 mt-3">
-                        <h3 class="text-xs font-bold text-white mb-2">Customer Care / WhatsApp Helpline</h3>
-                        <label class="block text-[11px] text-slate-400 mb-1">WhatsApp Phone Number</label>
-                        <input type="text" id="admin-custom-phone" placeholder="0702975065" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 mb-2">
-                        <button onclick="saveCustomerCareNumber()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2 rounded-lg text-xs transition">Save Helpline Number</button>
-                    </div>
-
-                    <!-- Hotspot Name Settings -->
-                    <div class="border-t border-[#1f2937] pt-3 mt-3">
-                        <h3 class="text-xs font-bold text-white mb-2">Hotspot Branding Name</h3>
-                        <label class="block text-[11px] text-slate-400 mb-1">Hotspot Network Name</label>
-                        <input type="text" id="admin-custom-hotspot-name" placeholder="HOTSPOT VORTEX" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 mb-2">
-                        <button onclick="saveHotspotName()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2 rounded-lg text-xs transition">Save Hotspot Name</button>
-                    </div>
-                </div>
-
-                <!-- Admin Sub: Manual Routers Configuration (Fully Editable Specs) -->
-                <div id="admin-sub-routers" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3 hidden">
-                    <h3 class="text-xs font-bold text-white mb-2">Hardware Router Setup (Fully Editable Specs)</h3>
-                    <p class="text-[11px] text-slate-400">Configure your hardware nodes. You can now completely edit the Factory MAC Address, Default IP Address, and Factory SSID directly below.</p>
-                    <div id="admin-router-list" class="space-y-3">
-                        <!-- Populated dynamically with fully editable router specs -->
-                    </div>
-                    <button onclick="addNewRouterNode()" class="w-full bg-[#1e293b] hover:bg-[#334155] text-cyan-400 border border-cyan-500/30 font-medium py-2 rounded-lg text-xs transition">+ Add Router Node</button>
-                </div>
-
-                <!-- Admin Sub: Vouchers -->
-                <div id="admin-sub-vouchers" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3 hidden">
-                    <h3 class="text-xs font-bold text-white mb-2">Custom Package & Long-Term Voucher Generator</h3>
-                    <p class="text-[11px] text-slate-400 mb-2">Manually type any package name and choose or type any duration (including multi-year passes like 2 years or 5 years).</p>
-                    
-                    <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">Custom Package Name</label>
-                        <input type="text" id="voucher-custom-pkg-name" placeholder="e.g. VIP 2-Year Unlimited Pass" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">Duration Value</label>
-                            <input type="number" id="voucher-duration-val" value="2" min="1" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">Duration Unit</label>
-                            <select id="voucher-duration-unit" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
-                                <option value="Hours">Hours</option>
-                                <option value="Days">Days</option>
-                                <option value="Months">Months</option>
-                                <option value="Years" selected>Years (e.g. 2 or 5 Years)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">Quantity of Vouchers to Generate</label>
-                        <input type="number" id="voucher-gen-qty" value="5" min="1" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
-                    </div>
-
-                    <button onclick="generateCustomVouchers()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">Generate Custom Vouchers</button>
-                    <div id="generated-vouchers-output" class="bg-[#0b1120] p-3 rounded-lg text-[11px] text-slate-300 font-mono mt-2 hidden"></div>
-                </div>
-
-                <!-- Admin Sub: MikroTik -->
-                <div id="admin-sub-mikrotik" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3 hidden">
-                    <h3 class="text-xs font-bold text-white mb-2">MikroTik Router Configuration</h3>
-                    <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">Router IP Address / Hotspot DNS Name</label>
-                        <input type="text" value="hotspot.vortex.router" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">RADIUS Secret Key</label>
-                        <input type="password" value="vortex_radius_secret_99" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
-                    </div>
-                    <button onclick="alert('MikroTik API configuration synced successfully!')" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition">Save Router Settings</button>
+            <!-- Recent Transactions -->
+            <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
+                <h4 class="text-xs font-bold text-gray-300 mb-3 uppercase tracking-wider">Recent Transactions</h4>
+                <div id="transactions-list" class="space-y-2 max-h-40 overflow-y-auto text-xs">
+                    <p class="text-gray-500 text-center py-2">No transactions recorded yet.</p>
                 </div>
             </div>
-        </section>
-
-        <!-- TAB CONTENT: SUPER ADMIN COMMAND CENTER -->
-        <section id="tab-superadmin" class="tab-content hidden">
-            <div class="space-y-4">
-                <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 flex justify-between items-center">
-                    <div>
-                        <h2 class="text-xs font-bold text-amber-400">Super Admin Command Center</h2>
-                        <p class="text-[10px] text-slate-400">Real-time system monitoring, revenue & transactions</p>
-                    </div>
-                    <button onclick="handleLogout()" class="bg-red-500/20 text-red-400 hover:bg-red-500/30 text-[10px] font-bold px-3 py-1.5 rounded-lg transition">Logout</button>
-                </div>
-
-                <!-- Stats Overview Cards -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-3.5">
-                        <p class="text-[10px] text-slate-400">Total Hotspot Owners</p>
-                        <p class="text-lg font-extrabold text-white mt-1">48 Active</p>
-                    </div>
-                    <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-3.5">
-                        <p class="text-[10px] text-slate-400">Total System Revenue</p>
-                        <p class="text-lg font-extrabold text-emerald-400 mt-1">KSH 428,500</p>
-                    </div>
-                    <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-3.5">
-                        <p class="text-[10px] text-slate-400">Active Online Users</p>
-                        <p id="superadmin-online-count" class="text-lg font-extrabold text-cyan-400 mt-1">1,420</p>
-                    </div>
-                    <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-3.5">
-                        <p class="text-[10px] text-slate-400">Completed Txns / Failed</p>
-                        <p class="text-xs font-extrabold text-emerald-400 mt-1"><span id="completed-txns-stat">8,942</span> / <span id="failed-txns-stat" class="text-amber-400">12</span></p>
-                    </div>
-                </div>
-
-                <!-- Real-time Activity Feed / Transactions Log -->
-                <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-xs font-bold text-white">Live Transactions & Business Status</h3>
-                        <span class="inline-flex items-center gap-1.5 text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-medium">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Real-time Live
-                        </span>
-                    </div>
-                    <div id="live-transactions-list" class="space-y-2 text-xs max-h-40 overflow-y-auto">
-                        <div class="bg-[#0b1120] p-2.5 rounded-lg flex justify-between items-center border border-[#1f2937]">
-                            <div>
-                                <p class="font-bold text-white">NDOVU 12hrs (KSH 35)</p>
-                                <p class="text-[10px] text-slate-400">+254702975065 • QJI5HNTXYZ</p>
-                            </div>
-                            <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">Completed</span>
-                        </div>
-                        <div class="bg-[#0b1120] p-2.5 rounded-lg flex justify-between items-center border border-[#1f2937]">
-                            <div>
-                                <p class="font-bold text-white">JINICE 24hrs (KSH 50)</p>
-                                <p class="text-[10px] text-slate-400">+254712345678 • TIMEOUT_ERR</p>
-                            </div>
-                            <span class="text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">Failed</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Registered Hotspot Owners Directory -->
-                <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4">
-                    <h3 class="text-xs font-bold text-white mb-3">Hotspot Owners Directory & Contacts</h3>
-                    <div class="space-y-2 text-xs">
-                        <div class="bg-[#0b1120] p-2.5 rounded-lg flex justify-between items-center border border-[#1f2937]">
-                            <div>
-                                <p class="font-bold text-cyan-400">Steven Fidel (Super Admin)</p>
-                                <p class="text-[10px] text-slate-400">vortex-admin</p>
-                            </div>
-                            <span class="text-xs text-emerald-400 font-mono">0702975065</span>
-                        </div>
-                        <div class="bg-[#0b1120] p-2.5 rounded-lg flex justify-between items-center border border-[#1f2937]">
-                            <div>
-                                <p class="font-bold text-white">Alexia Web Hotspot</p>
-                                <p class="text-[10px] text-slate-400">alexia-wifi</p>
-                            </div>
-                            <span class="text-xs text-slate-300 font-mono">0712345678</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
+        </div>
     </main>
 
-    <!-- Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-[#0f172a] border-t border-[#1e293b] py-2.5 px-2 z-50">
-        <div class="max-w-md mx-auto flex justify-around items-center text-[10px] text-slate-400 font-medium">
-            <button onclick="switchTab('plans')" class="nav-btn flex flex-col items-center gap-0.5 text-cyan-400 transition" data-target="plans">
-                <i class="fa-solid fa-layer-group text-sm"></i>
-                <span>PLANS</span>
-            </button>
-            <button onclick="switchTab('tv')" class="nav-btn flex flex-col items-center gap-0.5 hover:text-cyan-400 transition" data-target="tv">
-                <i class="fa-solid fa-tv text-sm"></i>
-                <span>TV</span>
-            </button>
-            <button onclick="switchTab('voucher')" class="nav-btn flex flex-col items-center gap-0.5 hover:text-cyan-400 transition" data-target="voucher">
-                <i class="fa-solid fa-ticket text-sm"></i>
-                <span>VOUCHER</span>
-            </button>
-            <button onclick="switchTab('sync')" class="nav-btn flex flex-col items-center gap-0.5 hover:text-cyan-400 transition" data-target="sync">
-                <i class="fa-solid fa-rotate text-sm"></i>
-                <span>SYNC</span>
-            </button>
-            <button onclick="switchTab('login')" class="nav-btn flex flex-col items-center gap-0.5 hover:text-cyan-400 transition" data-target="login">
-                <i class="fa-solid fa-right-to-bracket text-sm"></i>
-                <span>LOGIN</span>
-            </button>
-        </div>
-    </nav>
+    <footer class="text-center p-4 text-xs text-gray-500 border-t border-gray-800">
+        Powered by Vortex Multi-Tenant Billing Systems
+    </footer>
 
     <script>
-        // Packages Data Structure
-        let packages = [
-            { id: 1, name: "LITE 1hrs", speed: "5 Mbps", price: 10 },
-            { id: 2, name: "surf 2hrs", speed: "3 Mbps", price: 15 },
-            { id: 3, name: "KIFARU 4hrs", speed: "3 Mbps", price: 20 },
-            { id: 4, name: "KIFARU 6hrs", speed: "3 Mbps", price: 25 },
-            { id: 5, name: "NDOVU 12hrs", speed: "10 Mbps", price: 35, popular: true },
-            { id: 6, name: "JINICE 24hrs", speed: "10 Mbps", price: 50 },
-            { id: 7, name: "6 hrs VIP plan", speed: "Unlimited", price: 60 },
-            { id: 8, name: "3days plan", speed: "5 Mbps", price: 100 }
-        ];
+        let selectedPackage = null;
+        let urlParams = new URLSearchParams(window.location.search);
+        let tenantId = localStorage.getItem('active_tenant') || urlParams.get('tenant') || 'router1';
+        let isAttendantLoggedIn = localStorage.getItem('attendant_logged_in') === 'true';
 
-        // Fully Editable Router Configuration Specs (MAC Address, Default IP, Factory SSID)
-        let routersList = JSON.parse(localStorage.getItem('vortex_routers_config')) || [
-            { 
-                id: 1, 
-                model: "Tenda N301", 
-                name: "Main Gateway AP-1", 
-                ssid: "Tenda_BF3478", 
-                mac: "D8:32:14:BF:34:78", 
-                ip: "192.168.0.1", 
-                serial: "E0686019452000590", 
-                status: "Configured" 
-            }
-        ];
-
-        // Persistent Users Database for database checking & automatic login/registration using Hotspot Username
-        let registeredUsers = JSON.parse(localStorage.getItem('vortex_users_db')) || [
-            { username: "vortex-admin", pass: "Steven_19", role: "superadmin" }
-        ];
-
-        let selectedPackageData = null;
-        let customerCarePhone = localStorage.getItem('vortex_customer_care') || "0702975065";
-        let hotspotBrandName = localStorage.getItem('vortex_hotspot_name') || "HOTSPOT VORTEX";
-        let monetizationTill = localStorage.getItem('vortex_monetization_till') || "174379";
-        let monetizationMarkup = localStorage.getItem('vortex_monetization_markup') || "100";
-
-        function updateCustomerCareDisplay() {
-            const careElement = document.getElementById('customer-care');
-            if (careElement) careElement.innerText = customerCarePhone;
-            const phoneInput = document.getElementById('admin-custom-phone');
-            if (phoneInput) phoneInput.value = customerCarePhone;
-            const titleElement = document.getElementById('header-title');
-            if (titleElement) titleElement.innerText = `Sign in to ${hotspotBrandName}`;
-            const nameInput = document.getElementById('admin-custom-hotspot-name');
-            if (nameInput) nameInput.value = hotspotBrandName;
-            const tillInput = document.getElementById('admin-till-input');
-            if (tillInput) tillInput.value = monetizationTill;
-            const markupInput = document.getElementById('admin-markup-input');
-            if (markupInput) markupInput.value = monetizationMarkup;
-        }
-
-        function saveCustomerCareNumber() {
-            const inputVal = document.getElementById('admin-custom-phone').value.trim();
-            if (!inputVal || inputVal.length < 9) {
-                alert('Please enter a valid phone number.');
+        async function loadConfig() {
+            if (isAttendantLoggedIn) {
+                showDashboard();
                 return;
             }
-            customerCarePhone = inputVal;
-            localStorage.setItem('vortex_customer_care', customerCarePhone);
-            updateCustomerCareDisplay();
-            alert('Customer care WhatsApp helpline updated successfully!');
-        }
 
-        function saveHotspotName() {
-            const inputVal = document.getElementById('admin-custom-hotspot-name').value.trim();
-            if (!inputVal) {
-                alert('Please enter a valid hotspot name.');
-                return;
-            }
-            hotspotBrandName = inputVal;
-            localStorage.setItem('vortex_hotspot_name', hotspotBrandName);
-            updateCustomerCareDisplay();
-            alert('Hotspot name updated successfully!');
-        }
+            try {
+                const response = await fetch(`/api/config/${tenantId}`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const data = result.data;
+                    document.getElementById('business-name').innerText = data.businessName;
+                    document.getElementById('page-title').innerText = `${data.businessName} - Portal`;
+                    document.getElementById('customer-care').innerText = data.customerCare;
 
-        function saveMonetizationSettings() {
-            const tillVal = document.getElementById('admin-till-input').value.trim();
-            const markupVal = document.getElementById('admin-markup-input').value.trim();
-            if (!tillVal) {
-                alert('Please enter a valid M-Pesa Till or Paybill number.');
-                return;
-            }
-            monetizationTill = tillVal;
-            monetizationMarkup = markupVal;
-            localStorage.setItem('vortex_monetization_till', monetizationTill);
-            localStorage.setItem('vortex_monetization_markup', monetizationMarkup);
-            alert(`Monetization updated! Revenue will route to Till: ${monetizationTill} with ${monetizationMarkup}% pricing markup.`);
-        }
+                    const container = document.getElementById('packages-container');
+                    container.innerHTML = '';
 
-        function openWhatsAppChat() {
-            let formattedNumber = customerCarePhone.replace(/^0/, '');
-            window.open(`https://wa.me/254${formattedNumber}?text=Hello,%20I%20need%20help%20with%20my%20${encodeURIComponent(hotspotBrandName)}%20internet%20connection.`, '_blank');
-        }
-
-        function renderPackages() {
-            const grid = document.getElementById('package-grid');
-            if (!grid) return;
-            grid.innerHTML = '';
-            packages.forEach(pkg => {
-                let adjustedPrice = Math.round(pkg.price * (parseFloat(monetizationMarkup) / 100));
-                grid.innerHTML += `
-                    <div class="bg-[#111827] border ${pkg.popular ? 'border-emerald-500/50' : 'border-[#1f2937]'} rounded-xl p-3.5 flex flex-col justify-between relative shadow-md">
-                        ${pkg.popular ? '<span class="absolute -top-2.5 right-3 bg-emerald-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">POPULAR</span>' : ''}
-                        <div>
-                            <div class="text-cyan-400 text-xs font-bold mb-1 flex items-center gap-1.5"><i class="fa-solid fa-bolt text-[10px]"></i> ${pkg.name}</div>
-                            <div class="text-[11px] text-slate-400 mb-3 flex items-center gap-1.5"><i class="fa-solid fa-gauge-high text-[10px]"></i> ${pkg.speed}</div>
-                        </div>
-                        <div>
-                            <div class="text-base font-extrabold text-white mb-2">KSH ${adjustedPrice}</div>
-                            <button onclick="openPaymentPage('${pkg.name}', ${adjustedPrice})" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-1.5 rounded-lg text-xs transition shadow-md">Buy Now</button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function renderAdminPackages() {
-            const list = document.getElementById('admin-package-editor-list');
-            if (!list) return;
-            list.innerHTML = '';
-            packages.forEach((pkg, index) => {
-                list.innerHTML += `
-                    <div class="bg-[#0b1120] p-2.5 rounded-lg border border-[#1f2937] flex items-center justify-between gap-2 text-xs">
-                        <input type="text" value="${pkg.name}" onchange="updatePkgName(${index}, this.value)" class="bg-[#111827] border border-[#1f2937] rounded p-1 text-white w-1/3">
-                        <input type="number" value="${pkg.price}" onchange="updatePkgPrice(${index}, this.value)" class="bg-[#111827] border border-[#1f2937] rounded p-1 text-white w-1/4">
-                        <button onclick="deletePackage(${index})" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `;
-            });
-            renderAdminRouters();
-            updateCustomerCareDisplay();
-        }
-
-        function renderAdminRouters() {
-            const rList = document.getElementById('admin-router-list');
-            if (!rList) return;
-            rList.innerHTML = '';
-            routersList.forEach((r, idx) => {
-                rList.innerHTML += `
-                    <div class="bg-[#0b1120] p-3 rounded-lg border border-[#1f2937] space-y-2 text-xs">
-                        <div class="flex justify-between items-center">
-                            <input type="text" value="${r.name}" onchange="updateRouterField(${idx}, 'name', this.value)" class="bg-[#111827] border border-[#1f2937] rounded p-1 text-cyan-400 font-bold w-2/3">
-                            <button onclick="deleteRouter(${idx})" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash"></i> Delete</button>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
+                    data.packages.forEach(pkg => {
+                        const div = document.createElement('div');
+                        div.className = `p-3 rounded-xl border cursor-pointer flex justify-between items-center transition ${selectedPackage?.id === pkg.id ? 'border-emerald-500 bg-gray-700' : 'border-gray-700 bg-gray-900 hover:border-gray-500'}`;
+                        div.onclick = () => selectPkg(pkg, div);
+                        div.innerHTML = `
                             <div>
-                                <label class="block text-[10px] text-slate-400">Router Model</label>
-                                <input type="text" value="${r.model}" onchange="updateRouterField(${idx}, 'model', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white">
+                                <div class="font-bold text-sm text-white">${pkg.name}</div>
+                                <div class="text-xs text-gray-400">High Speed</div>
                             </div>
-                            <div>
-                                <label class="block text-[10px] text-slate-400">Factory SSID (Wi-Fi Name)</label>
-                                <input type="text" value="${r.ssid}" onchange="updateRouterField(${idx}, 'ssid', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white border-cyan-500/50">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-slate-400">Factory MAC Address</label>
-                                <input type="text" value="${r.mac}" onchange="updateRouterField(${idx}, 'mac', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white font-mono uppercase">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-slate-400">Default IP Address</label>
-                                <input type="text" value="${r.ip}" onchange="updateRouterField(${idx}, 'ip', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white font-mono">
-                            </div>
-                            <div class="col-span-2">
-                                <label class="block text-[10px] text-slate-400">Serial Number (S/N)</label>
-                                <input type="text" value="${r.serial}" onchange="updateRouterField(${idx}, 'serial', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white font-mono">
-                            </div>
-                        </div>
-                        <button onclick="saveRouterManualConfig(${idx})" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white py-1.5 rounded text-xs transition mt-1">Save Router Node Settings</button>
-                    </div>
-                `;
-            });
-        }
-
-        function updateRouterField(idx, field, val) {
-            routersList[idx][field] = val;
-        }
-
-        function saveRouterManualConfig(idx) {
-            localStorage.setItem('vortex_routers_config', JSON.stringify(routersList));
-            alert(`Router "${routersList[idx].name}" updated successfully!\n- SSID: ${routersList[idx].ssid}\n- MAC: ${routersList[idx].mac}\n- IP: ${routersList[idx].ip}`);
-        }
-
-        function addNewRouterNode() {
-            routersList.push({ 
-                id: Date.now(), 
-                model: "Tenda N301", 
-                name: `Router Node-${routersList.length + 1}`, 
-                ssid: `Tenda_${Math.floor(Math.random()*10000)}`, 
-                mac: "D8:32:14:XX:XX:XX", 
-                ip: "192.168.0.1", 
-                serial: "E0686019452000XXX", 
-                status: "Configured" 
-            });
-            renderAdminRouters();
-        }
-
-        function deleteRouter(idx) {
-            routersList.splice(idx, 1);
-            localStorage.setItem('vortex_routers_config', JSON.stringify(routersList));
-            renderAdminRouters();
-        }
-
-        function updatePkgName(index, val) { packages[index].name = val; renderPackages(); }
-        function updatePkgPrice(index, val) { packages[index].price = Number(val); renderPackages(); }
-        function deletePackage(index) { packages.splice(index, 1); renderPackages(); renderAdminPackages(); }
-        function addNewPackage() {
-            packages.push({ id: Date.now(), name: "New Plan", speed: "5 Mbps", price: 30 });
-            renderPackages();
-            renderAdminPackages();
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-cyan-400');
-                btn.classList.add('text-slate-400');
-            });
-            const activeBtn = document.querySelector(`.nav-btn[data-target="${tabId}"]`);
-            if(activeBtn) {
-                activeBtn.classList.remove('text-slate-400');
-                activeBtn.classList.add('text-cyan-400');
-            }
-        }
-
-        function openPaymentPage(name, price) {
-            selectedPackageData = { name, price };
-            document.getElementById('pay-pkg-name').innerText = name;
-            document.getElementById('pay-pkg-price').innerText = `KSH ${price}`;
-            switchTab('payment');
-        }
-
-        function submitMpesaPayment() {
-            const phone = document.getElementById('mpesa-phone-input').value;
-            if(!phone || phone.length < 9) {
-                alert('Please enter a valid M-Pesa phone number.');
-                return;
-            }
-            alert(`STK Push prompt successfully sent to +254${phone} for ${selectedPackageData.name} (KSH ${selectedPackageData.price}) routed to Till ${monetizationTill}. Enter PIN to complete.`);
-            switchTab('plans');
-        }
-
-        // Smart TV Billing & MAC Integration
-        function activateTvBilling() {
-            const brand = document.getElementById('tv-brand-select').value;
-            const mac = document.getElementById('tv-mac-input').value.trim();
-            const selectEl = document.getElementById('tv-plan-select');
-            const planText = selectEl.options[selectEl.selectedIndex].text;
-            const priceVal = selectEl.value;
-
-            if(!mac || mac.length < 10) {
-                alert('Please enter a valid Smart TV MAC address or decoder serial number.');
-                return;
-            }
-
-            alert(`Smart TV (${brand.toUpperCase()}) MAC [${mac}] successfully bound to plan: ${planText}. STK Push initiated for KSH ${priceVal}.`);
-            switchTab('plans');
-        }
-
-        function togglePasswordVisibility(fieldId, btn) {
-            const input = document.getElementById(fieldId);
-            if(input.type === 'password') {
-                input.type = 'text';
-                btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
-            } else {
-                input.type = 'password';
-                btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
-            }
-        }
-
-        // Database Authentication Handler using Hotspot Username
-        function handlePrimaryAuthAction() {
-            const username = document.getElementById('auth-username').value.trim().toLowerCase();
-            const pass = document.getElementById('auth-pass').value.trim();
-
-            if(!username || username.length < 2) {
-                alert('Please enter a valid hotspot username.');
-                return;
-            }
-
-            if(!pass || pass.length < 4) {
-                alert('Please enter a password.');
-                return;
-            }
-
-            let existingUser = registeredUsers.find(u => u.username === username);
-
-            if (existingUser) {
-                if (existingUser.pass !== pass && !(username === 'vortex-admin' && pass === 'Steven_19')) {
-                    alert('Incorrect password for this hotspot account. Please check your credentials.');
-                    return;
+                            <div class="text-emerald-400 font-bold text-sm">KES ${pkg.price}</div>
+                        `;
+                        container.appendChild(div);
+                    });
                 }
+            } catch (err) {
+                console.error("Error loading config:", err);
+            }
+        }
 
-                const role = (username === 'vortex-admin' || existingUser.role === 'superadmin') ? 'superadmin' : 'admin';
+        function selectPkg(pkg, element) {
+            selectedPackage = pkg;
+            document.querySelectorAll('#packages-container > div').forEach(el => {
+                el.classList.remove('border-emerald-500', 'bg-gray-700');
+                el.classList.add('border-gray-700', 'bg-gray-900');
+            });
+            element.classList.remove('border-gray-700', 'bg-gray-900');
+            element.classList.add('border-emerald-500', 'bg-gray-700');
+        }
 
-                if(role === 'superadmin') {
-                    document.getElementById('tab-login').classList.add('hidden');
-                    document.getElementById('tab-superadmin').classList.remove('hidden');
-                    alert('Super Admin Command Center logged in successfully.');
+        function openLoginModal() {
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+
+        async function handleAttendantLogin() {
+            const username = document.getElementById('login-user').value.trim();
+            const password = document.getElementById('login-pass').value.trim();
+            const errEl = document.getElementById('login-error');
+
+            if (!username || !password) {
+                errEl.innerText = "Fill in both fields.";
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/attendant/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    localStorage.setItem('active_tenant', data.tenantId);
+                    localStorage.setItem('attendant_logged_in', 'true');
+                    tenantId = data.tenantId;
+                    isAttendantLoggedIn = true;
+                    closeLoginModal();
+                    showDashboard();
                 } else {
-                    document.getElementById('tab-login').classList.add('hidden');
-                    document.getElementById('tab-admin').classList.remove('hidden');
-                    document.getElementById('admin-welcome-title').innerText = `Hotspot Admin: ${username}`;
-                    renderAdminPackages();
-                    alert(`Welcome back, ${username}! Logged in successfully.`);
+                    errEl.innerText = data.message;
+                    errEl.classList.remove('hidden');
                 }
-            } else {
-                const newUser = { username: username, pass: pass, role: 'admin' };
-                registeredUsers.push(newUser);
-                localStorage.setItem('vortex_users_db', JSON.stringify(registeredUsers));
-
-                document.getElementById('tab-login').classList.add('hidden');
-                document.getElementById('tab-admin').classList.remove('hidden');
-                document.getElementById('admin-welcome-title').innerText = `Hotspot Admin: ${username}`;
-                renderAdminPackages();
-                alert(`New hotspot account "${username}" successfully created and logged in!`);
+            } catch (e) {
+                errEl.innerText = "Connection error.";
+                errEl.classList.remove('hidden');
             }
         }
 
-        function handleLogout() {
-            document.getElementById('tab-admin').classList.add('hidden');
-            document.getElementById('tab-superadmin').classList.add('hidden');
-            switchTab('plans');
+        function logoutAttendant() {
+            localStorage.removeItem('attendant_logged_in');
+            isAttendantLoggedIn = false;
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('client-view').classList.remove('hidden');
+            loadConfig();
         }
 
-        function switchAdminSub(subId) {
-            document.querySelectorAll('.admin-sub-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`admin-sub-${subId}`).classList.remove('hidden');
+        async function showDashboard() {
+            document.getElementById('client-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            document.getElementById('header-action').innerHTML = '';
 
-            ['packages', 'routers', 'vouchers', 'mikrotik'].forEach(s => {
-                const btn = document.getElementById(`sub-btn-${s}`);
-                if(btn) {
-                    if(s === subId) {
-                        btn.className = "bg-[#0891b2] text-white py-2 rounded-lg transition";
+            try {
+                const res = await fetch(`/api/attendant/stats/${tenantId}`);
+                const data = await res.json();
+
+                if (data.success) {
+                    const stats = data.stats;
+                    document.getElementById('dash-business-name').innerText = stats.businessName;
+                    document.getElementById('business-name').innerText = stats.businessName;
+                    document.getElementById('rev-daily').innerText = `KES ${stats.revenue.daily}`;
+                    document.getElementById('rev-weekly').innerText = `KES ${stats.revenue.weekly}`;
+                    document.getElementById('rev-monthly').innerText = `KES ${stats.revenue.monthly}`;
+                    document.getElementById('active-count').innerText = `${stats.activeConnectionsCount} Connected`;
+
+                    // Render active users MAC addresses
+                    const usersList = document.getElementById('connected-users-list');
+                    if (stats.activeUsers.length > 0) {
+                        usersList.innerHTML = stats.activeUsers.map(u => `
+                            <div class="flex justify-between items-center bg-gray-900 p-2 rounded border border-gray-700">
+                                <div>
+                                    <span class="font-bold text-emerald-400">${u.user}</span>
+                                    <div class="text-gray-400 text-[10px]">MAC: ${u.mac || 'N/A'} | IP: ${u.ip}</div>
+                                </div>
+                                <span class="text-gray-400 text-[10px]">${u.uptime}</span>
+                            </div>
+                        `).join('');
                     } else {
-                        btn.className = "bg-[#111827] border border-[#1f2937] text-slate-300 py-2 rounded-lg transition";
+                        usersList.innerHTML = `<p class="text-gray-500 text-center py-2">No active devices currently online.</p>`;
+                    }
+
+                    // Render transactions
+                    const txList = document.getElementById('transactions-list');
+                    if (stats.recentTransactions.length > 0) {
+                        txList.innerHTML = stats.recentTransactions.map(tx => `
+                            <div class="flex justify-between items-center bg-gray-900 p-2 rounded border border-gray-700">
+                                <div>
+                                    <span class="font-bold text-white">${tx.phoneNumber}</span>
+                                    <div class="text-gray-400 text-[10px]">MAC: ${tx.macAddress}</div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-emerald-400 font-bold">KES ${tx.amount}</span>
+                                    <div class="text-gray-500 text-[10px]">${new Date(tx.timestamp).toLocaleTimeString()}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        txList.innerHTML = `<p class="text-gray-500 text-center py-2">No transactions recorded yet.</p>`;
                     }
                 }
+            } catch (e) {
+                console.error("Failed to load dashboard stats:", e);
+            }
+        }
+
+        async function initiatePayment() {
+            const phone = document.getElementById('phone-input').value.trim();
+            if (!phone) return alert('Enter M-Pesa phone number.');
+            if (!selectedPackage) return alert('Select a package.');
+
+            alert(`STK Push triggered for KES ${selectedPackage.price}.`);
+            
+            await fetch('/api/sync-transaction', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phoneNumber: phone,
+                    amount: selectedPackage.price,
+                    macAddress: urlParams.get('mac') || 'unknown',
+                    tenant: tenantId
+                })
             });
         }
 
-        function generateCustomVouchers() {
-            const customPkgName = document.getElementById('voucher-custom-pkg-name').value.trim() || "Custom Unlimited Pass";
-            const durationVal = document.getElementById('voucher-duration-val').value;
-            const durationUnit = document.getElementById('voucher-duration-unit').value;
-            const qty = document.getElementById('voucher-gen-qty').value;
-            const output = document.getElementById('generated-vouchers-output');
-
-            output.classList.remove('hidden');
-            let codes = [];
-            for(let i=0; i<qty; i++) {
-                codes.push(`VORTEX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`);
-            }
-
-            output.innerHTML = `<b>Generated ${qty} Vouchers for "${customPkgName}"</b><br><span class="text-cyan-400">Validity / Duration: ${durationVal} ${durationUnit}</span><br><br>` + codes.join('<br>');
-        }
-
-        function verifyVoucherCode() {
-            const code = document.getElementById('voucher-code-input').value.trim();
-            if(code.length > 3) {
-                alert('Voucher code accepted! Internet access granted.');
-                switchTab('plans');
-            } else {
-                alert('Invalid voucher code.');
-            }
-        }
-
-        function syncTransaction() {
-            const ref = document.getElementById('sync-ref-input').value.trim();
-            if(ref) {
-                alert(`Transaction reference ${ref} verified! Connection re-established.`);
-                switchTab('plans');
-            } else {
-                alert('Please enter a valid M-Pesa transaction reference.');
-            }
-        }
-
-        // Initialize App
-        renderPackages();
-        updateCustomerCareDisplay();
+        loadConfig();
     </script>
 </body>
 </html>
