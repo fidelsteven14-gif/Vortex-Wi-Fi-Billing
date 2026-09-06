@@ -56,11 +56,11 @@
 
             <!-- Package Grid -->
             <div id="package-grid" class="grid grid-cols-2 gap-3">
-                <!-- Populated dynamically to support admin edits -->
+                <!-- Populated dynamically -->
             </div>
         </section>
 
-        <!-- TAB CONTENT: PAYMENT PROMPT (Triggered on Buy Now) -->
+        <!-- TAB CONTENT: PAYMENT PROMPT -->
         <section id="tab-payment" class="tab-content hidden">
             <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
                 <div class="flex items-center justify-between mb-4">
@@ -79,16 +79,43 @@
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-xs text-slate-400">+254</span>
                     <input type="tel" id="mpesa-phone-input" placeholder="702975065" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-3 pl-14 text-xs text-white focus:outline-none focus:border-cyan-500">
                 </div>
-                <button onclick="submitMpesaPayment()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">Stk Push Payment</button>
+                <button onclick="submitMpesaPayment()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">STK Push Payment</button>
             </div>
         </section>
 
-        <!-- TAB CONTENT: TV -->
+        <!-- TAB CONTENT: TV (Smart Billing Integration) -->
         <section id="tab-tv" class="tab-content hidden">
-            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5 text-center">
-                <div class="text-cyan-400 text-xl mb-2"><i class="fa-solid fa-tv"></i></div>
-                <h2 class="text-sm font-semibold text-white mb-1">Streaming & TV Access</h2>
-                <p class="text-xs text-slate-400">Configure media streaming bundles and localized channel packages here.</p>
+            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5 space-y-4">
+                <div class="text-center">
+                    <div class="text-cyan-400 text-xl mb-1"><i class="fa-solid fa-tv"></i></div>
+                    <h2 class="text-sm font-semibold text-white">Smart TV & Media Streaming Access</h2>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Link your Smart TV MAC address or decoder account to high-speed bandwidth allocation.</p>
+                </div>
+
+                <div class="bg-[#0b1120] border border-[#1f2937] rounded-lg p-3.5 space-y-3">
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Select TV Brand / Device Type</label>
+                        <select id="tv-brand-select" class="w-full bg-[#111827] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                            <option value="samsung">Samsung Smart TV (Tizen OS)</option>
+                            <option value="lg">LG Smart TV (webOS)</option>
+                            <option value="android">Android TV / Google TV / Xiaomi Stick</option>
+                            <option value="decoder">Local DVB-T2 / Satellite Decoder Box</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Device MAC Address / Serial Number</label>
+                        <input type="text" id="tv-mac-input" placeholder="e.g. AA:BB:CC:DD:EE:FF" class="w-full bg-[#111827] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white uppercase focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Choose Streaming / Dedicated TV Bandwidth Plan</label>
+                        <select id="tv-plan-select" class="w-full bg-[#111827] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                            <option value="300">TV Unlimited Daily Pass (KSH 70)</option>
+                            <option value="500">4K Ultra HD Streaming Booster - 3 Days (KSH 200)</option>
+                            <option value="1200">Monthly Smart TV Unlimited Stream (KSH 1,200)</option>
+                        </select>
+                    </div>
+                    <button onclick="activateTvBilling()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">Bind TV & Proceed to Payment</button>
+                </div>
             </div>
         </section>
 
@@ -119,36 +146,45 @@
             </div>
         </section>
 
-        <!-- TAB CONTENT: LOGIN ONLY -->
+        <!-- TAB CONTENT: LOGIN / REAL-TIME AUTHENTICATION PORTAL -->
         <section id="tab-login" class="tab-content hidden">
             <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
                 <div class="text-center mb-4">
-                    <h2 class="text-sm font-bold text-cyan-400">Hotspot Login Portal</h2>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Sign in to manage your active router session</p>
+                    <h2 class="text-sm font-bold text-cyan-400">Hotspot Account Portal</h2>
+                    <p id="auth-mode-subtitle" class="text-[11px] text-slate-400 mt-0.5">Sign in or register with your Gmail account</p>
                 </div>
                 
                 <div class="space-y-3">
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Email or Username</label>
-                        <input type="text" id="signin-user" placeholder="name@gmail.com or username" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        <label class="block text-xs text-slate-400 mb-1">Gmail Address</label>
+                        <input type="email" id="auth-email" placeholder="username@gmail.com" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
                     </div>
-                    <div>
+                    
+                    <div id="password-field-container">
                         <label class="block text-xs text-slate-400 mb-1">Password</label>
                         <div class="relative">
-                            <input type="password" id="signin-pass" placeholder="Enter password" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 pr-10 text-xs text-white focus:outline-none focus:border-cyan-500">
-                            <button type="button" onclick="togglePasswordVisibility('signin-pass', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white text-xs">
+                            <input type="password" id="auth-pass" placeholder="Enter secure password" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 pr-10 text-xs text-white focus:outline-none focus:border-cyan-500">
+                            <button type="button" onclick="togglePasswordVisibility('auth-pass', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white text-xs">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
                         </div>
                     </div>
-                    <button onclick="handleSignIn()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition mt-2">Sign In to Dashboard</button>
-                    
-                    <!-- External Registration Redirect Link -->
-                    <div class="border-t border-[#1f2937] pt-3 mt-4 text-center">
-                        <p class="text-[11px] text-slate-400">Don't have an account yet?</p>
-                        <a href="https://vortex.spot/register" target="_blank" class="inline-block mt-2 w-full bg-[#1e293b] hover:bg-[#334155] text-cyan-400 border border-cyan-500/30 font-medium py-2 rounded-lg text-xs transition">
-                            Create Account <i class="fa-solid fa-external-link text-[10px] ml-1"></i>
-                        </a>
+
+                    <!-- OTP Verification Box (Hidden by default, triggered during registration) -->
+                    <div id="otp-container" class="hidden bg-[#0b1120] border border-cyan-500/40 rounded-lg p-3 space-y-2">
+                        <p class="text-[11px] text-cyan-400 font-medium"><i class="fa-solid fa-envelope-circle-check mr-1"></i> A 6-character code (letters & numbers) has been sent to your Gmail.</p>
+                        <label class="block text-[10px] text-slate-400">Enter 6-Digit/Letter Verification Code</label>
+                        <input type="text" id="otp-input" placeholder="e.g. 7X9K2M" maxlength="6" class="w-full bg-[#111827] border border-[#1f2937] rounded p-2 text-xs text-center text-white font-mono tracking-widest uppercase focus:outline-none focus:border-cyan-500">
+                        <button onclick="verifyEmailOtp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 rounded text-xs font-semibold transition">Confirm Verification Code</button>
+                    </div>
+
+                    <div id="action-buttons-container" class="space-y-2 pt-1">
+                        <button onclick="handlePrimaryAuthAction()" id="primary-auth-btn" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">Sign In</button>
+                        
+                        <div class="flex justify-between items-center text-[11px] pt-2 border-t border-[#1f2937]">
+                            <span id="auth-toggle-text" class="text-slate-400">New user?</span>
+                            <button onclick="toggleAuthMode()" id="auth-switch-mode-btn" class="text-cyan-400 font-semibold hover:underline">Create Account Instead</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -160,14 +196,15 @@
                 <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 flex justify-between items-center">
                     <div>
                         <h2 id="admin-welcome-title" class="text-xs font-bold text-cyan-400">Hotspot Admin Portal</h2>
-                        <p class="text-[10px] text-slate-400">Manage packages, vouchers, and MikroTik integration</p>
+                        <p class="text-[10px] text-slate-400">Manage packages, routers, vouchers & MikroTik</p>
                     </div>
                     <button onclick="handleLogout()" class="bg-red-500/20 text-red-400 hover:bg-red-500/30 text-[10px] font-bold px-3 py-1.5 rounded-lg transition">Logout</button>
                 </div>
 
                 <!-- Admin Tab Controller -->
-                <div class="grid grid-cols-3 gap-2 text-center text-[11px] font-semibold">
+                <div class="grid grid-cols-4 gap-1 text-center text-[10px] font-semibold">
                     <button onclick="switchAdminSub('packages')" id="sub-btn-packages" class="bg-[#0891b2] text-white py-2 rounded-lg transition">Packages</button>
+                    <button onclick="switchAdminSub('routers')" id="sub-btn-routers" class="bg-[#111827] border border-[#1f2937] text-slate-300 py-2 rounded-lg transition">Routers</button>
                     <button onclick="switchAdminSub('vouchers')" id="sub-btn-vouchers" class="bg-[#111827] border border-[#1f2937] text-slate-300 py-2 rounded-lg transition">Vouchers</button>
                     <button onclick="switchAdminSub('mikrotik')" id="sub-btn-mikrotik" class="bg-[#111827] border border-[#1f2937] text-slate-300 py-2 rounded-lg transition">MikroTik</button>
                 </div>
@@ -178,7 +215,7 @@
                     <div id="admin-package-editor-list" class="space-y-2"></div>
                     <button onclick="addNewPackage()" class="w-full bg-[#1e293b] hover:bg-[#334155] text-cyan-400 border border-cyan-500/30 font-medium py-2 rounded-lg text-xs transition">+ Add New Package</button>
                     
-                    <!-- CUSTOMER CARE HELPLINE SETTINGS BOX -->
+                    <!-- Customer Care Helpline Settings -->
                     <div class="border-t border-[#1f2937] pt-3 mt-3">
                         <h3 class="text-xs font-bold text-white mb-2">Customer Care / WhatsApp Helpline</h3>
                         <label class="block text-[11px] text-slate-400 mb-1">WhatsApp Phone Number</label>
@@ -186,13 +223,29 @@
                         <button onclick="saveCustomerCareNumber()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2 rounded-lg text-xs transition">Save Helpline Number</button>
                     </div>
 
-                    <!-- HOTSPOT NAME SETTINGS BOX -->
+                    <!-- Hotspot Name Settings -->
                     <div class="border-t border-[#1f2937] pt-3 mt-3">
                         <h3 class="text-xs font-bold text-white mb-2">Hotspot Branding Name</h3>
                         <label class="block text-[11px] text-slate-400 mb-1">Hotspot Network Name</label>
                         <input type="text" id="admin-custom-hotspot-name" placeholder="HOTSPOT VORTEX" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 mb-2">
                         <button onclick="saveHotspotName()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2 rounded-lg text-xs transition">Save Hotspot Name</button>
                     </div>
+                </div>
+
+                <!-- Admin Sub: Routers Management -->
+                <div id="admin-sub-routers" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3 hidden">
+                    <h3 class="text-xs font-bold text-white mb-2">Hotspot Routers Fleet Management</h3>
+                    <div class="bg-[#0b1120] p-3 rounded-lg border border-[#1f2937] space-y-2">
+                        <label class="block text-[11px] text-slate-400">Total Active Routers Deployed</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="admin-router-count" value="4" min="1" class="w-24 bg-[#111827] border border-[#1f2937] rounded p-2 text-xs text-white text-center font-bold">
+                            <button onclick="saveRouterCount()" class="flex-1 bg-[#0891b2] hover:bg-[#0e7490] text-white py-2 rounded text-xs transition">Update Router Quota</button>
+                        </div>
+                    </div>
+                    <div id="admin-router-list" class="space-y-2">
+                        <!-- Populated dynamically -->
+                    </div>
+                    <button onclick="addNewRouterNode()" class="w-full bg-[#1e293b] hover:bg-[#334155] text-cyan-400 border border-cyan-500/30 font-medium py-2 rounded-lg text-xs transition">+ Register New Router Node</button>
                 </div>
 
                 <!-- Admin Sub: Vouchers -->
@@ -229,13 +282,13 @@
             </div>
         </section>
 
-        <!-- TAB CONTENT: SUPER ADMIN DASHBOARD -->
+        <!-- TAB CONTENT: SUPER ADMIN COMMAND CENTER -->
         <section id="tab-superadmin" class="tab-content hidden">
             <div class="space-y-4">
                 <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 flex justify-between items-center">
                     <div>
                         <h2 class="text-xs font-bold text-amber-400">Super Admin Command Center</h2>
-                        <p class="text-[10px] text-slate-400">System-wide performance, revenue & hotspot tracking</p>
+                        <p class="text-[10px] text-slate-400">Real-time system monitoring, revenue & transactions</p>
                     </div>
                     <button onclick="handleLogout()" class="bg-red-500/20 text-red-400 hover:bg-red-500/30 text-[10px] font-bold px-3 py-1.5 rounded-lg transition">Logout</button>
                 </div>
@@ -252,40 +305,41 @@
                     </div>
                     <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-3.5">
                         <p class="text-[10px] text-slate-400">Active Online Users</p>
-                        <p class="text-lg font-extrabold text-cyan-400 mt-1">1,420</p>
+                        <p id="superadmin-online-count" class="text-lg font-extrabold text-cyan-400 mt-1">1,420</p>
                     </div>
                     <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-3.5">
-                        <p class="text-[10px] text-slate-400">Failed M-Pesa Txns</p>
-                        <p class="text-lg font-extrabold text-amber-400 mt-1">12</p>
+                        <p class="text-[10px] text-slate-400">Completed Txns / Failed</p>
+                        <p class="text-xs font-extrabold text-emerald-400 mt-1"><span id="completed-txns-stat">8,942</span> / <span id="failed-txns-stat" class="text-amber-400">12</span></p>
                     </div>
                 </div>
 
-                <!-- Analytics Timeframe Filters -->
+                <!-- Real-time Activity Feed / Transactions Log -->
                 <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3">
                     <div class="flex justify-between items-center">
-                        <h3 class="text-xs font-bold text-white">Revenue & Traffic Analysis</h3>
-                        <select class="bg-[#0b1120] border border-[#1f2937] rounded text-[10px] text-slate-300 p-1">
-                            <option>Minute / Hourly</option>
-                            <option>Daily</option>
-                            <option>Weekly</option>
-                            <option>Monthly</option>
-                        </select>
+                        <h3 class="text-xs font-bold text-white">Live Transactions & Business Status</h3>
+                        <span class="inline-flex items-center gap-1.5 text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-medium">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Real-time Live
+                        </span>
                     </div>
-                    <div class="h-28 bg-[#0b1120] border border-[#1f2937] rounded-lg p-3 flex flex-col justify-end">
-                        <div class="flex justify-between items-end h-20 gap-1">
-                            <div class="w-full bg-cyan-500/30 hover:bg-cyan-500/50 h-[40%] rounded-t transition"></div>
-                            <div class="w-full bg-cyan-500/40 hover:bg-cyan-500/60 h-[65%] rounded-t transition"></div>
-                            <div class="w-full bg-cyan-500/50 hover:bg-cyan-500/70 h-[50%] rounded-t transition"></div>
-                            <div class="w-full bg-cyan-500/60 hover:bg-cyan-500/80 h-[85%] rounded-t transition"></div>
-                            <div class="w-full bg-cyan-500 hover:bg-cyan-400 h-[100%] rounded-t transition"></div>
+                    <div id="live-transactions-list" class="space-y-2 text-xs max-h-40 overflow-y-auto">
+                        <div class="bg-[#0b1120] p-2.5 rounded-lg flex justify-between items-center border border-[#1f2937]">
+                            <div>
+                                <p class="font-bold text-white">NDOVU 12hrs (KSH 35)</p>
+                                <p class="text-[10px] text-slate-400">+254702975065 • QJI5HNTXYZ</p>
+                            </div>
+                            <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">Completed</span>
                         </div>
-                        <div class="flex justify-between text-[9px] text-slate-500 mt-1">
-                            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span>
+                        <div class="bg-[#0b1120] p-2.5 rounded-lg flex justify-between items-center border border-[#1f2937]">
+                            <div>
+                                <p class="font-bold text-white">JINICE 24hrs (KSH 50)</p>
+                                <p class="text-[10px] text-slate-400">+254712345678 • TIMEOUT_ERR</p>
+                            </div>
+                            <span class="text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">Failed</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Registered Hotspot Owners Directory (Phone Numbers) -->
+                <!-- Registered Hotspot Owners Directory -->
                 <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4">
                     <h3 class="text-xs font-bold text-white mb-3">Hotspot Owners Directory & Contacts</h3>
                     <div class="space-y-2 text-xs">
@@ -302,13 +356,6 @@
                                 <p class="text-[10px] text-slate-400">alexia@vortex.spot</p>
                             </div>
                             <span class="text-xs text-slate-300 font-mono">0712345678</span>
-                        </div>
-                        <div class="bg-[#0b1120] p-2.5 rounded-lg flex justify-between items-center border border-[#1f2937]">
-                            <div>
-                                <p class="font-bold text-white">Gendia Network Hub</p>
-                                <p class="text-[10px] text-slate-400">gendia@vortex.spot</p>
-                            </div>
-                            <span class="text-xs text-slate-300 font-mono">0734567890</span>
                         </div>
                     </div>
                 </div>
@@ -344,7 +391,7 @@
     </nav>
 
     <script>
-        // Packages Data Structure (Editable by Admin)
+        // Packages Data Structure
         let packages = [
             { id: 1, name: "LITE 1hrs", speed: "5 Mbps", price: 10 },
             { id: 2, name: "surf 2hrs", speed: "3 Mbps", price: 15 },
@@ -356,29 +403,34 @@
             { id: 8, name: "3days plan", speed: "5 Mbps", price: 100 }
         ];
 
-        let selectedPackageData = null;
+        let routersList = [
+            { id: 1, name: "Main Gateway AP-1", ip: "192.168.8.1", status: "Online" },
+            { id: 2, name: "Sub-Station Hub-2", ip: "192.168.8.2", status: "Online" },
+            { id: 3, name: "Gendia Sector Node-3", ip: "192.168.8.3", status: "Online" },
+            { id: 4, name: "Perimeter Repeater-4", ip: "192.168.8.4", status: "Online" }
+        ];
 
-        // Customer Care & Hotspot Branding State (Loads from localStorage)
+        // Persistent Users Database for real-time duplicate Gmail detection & OTP
+        let registeredUsers = JSON.parse(localStorage.getItem('vortex_users_db')) || [
+            { email: "fidelsteven2@gmail.com", pass: "Steven_19", role: "superadmin" }
+        ];
+
+        let selectedPackageData = null;
         let customerCarePhone = localStorage.getItem('vortex_customer_care') || "0702975065";
         let hotspotBrandName = localStorage.getItem('vortex_hotspot_name') || "HOTSPOT VORTEX";
+        let authMode = 'login'; // 'login' or 'register'
+        let pendingRegistrationUser = null;
+        let generatedOtpCode = null;
 
         function updateCustomerCareDisplay() {
             const careElement = document.getElementById('customer-care');
-            if (careElement) {
-                careElement.innerText = customerCarePhone;
-            }
+            if (careElement) careElement.innerText = customerCarePhone;
             const phoneInput = document.getElementById('admin-custom-phone');
-            if (phoneInput) {
-                phoneInput.value = customerCarePhone;
-            }
+            if (phoneInput) phoneInput.value = customerCarePhone;
             const titleElement = document.getElementById('header-title');
-            if (titleElement) {
-                titleElement.innerText = `Sign in to ${hotspotBrandName}`;
-            }
+            if (titleElement) titleElement.innerText = `Sign in to ${hotspotBrandName}`;
             const nameInput = document.getElementById('admin-custom-hotspot-name');
-            if (nameInput) {
-                nameInput.value = hotspotBrandName;
-            }
+            if (nameInput) nameInput.value = hotspotBrandName;
         }
 
         function saveCustomerCareNumber() {
@@ -412,6 +464,7 @@
 
         function renderPackages() {
             const grid = document.getElementById('package-grid');
+            if (!grid) return;
             grid.innerHTML = '';
             packages.forEach(pkg => {
                 grid.innerHTML += `
@@ -432,6 +485,7 @@
 
         function renderAdminPackages() {
             const list = document.getElementById('admin-package-editor-list');
+            if (!list) return;
             list.innerHTML = '';
             packages.forEach((pkg, index) => {
                 list.innerHTML += `
@@ -442,7 +496,50 @@
                     </div>
                 `;
             });
+            renderAdminRouters();
             updateCustomerCareDisplay();
+        }
+
+        function renderAdminRouters() {
+            const rList = document.getElementById('admin-router-list');
+            const countInput = document.getElementById('admin-router-count');
+            if (countInput) countInput.value = routersList.length;
+            if (!rList) return;
+            rList.innerHTML = '';
+            routersList.forEach((r, idx) => {
+                rList.innerHTML += `
+                    <div class="bg-[#0b1120] p-2.5 rounded-lg border border-[#1f2937] flex justify-between items-center text-xs">
+                        <div>
+                            <p class="font-bold text-cyan-400">${r.name}</p>
+                            <p class="text-[10px] text-slate-400">IP: ${r.ip} • Status: <span class="text-emerald-400">${r.status}</span></p>
+                        </div>
+                        <button onclick="deleteRouter(${idx})" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            });
+        }
+
+        function saveRouterCount() {
+            const count = parseInt(document.getElementById('admin-router-count').value);
+            if (isNaN(count) || count < 1) return;
+            while(routersList.length < count) {
+                routersList.push({ id: Date.now() + routersList.length, name: `Router Node-${routersList.length + 1}`, ip: `192.168.8.${routersList.length + 1}`, status: "Online" });
+            }
+            while(routersList.length > count) {
+                routersList.pop();
+            }
+            renderAdminRouters();
+            alert(`Router count updated successfully to ${count} active nodes!`);
+        }
+
+        function addNewRouterNode() {
+            routersList.push({ id: Date.now(), name: `Router Node-${routersList.length + 1}`, ip: `192.168.8.${routersList.length + 1}`, status: "Online" });
+            renderAdminRouters();
+        }
+
+        function deleteRouter(idx) {
+            routersList.splice(idx, 1);
+            renderAdminRouters();
         }
 
         function updatePkgName(index, val) { packages[index].name = val; renderPackages(); }
@@ -486,6 +583,49 @@
             switchTab('plans');
         }
 
+        // Smart TV Billing & MAC Integration
+        function activateTvBilling() {
+            const brand = document.getElementById('tv-brand-select').value;
+            const mac = document.getElementById('tv-mac-input').value.trim();
+            const selectEl = document.getElementById('tv-plan-select');
+            const planText = selectEl.options[selectEl.selectedIndex].text;
+            const priceVal = selectEl.value;
+
+            if(!mac || mac.length < 10) {
+                alert('Please enter a valid Smart TV MAC address or decoder serial number.');
+                return;
+            }
+
+            alert(`Smart TV (${brand.toUpperCase()}) MAC [${mac}] successfully bound to plan: ${planText}. STK Push initiated for KSH ${priceVal}.`);
+            switchTab('plans');
+        }
+
+        // Real-Time Authentication & 6-Character Verification Code Generator
+        function toggleAuthMode() {
+            authMode = authMode === 'login' ? 'register' : 'login';
+            const subtitle = document.getElementById('auth-mode-subtitle');
+            const primaryBtn = document.getElementById('primary-auth-btn');
+            const toggleText = document.getElementById('auth-toggle-text');
+            const switchBtn = document.getElementById('auth-switch-mode-btn');
+            const passContainer = document.getElementById('password-field-container');
+            const otpContainer = document.getElementById('otp-container');
+
+            otpContainer.classList.add('hidden');
+            passContainer.classList.remove('hidden');
+
+            if(authMode === 'register') {
+                subtitle.innerText = "Create a new Hotspot account with your Gmail";
+                primaryBtn.innerText = "Send Verification Code to Gmail";
+                toggleText.innerText = "Already have an account?";
+                switchBtn.innerText = "Sign In Instead";
+            } else {
+                subtitle.innerText = "Sign in to manage your active router session";
+                primaryBtn.innerText = "Sign In to Dashboard";
+                toggleText.innerText = "Don't have an account yet?";
+                switchBtn.innerText = "Create Account Instead";
+            }
+        }
+
         function togglePasswordVisibility(fieldId, btn) {
             const input = document.getElementById(fieldId);
             if(input.type === 'password') {
@@ -497,29 +637,93 @@
             }
         }
 
-        function handleSignIn() {
-            const user = document.getElementById('signin-user').value.trim();
-            const pass = document.getElementById('signin-pass').value.trim();
+        function handlePrimaryAuthAction() {
+            const email = document.getElementById('auth-email').value.trim().toLowerCase();
+            const pass = document.getElementById('auth-pass').value.trim();
 
-            if(!user || !pass) {
-                alert('Please enter your credentials.');
+            if(!email || !email.includes('@')) {
+                alert('Please enter a valid Gmail address.');
                 return;
             }
 
-            // Check Super Admin Exact Credentials
-            if ((user === 'fidelsteven2@gmail.com' || user === 'Steven Fidel') && pass === 'Steven_19') {
-                document.getElementById('tab-login').classList.add('hidden');
-                document.getElementById('tab-superadmin').classList.remove('hidden');
-                alert('Super Admin authenticated successfully.');
+            if(authMode === 'register') {
+                // Real-time check if Gmail already exists in database
+                const existingUser = registeredUsers.find(u => u.email === email);
+                if(existingUser) {
+                    alert(`Error: The Gmail address "${email}" already exists in the database. Please sign in instead.`);
+                    authMode = 'login';
+                    toggleAuthMode();
+                    document.getElementById('auth-email').value = email;
+                    return;
+                }
+
+                if(!pass || pass.length < 6) {
+                    alert('Please enter a secure password (at least 6 characters).');
+                    return;
+                }
+
+                // Generate 6-character alphanumeric code (combination of numbers and letters)
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                generatedOtpCode = '';
+                for(let i=0; i<6; i++) {
+                    generatedOtpCode += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+
+                pendingRegistrationUser = { email, pass, role: 'admin' };
+                
+                // Simulate sending email verification code directly to Gmail
+                document.getElementById('otp-container').classList.remove('hidden');
+                document.getElementById('password-field-container').classList.add('hidden');
+                document.getElementById('action-buttons-container').classList.add('hidden');
+                
+                alert(`[Gmail Dispatch Simulator]: A 6-character verification code (${generatedOtpCode}) has been successfully sent to ${email}. Please check your inbox.`);
+            } else {
+                // Sign In mode
+                if(!pass) {
+                    alert('Please enter your password.');
+                    return;
+                }
+
+                const userRecord = registeredUsers.find(u => u.email === email && u.pass === pass);
+                if(!userRecord && !(email === 'fidelsteven2@gmail.com' && pass === 'Steven_19')) {
+                    alert('Invalid Gmail address or password. Please check your credentials.');
+                    return;
+                }
+
+                const role = (email === 'fidelsteven2@gmail.com') ? 'superadmin' : 'admin';
+
+                if(role === 'superadmin') {
+                    document.getElementById('tab-login').classList.add('hidden');
+                    document.getElementById('tab-superadmin').classList.remove('hidden');
+                    alert('Super Admin Command Center authenticated successfully.');
+                } else {
+                    document.getElementById('tab-login').classList.add('hidden');
+                    document.getElementById('tab-admin').classList.remove('hidden');
+                    document.getElementById('admin-welcome-title').innerText = `Hotspot Admin: ${email}`;
+                    renderAdminPackages();
+                    alert(`Welcome to your Hotspot Admin Portal, ${email}!`);
+                }
+            }
+        }
+
+        function verifyEmailOtp() {
+            const enteredOtp = document.getElementById('otp-input').value.trim().toUpperCase();
+            if(enteredOtp !== generatedOtpCode) {
+                alert('Invalid verification code. Please check your Gmail inbox and enter the exact 6-character code.');
                 return;
             }
 
-            // Regular Hotspot Business Admin Login
+            // Save new user to database
+            registeredUsers.push(pendingRegistrationUser);
+            localStorage.setItem('vortex_users_db', JSON.stringify(registeredUsers));
+
+            alert('Gmail account successfully verified and registered in the database!');
+            
+            // Auto login after successful verification
             document.getElementById('tab-login').classList.add('hidden');
             document.getElementById('tab-admin').classList.remove('hidden');
-            document.getElementById('admin-welcome-title').innerText = `Hotspot Admin: ${user}`;
+            document.getElementById('admin-welcome-title').innerText = `Hotspot Admin: ${pendingRegistrationUser.email}`;
             renderAdminPackages();
-            alert(`Welcome to your Hotspot Admin Portal, ${user}!`);
         }
 
         function handleLogout() {
@@ -532,12 +736,14 @@
             document.querySelectorAll('.admin-sub-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(`admin-sub-${subId}`).classList.remove('hidden');
 
-            ['packages', 'vouchers', 'mikrotik'].forEach(s => {
+            ['packages', 'routers', 'vouchers', 'mikrotik'].forEach(s => {
                 const btn = document.getElementById(`sub-btn-${s}`);
-                if(s === subId) {
-                    btn.className = "bg-[#0891b2] text-white py-2 rounded-lg transition";
-                } else {
-                    btn.className = "bg-[#111827] border border-[#1f2937] text-slate-300 py-2 rounded-lg transition";
+                if(btn) {
+                    if(s === subId) {
+                        btn.className = "bg-[#0891b2] text-white py-2 rounded-lg transition";
+                    } else {
+                        btn.className = "bg-[#111827] border border-[#1f2937] text-slate-300 py-2 rounded-lg transition";
+                    }
                 }
             });
         }
