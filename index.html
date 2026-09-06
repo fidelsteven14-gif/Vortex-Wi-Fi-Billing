@@ -36,7 +36,7 @@
 </head>
 <body class="font-sans pb-28 selection:bg-cyan-500 selection:text-white">
 
-    <!-- Top Header / Banner -->
+    <!-- Top Header / Banner (Attendant badge completely removed) -->
     <header class="bg-[#0f172a] border-b border-[#1e293b] p-4 sticky top-0 z-50">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div>
@@ -50,36 +50,6 @@
             </div>
         </div>
     </header>
-
-    <!-- Attendant Supervisor Dashboard Modal -->
-    <div id="login-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-card rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-700/50">
-            <div class="text-center mb-6">
-                <div class="w-12 h-12 bg-cyan-500/10 rounded-2xl flex items-center justify-center mx-auto mb-3 text-cyan-400 font-bold text-xl border border-cyan-500/20">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <h2 class="text-xl font-extrabold text-white tracking-tight">Supervisor Portal</h2>
-                <p class="text-xs text-slate-400 mt-1">Log in to oversee live router telemetry & active MAC devices</p>
-            </div>
-            
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Attendant Username</label>
-                    <input type="text" id="login-user" placeholder="e.g. elite_admin" class="w-full bg-[#0b1120] border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-500 transition">
-                </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Password</label>
-                    <input type="password" id="login-pass" placeholder="••••••••" class="w-full bg-[#0b1120] border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-500 transition">
-                </div>
-            </div>
-            
-            <button onclick="handleAttendantLogin()" class="w-full mt-6 bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-400 hover:to-teal-500 text-slate-950 font-extrabold py-3.5 rounded-xl text-sm transition shadow-lg shadow-cyan-500/20 active:scale-[0.98]">
-                Sign In to Dashboard
-            </button>
-            <button onclick="closeLoginModal()" class="w-full mt-2 bg-transparent text-slate-400 hover:text-slate-200 text-xs py-2 font-medium transition">Cancel</button>
-            <p id="login-error" class="text-rose-400 text-xs text-center mt-3 font-medium hidden bg-rose-500/10 py-2 rounded-lg border border-rose-500/20"></p>
-        </div>
-    </div>
 
     <!-- Main Container -->
     <main class="max-w-md mx-auto p-4">
@@ -189,35 +159,22 @@
             </div>
         </section>
 
-        <!-- TAB CONTENT: LOGIN / REAL-TIME AUTHENTICATION PORTAL (Dual-purpose: Attendant Supervisor & User Portal) -->
+        <!-- TAB CONTENT: LOGIN (Tenant & Super Admin Gateway accessed via bottom-right LOGIN button) -->
         <section id="tab-login" class="tab-content hidden">
             <div class="space-y-4">
-                <!-- Quick Attendant Supervisor Quick-Action Banner inside LOGIN tab -->
-                <div class="bg-gradient-to-r from-cyan-950/40 to-slate-900 border border-cyan-500/30 rounded-xl p-4 flex items-center justify-between shadow-lg">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-cyan-500/10 rounded-xl flex items-center justify-center text-cyan-400 border border-cyan-500/20">
-                            <i class="fa-solid fa-shield-halved text-sm"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xs font-bold text-cyan-300">Attendant / Supervisor Portal</h3>
-                            <p class="text-[10px] text-slate-400">Manage live router telemetry, MACs & revenue</p>
-                        </div>
-                    </div>
-                    <button onclick="openLoginModal()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-[11px] px-3.5 py-2 rounded-xl transition shadow-md flex items-center gap-1.5">
-                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Login
-                    </button>
-                </div>
-
                 <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
                     <div class="text-center mb-4">
-                        <h2 class="text-sm font-bold text-white">Hotspot Account Portal</h2>
-                        <p id="auth-mode-subtitle" class="text-[11px] text-slate-400 mt-0.5">Enter your hotspot username and password to sign in or register automatically</p>
+                        <div class="w-12 h-12 bg-cyan-500/10 rounded-2xl flex items-center justify-center mx-auto mb-3 text-cyan-400 font-bold text-xl border border-cyan-500/20">
+                            <i class="fa-solid fa-user-shield"></i>
+                        </div>
+                        <h2 class="text-sm font-bold text-white">Tenant & Admin Portal Login</h2>
+                        <p id="auth-mode-subtitle" class="text-[11px] text-slate-400 mt-0.5">Enter your tenant username and password to access your management dashboard</p>
                     </div>
                     
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-xs text-slate-400 mb-1">Hotspot Username</label>
-                            <input type="text" id="auth-username" placeholder="e.g. vortex-wifi" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                            <label class="block text-xs text-slate-400 mb-1">Username</label>
+                            <input type="text" id="auth-username" placeholder="e.g. vortex-admin" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
                         </div>
                         
                         <div id="password-field-container">
@@ -231,7 +188,7 @@
                         </div>
 
                         <div id="action-buttons-container" class="space-y-2 pt-1">
-                            <button onclick="handlePrimaryAuthAction()" id="primary-auth-btn" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">Login</button>
+                            <button onclick="handlePrimaryAuthAction()" id="primary-auth-btn" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">Sign In to Dashboard</button>
                         </div>
                     </div>
                 </div>
@@ -243,7 +200,7 @@
             <div class="space-y-4">
                 <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 flex justify-between items-center">
                     <div>
-                        <h2 id="admin-welcome-title" class="text-xs font-bold text-cyan-400">Hotspot Admin Portal</h2>
+                        <h2 id="admin-welcome-title" class="text-xs font-bold text-cyan-400">Tenant Dashboard</h2>
                         <p class="text-[10px] text-slate-400">Manage packages, routers, custom vouchers & monetization</p>
                     </div>
                     <button onclick="handleLogout()" class="bg-red-500/20 text-red-400 hover:bg-red-500/30 text-[10px] font-bold px-3 py-1.5 rounded-lg transition">Logout</button>
@@ -369,7 +326,7 @@
                 <!-- Stats Overview Cards -->
                 <div class="grid grid-cols-2 gap-3">
                     <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-3.5">
-                        <p class="text-[10px] text-slate-400">Total Hotspot Owners</p>
+                        <p class="text-[10px] text-slate-400">Total Hotspot Tenants</p>
                         <p class="text-lg font-extrabold text-white mt-1">48 Active</p>
                     </div>
                     <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-3.5">
@@ -414,7 +371,7 @@
 
                 <!-- Registered Hotspot Owners Directory -->
                 <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4">
-                    <h3 class="text-xs font-bold text-white mb-3">Hotspot Owners Directory & Contacts</h3>
+                    <h3 class="text-xs font-bold text-white mb-3">Hotspot Tenants Directory & Contacts</h3>
                     <div class="space-y-2 text-xs">
                         <div class="bg-[#0b1120] p-2.5 rounded-lg flex justify-between items-center border border-[#1f2937]">
                             <div>
@@ -429,81 +386,6 @@
                                 <p class="text-[10px] text-slate-400">alexia-wifi</p>
                             </div>
                             <span class="text-xs text-slate-300 font-mono">0712345678</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ATTENDANT SUPERVISOR DASHBOARD VIEW (Embedded Integrated Panel) -->
-        <section id="tab-attendant-dash" class="tab-content hidden">
-            <div class="space-y-4 w-full">
-                <div class="flex justify-between items-center bg-[#111827] p-4 rounded-xl border border-[#1f2937]">
-                    <div>
-                        <h3 class="text-xs font-extrabold text-cyan-400" id="dash-business-name">Hotspot Supervisor</h3>
-                        <p class="text-[10px] text-slate-400 font-medium">Live MAC Monitor & Revenue Tracking (5% Super Admin Split)</p>
-                    </div>
-                    <button onclick="logoutAttendant()" class="text-[10px] font-bold bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 px-3 py-1.5 rounded-lg border border-rose-500/20 transition">Exit Dashboard</button>
-                </div>
-
-                <!-- Revenue Cards Grid -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-[#111827] p-3.5 rounded-xl border border-[#1f2937]">
-                        <div class="text-[10px] font-semibold text-slate-400 uppercase">Today Revenue</div>
-                        <div class="text-lg font-black text-cyan-400 mt-1" id="rev-daily">KES 2,450</div>
-                    </div>
-                    <div class="bg-[#111827] p-3.5 rounded-xl border border-[#1f2937]">
-                        <div class="text-[10px] font-semibold text-slate-400 uppercase">This Week</div>
-                        <div class="text-lg font-black text-cyan-400 mt-1" id="rev-weekly">KES 16,800</div>
-                    </div>
-                    <div class="bg-[#111827] p-3.5 rounded-xl border border-[#1f2937]">
-                        <div class="text-[10px] font-semibold text-slate-400 uppercase">This Month</div>
-                        <div class="text-lg font-black text-cyan-400 mt-1" id="rev-monthly">KES 64,200</div>
-                    </div>
-                    <div class="bg-[#111827] p-3.5 rounded-xl border border-[#1f2937]">
-                        <div class="text-[10px] font-semibold text-slate-400 uppercase">Active Devices</div>
-                        <div class="text-lg font-black text-amber-400 mt-1" id="active-count">18 Online</div>
-                    </div>
-                </div>
-
-                <!-- Connected Users & MAC Table -->
-                <div class="bg-[#111827] rounded-xl p-4 border border-[#1f2937]">
-                    <h4 class="text-xs font-extrabold text-slate-200 mb-3 uppercase tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-laptop text-cyan-400"></i> Connected Devices & MAC Addresses
-                    </h4>
-                    <div id="connected-users-list" class="space-y-2 max-h-48 overflow-y-auto text-xs pr-1">
-                        <div class="flex justify-between items-center bg-[#0b1120] p-2.5 rounded-lg border border-[#1f2937]">
-                            <div>
-                                <span class="font-extrabold text-cyan-400">Samsung-Galaxy-A15</span>
-                                <div class="text-slate-400 text-[10px] mt-0.5">MAC: <span class="text-slate-200 font-mono">D8:32:14:BF:34:78</span> | IP: 192.168.8.105</div>
-                            </div>
-                            <span class="text-slate-400 text-[10px] font-mono bg-[#111827] px-2 py-1 rounded">2h 14m</span>
-                        </div>
-                        <div class="flex justify-between items-center bg-[#0b1120] p-2.5 rounded-lg border border-[#1f2937]">
-                            <div>
-                                <span class="font-extrabold text-cyan-400">iPhone-13-Pro</span>
-                                <div class="text-slate-400 text-[10px] mt-0.5">MAC: <span class="text-slate-200 font-mono">F4:55:9E:11:88:22</span> | IP: 192.168.8.112</div>
-                            </div>
-                            <span class="text-slate-400 text-[10px] font-mono bg-[#111827] px-2 py-1 rounded">45m</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Transactions & 5% Super Admin Commission -->
-                <div class="bg-[#111827] rounded-xl p-4 border border-[#1f2937]">
-                    <h4 class="text-xs font-extrabold text-slate-200 mb-3 uppercase tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-money-bill-wave text-cyan-400"></i> Recent Transactions (5% Super Admin Cut)
-                    </h4>
-                    <div id="transactions-list" class="space-y-2 max-h-40 overflow-y-auto text-xs pr-1">
-                        <div class="flex justify-between items-center bg-[#0b1120] p-2.5 rounded-lg border border-[#1f2937]">
-                            <div>
-                                <span class="font-bold text-white">+254702975065</span>
-                                <div class="text-slate-400 text-[10px] mt-0.5">MAC: <span class="font-mono">D8:32:14:BF:34:78</span></div>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-cyan-400 font-extrabold">KES 50</span>
-                                <div class="text-slate-500 text-[10px]">Super Cut: KES 2.50</div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -565,9 +447,9 @@
             }
         ];
 
-        // Persistent Users Database for database checking & automatic login/registration using Hotspot Username
+        // Persistent Users Database with updated super admin credentials
         let registeredUsers = JSON.parse(localStorage.getItem('vortex_users_db')) || [
-            { username: "vortex-admin", pass: "Steven_19", role: "superadmin" }
+            { username: "vortex-admin", pass: "Steven_19.20@06", role: "superadmin" }
         ];
 
         let selectedPackageData = null;
@@ -575,7 +457,6 @@
         let hotspotBrandName = localStorage.getItem('vortex_hotspot_name') || "HOTSPOT VORTEX";
         let monetizationTill = localStorage.getItem('vortex_monetization_till') || "174379";
         let monetizationMarkup = localStorage.getItem('vortex_monetization_markup') || "100";
-        let isAttendantLoggedIn = localStorage.getItem('attendant_logged_in') === 'true';
 
         function updateCustomerCareDisplay() {
             const careElement = document.getElementById('customer-care');
@@ -811,13 +692,13 @@
             }
         }
 
-        // Database Authentication Handler using Hotspot Username
+        // Tenant and Super Admin Authentication Handler via bottom-right LOGIN button
         function handlePrimaryAuthAction() {
             const username = document.getElementById('auth-username').value.trim().toLowerCase();
             const pass = document.getElementById('auth-pass').value.trim();
 
             if(!username || username.length < 2) {
-                alert('Please enter a valid hotspot username.');
+                alert('Please enter a valid username.');
                 return;
             }
 
@@ -829,8 +710,8 @@
             let existingUser = registeredUsers.find(u => u.username === username);
 
             if (existingUser) {
-                if (existingUser.pass !== pass && !(username === 'vortex-admin' && pass === 'Steven_19')) {
-                    alert('Incorrect password for this hotspot account. Please check your credentials.');
+                if (existingUser.pass !== pass && !(username === 'vortex-admin' && pass === 'Steven_19.20@06')) {
+                    alert('Incorrect password for this account. Please check your credentials.');
                     return;
                 }
 
@@ -843,7 +724,7 @@
                 } else {
                     document.getElementById('tab-login').classList.add('hidden');
                     document.getElementById('tab-admin').classList.remove('hidden');
-                    document.getElementById('admin-welcome-title').innerText = `Hotspot Admin: ${username}`;
+                    document.getElementById('admin-welcome-title').innerText = `Tenant Dashboard: ${username}`;
                     renderAdminPackages();
                     alert(`Welcome back, ${username}! Logged in successfully.`);
                 }
@@ -854,56 +735,10 @@
 
                 document.getElementById('tab-login').classList.add('hidden');
                 document.getElementById('tab-admin').classList.remove('hidden');
-                document.getElementById('admin-welcome-title').innerText = `Hotspot Admin: ${username}`;
+                document.getElementById('admin-welcome-title').innerText = `Tenant Dashboard: ${username}`;
                 renderAdminPackages();
-                alert(`New hotspot account "${username}" successfully created and logged in!`);
+                alert(`New tenant account "${username}" successfully created and logged in!`);
             }
-        }
-
-        // Attendant Supervisor Portal Functions
-        function openLoginModal() {
-            document.getElementById('login-modal').classList.remove('hidden');
-        }
-
-        function closeLoginModal() {
-            document.getElementById('login-modal').classList.add('hidden');
-        }
-
-        function handleAttendantLogin() {
-            const username = document.getElementById('login-user').value.trim();
-            const password = document.getElementById('login-pass').value.trim();
-            const errEl = document.getElementById('login-error');
-
-            if (!username || !password) {
-                errEl.innerText = "Please enter both fields.";
-                errEl.classList.remove('hidden');
-                return;
-            }
-
-            // Accept default credentials or any registered admin
-            if (username === "admin" || username === "elite_admin" || registeredUsers.some(u => u.username === username)) {
-                localStorage.setItem('attendant_logged_in', 'true');
-                isAttendantLoggedIn = true;
-                closeLoginModal();
-                showAttendantDashboard();
-            } else {
-                errEl.innerText = "Invalid attendant credentials.";
-                errEl.classList.remove('hidden');
-            }
-        }
-
-        function showAttendantDashboard() {
-            document.querySelectorAll('.tab-content').Error?.();
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById('tab-attendant-dash').classList.remove('hidden');
-            document.getElementById('dash-business-name').innerText = hotspotBrandName;
-        }
-
-        function logoutAttendant() {
-            localStorage.removeItem('attendant_logged_in');
-            isAttendantLoggedIn = false;
-            document.getElementById('tab-attendant-dash').classList.add('hidden');
-            switchTab('plans');
         }
 
         function handleLogout() {
@@ -967,10 +802,6 @@
         // Initialize App
         renderPackages();
         updateCustomerCareDisplay();
-
-        if (isAttendantLoggedIn) {
-            showAttendantDashboard();
-        }
     </script>
 </body>
 </html>
