@@ -233,17 +233,17 @@
                     </div>
                 </div>
 
-                <!-- Admin Sub: Manual Routers Configuration -->
+                <!-- Admin Sub: Manual Routers Configuration (Synced with Hardware Label Specs) -->
                 <div id="admin-sub-routers" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3 hidden">
-                    <h3 class="text-xs font-bold text-white mb-2">Manual Router Configuration & Credentials</h3>
-                    <p class="text-[11px] text-slate-400">Manually configure your hardware routers with required SSID, gateway IPs, and wireless security credentials.</p>
+                    <h3 class="text-xs font-bold text-white mb-2">Hardware Router Setup (Tenda N301 Spec)</h3>
+                    <p class="text-[11px] text-slate-400">Configure your hardware nodes. You can customize the Wi-Fi Name (SSID) while maintaining the original hardware default credentials and MAC addresses from the device label.</p>
                     <div id="admin-router-list" class="space-y-3">
-                        <!-- Populated dynamically with manual configuration fields -->
+                        <!-- Populated dynamically with exact router label data -->
                     </div>
                     <button onclick="addNewRouterNode()" class="w-full bg-[#1e293b] hover:bg-[#334155] text-cyan-400 border border-cyan-500/30 font-medium py-2 rounded-lg text-xs transition">+ Add Router Node</button>
                 </div>
 
-                <!-- Admin Sub: Vouchers (Updated with Custom Package Name & Long-Term Duration Generator) -->
+                <!-- Admin Sub: Vouchers -->
                 <div id="admin-sub-vouchers" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3 hidden">
                     <h3 class="text-xs font-bold text-white mb-2">Custom Package & Long-Term Voucher Generator</h3>
                     <p class="text-[11px] text-slate-400 mb-2">Manually type any package name and choose or type any duration (including multi-year passes like 2 years or 5 years).</p>
@@ -415,9 +415,18 @@
             { id: 8, name: "3days plan", speed: "5 Mbps", price: 100 }
         ];
 
+        // Updated Router Configuration mapped precisely from hardware label specs (Tenda N301)
         let routersList = JSON.parse(localStorage.getItem('vortex_routers_config')) || [
-            { id: 1, name: "Main Gateway AP-1", ssid: "Hotspot_Vortex_01", ip: "192.168.8.1", gateway: "192.168.8.254", password: "vortex_secure_pass1", channel: "Auto (6)", status: "Configured" },
-            { id: 2, name: "Sub-Station Hub-2", ssid: "Hotspot_Vortex_02", ip: "192.168.8.2", gateway: "192.168.8.254", password: "vortex_secure_pass2", channel: "11", status: "Configured" }
+            { 
+                id: 1, 
+                model: "Tenda N301", 
+                name: "Main Gateway AP-1", 
+                ssid: "Tenda_BF3478", 
+                mac: "D8:32:14:BF:34:78", 
+                ip: "192.168.0.1", 
+                serial: "E0686019452000590", 
+                status: "Configured" 
+            }
         ];
 
         // Persistent Users Database for database checking & automatic login/registration
@@ -541,23 +550,27 @@
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="block text-[10px] text-slate-400">Wi-Fi SSID Name</label>
-                                <input type="text" value="${r.ssid}" onchange="updateRouterField(${idx}, 'ssid', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white">
+                                <label class="block text-[10px] text-slate-400">Router Model</label>
+                                <input type="text" value="${r.model}" disabled class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-slate-400 cursor-not-allowed">
                             </div>
                             <div>
-                                <label class="block text-[10px] text-slate-400">Router IP Address</label>
-                                <input type="text" value="${r.ip}" onchange="updateRouterField(${idx}, 'ip', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white">
+                                <label class="block text-[10px] text-slate-400">Configurable Wi-Fi SSID Name</label>
+                                <input type="text" value="${r.ssid}" onchange="updateRouterField(${idx}, 'ssid', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white border-cyan-500/50">
                             </div>
                             <div>
-                                <label class="block text-[10px] text-slate-400">Default Gateway</label>
-                                <input type="text" value="${r.gateway}" onchange="updateRouterField(${idx}, 'gateway', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white">
+                                <label class="block text-[10px] text-slate-400">Hardware MAC Address (Locked)</label>
+                                <input type="text" value="${r.mac}" disabled class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-slate-400 font-mono cursor-not-allowed">
                             </div>
                             <div>
-                                <label class="block text-[10px] text-slate-400">Wireless Password / Key</label>
-                                <input type="text" value="${r.password}" onchange="updateRouterField(${idx}, 'password', this.value)" class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-white">
+                                <label class="block text-[10px] text-slate-400">Default Router IP Address</label>
+                                <input type="text" value="${r.ip}" disabled class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-slate-400 font-mono cursor-not-allowed">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[10px] text-slate-400">Serial Number (S/N)</label>
+                                <input type="text" value="${r.serial}" disabled class="w-full bg-[#111827] border border-[#1f2937] rounded p-1.5 text-slate-400 font-mono cursor-not-allowed">
                             </div>
                         </div>
-                        <button onclick="saveRouterManualConfig(${idx})" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white py-1.5 rounded text-xs transition mt-1">Apply Manual Configuration</button>
+                        <button onclick="saveRouterManualConfig(${idx})" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white py-1.5 rounded text-xs transition mt-1">Save SSID Configuration & Maintain Original Hardware Keys</button>
                     </div>
                 `;
             });
@@ -569,11 +582,20 @@
 
         function saveRouterManualConfig(idx) {
             localStorage.setItem('vortex_routers_config', JSON.stringify(routersList));
-            alert(`Router "${routersList[idx].name}" manually configured with SSID: ${routersList[idx].ssid} and IP: ${routersList[idx].ip}!`);
+            alert(`Router "${routersList[idx].name}" updated! New customizable SSID: "${routersList[idx].ssid}" saved while keeping original hardware MAC [${routersList[idx].mac}] and IP [${routersList[idx].ip}] locked.`);
         }
 
         function addNewRouterNode() {
-            routersList.push({ id: Date.now(), name: `Router Node-${routersList.length + 1}`, ssid: `Hotspot_Vortex_0${routersList.length + 1}`, ip: `192.168.8.${routersList.length + 1}`, gateway: "192.168.8.254", password: "vortex_pass", channel: "Auto", status: "Configured" });
+            routersList.push({ 
+                id: Date.now(), 
+                model: "Tenda N301", 
+                name: `Router Node-${routersList.length + 1}`, 
+                ssid: `Tenda_NEW${Math.floor(Math.random()*10000)}`, 
+                mac: "D8:32:14:XX:XX:XX", 
+                ip: "192.168.0.1", 
+                serial: "E0686019452000XXX", 
+                status: "Configured" 
+            });
             renderAdminRouters();
         }
 
@@ -652,7 +674,7 @@
             }
         }
 
-        // Database Authentication Handler: Checks database, creates new account or logs in existing user upon clicking Login
+        // Database Authentication Handler
         function handlePrimaryAuthAction() {
             const email = document.getElementById('auth-email').value.trim().toLowerCase();
             const pass = document.getElementById('auth-pass').value.trim();
@@ -667,11 +689,9 @@
                 return;
             }
 
-            // Check database for existing account
             let existingUser = registeredUsers.find(u => u.email === email);
 
             if (existingUser) {
-                // Existing account: Validate password and log in
                 if (existingUser.pass !== pass && !(email === 'fidelsteven2@gmail.com' && pass === 'Steven_19')) {
                     alert('Incorrect password for this Gmail account. Please check your credentials.');
                     return;
@@ -691,7 +711,6 @@
                     alert(`Welcome back, ${email}! Logged in successfully.`);
                 }
             } else {
-                // New account: Automatically create a new account in the database and log in
                 const newUser = { email: email, pass: pass, role: 'admin' };
                 registeredUsers.push(newUser);
                 localStorage.setItem('vortex_users_db', JSON.stringify(registeredUsers));
@@ -726,7 +745,6 @@
             });
         }
 
-        // Updated Custom Package & Long-Term Voucher Generator (Supports multi-year durations e.g., 2 years, 5 years)
         function generateCustomVouchers() {
             const customPkgName = document.getElementById('voucher-custom-pkg-name').value.trim() || "Custom Unlimited Pass";
             const durationVal = document.getElementById('voucher-duration-val').value;
