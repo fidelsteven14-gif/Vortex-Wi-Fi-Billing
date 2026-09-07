@@ -253,35 +253,8 @@ app.post('/api/stk-push', async (req, res) => {
                 macAddress: macAddress || 'unknown'
             });
 
-            // Automatically complete simulation after 7 seconds for smooth testing
-            setTimeout(async () => {
-                const checkout = activeCheckouts.get(mockCheckoutId);
-                if (checkout && checkout.status === 'PENDING') {
-                    const receipt = `QJI${Math.floor(Math.random() * 89999 + 10000)}XYZ`;
-                    const commission = checkout.amount * 0.05;
-
-                    globalTransactions.push({
-                        tenantId: checkout.tenantId,
-                        phoneNumber: checkout.phone,
-                        amount: checkout.amount,
-                        commission,
-                        macAddress: checkout.macAddress,
-                        timestamp: new Date().toISOString()
-                    });
-
-                    try {
-                        await provisionMikroTikUser(checkout.phone, checkout.macAddress, checkout.packageProfile, activeTenant.router);
-                    } catch (err) {
-                        console.error('Router provisioning error during simulation:', err.message);
-                    }
-
-                    activeCheckouts.set(mockCheckoutId, {
-                        status: 'COMPLETE',
-                        receipt,
-                        message: 'Payment successful! Connecting you to the internet...'
-                    });
-                }
-            }, 7000);
+            // FIXED: Removed the automatic 7-second fake success timer so it stays PENDING 
+            // until manually simulated or completed by real webhook/actions.
 
             return res.json({
                 success: true,
