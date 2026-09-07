@@ -434,6 +434,9 @@
     </nav>
 
     <script>
+        // Backend Base URL Configuration
+        const BACKEND_URL = "https://hotspot-vortex-backend.onrender.com";
+
         // Packages Data Structure
         let packages = [
             { id: 1, name: "LITE 1hrs", speed: "5 Mbps", price: 10 },
@@ -682,8 +685,8 @@
             showModalLoading("Processing Payment", "A prompt is being sent to your phone. Enter your M-Pesa PIN to complete.");
 
             try {
-                // 1. Trigger the STK Push request on your backend
-                const response = await fetch('/api/stk-push', {
+                // 1. Trigger STK Push request pointing to your exact Render backend URL
+                const response = await fetch(`${BACKEND_URL}/api/stk-push`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -699,12 +702,11 @@
                     throw new Error(data.message || 'Failed to initiate STK Push');
                 }
 
-                // Assume your backend returns a checkout id or tracking reference
                 const checkoutId = data.checkoutId || data.MerchantRequestID;
                 
                 updateModalLoadingState("STK Push Sent", "Please check your phone, enter your M-Pesa PIN, and wait for confirmation...");
 
-                // 2. Start polling the backend payment status endpoint instead of using fake timers
+                // 2. Poll backend payment status endpoint with exact backend URL
                 pollPaymentStatus(checkoutId);
 
             } catch (error) {
@@ -714,16 +716,16 @@
             }
         }
 
-        // Polling loop function to check real backend payment confirmation
+        // Polling loop function checking the backend payment confirmation endpoint
         function pollPaymentStatus(checkoutId) {
             let attempts = 0;
-            const maxAttempts = 20; // Try for up to 60 seconds (every 3 seconds)
+            const maxAttempts = 20;
 
             const interval = setInterval(async () => {
                 attempts++;
                 
                 try {
-                    const res = await fetch(`/api/payment-status?checkout_id=${checkoutId}`);
+                    const res = await fetch(`${BACKEND_URL}/api/payment-status?checkout_id=${checkoutId}`);
                     const statusData = await res.json();
 
                     if (statusData.status === 'COMPLETE' || statusData.success === true) {
@@ -733,7 +735,6 @@
                         setTimeout(() => {
                             closeCustomModal();
                             switchTab('plans');
-                            // location.reload(); // Optional: uncomment if you need to refresh session state
                         }, 3000);
                     } 
                     else if (statusData.status === 'FAILED' || attempts >= maxAttempts) {
@@ -741,7 +742,6 @@
                         closeCustomModal();
                         showCustomModal('Payment Timed Out', 'Payment confirmation was not received or failed.', '#ef4444');
                     }
-                    // If status is 'PENDING' or still processing, the loop continues silently without triggering success
                 } catch (err) {
                     console.error('Polling check error:', err);
                 }
