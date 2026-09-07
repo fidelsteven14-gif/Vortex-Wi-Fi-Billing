@@ -32,9 +32,22 @@
             background: #1e293b;
             border-radius: 4px;
         }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="font-sans pb-28 selection:bg-cyan-500 selection:text-white">
+
+    <!-- Payment Loading / Status Modal Overlay -->
+    <div id="payment-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center;">
+        <div id="payment-modal-content" style="background:#111827; border: 2px solid #22c55e; padding:30px; border-radius:16px; text-align:center; max-width:380px; width:90%; color:#fff; font-family:'Plus Jakarta Sans', sans-serif; box-shadow: 0 10px 25px -5px rgba(34, 197, 94, 0.2);">
+            <div id="spinner" style="border: 4px solid rgba(255,255,255,0.1); width: 42px; height: 42px; border-radius: 50%; border-left-color: #22c55e; animation: spin 1s linear infinite; margin: 0 auto 20px auto;"></div>
+            <h3 id="modal-title" style="color: #22c55e; margin-bottom: 10px; font-size: 18px; font-weight: 700;">Processing Payment</h3>
+            <p id="modal-message" style="color: #cbd5e1; font-size: 13px; line-height: 1.5;">A prompt is being sent to your phone. Please enter your M-Pesa PIN.</p>
+        </div>
+    </div>
 
     <!-- Top Header / Banner (Attendant badge completely removed) -->
     <header class="bg-[#0f172a] border-b border-[#1e293b] p-4 sticky top-0 z-50">
@@ -307,7 +320,7 @@
                         <label class="block text-[11px] text-slate-400 mb-1">RADIUS Secret Key</label>
                         <input type="password" value="vortex_radius_secret_99" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
                     </div>
-                    <button onclick="alert('MikroTik API configuration synced successfully!')" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition">Save Router Settings</button>
+                    <button onclick="showCustomModal('Settings Saved', 'MikroTik API configuration synced successfully!', '#22c55e')" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition">Save Router Settings</button>
                 </div>
             </div>
         </section>
@@ -476,39 +489,39 @@
         function saveCustomerCareNumber() {
             const inputVal = document.getElementById('admin-custom-phone').value.trim();
             if (!inputVal || inputVal.length < 9) {
-                alert('Please enter a valid phone number.');
+                showCustomModal('Invalid Input', 'Please enter a valid phone number.', '#ef4444');
                 return;
             }
             customerCarePhone = inputVal;
             localStorage.setItem('vortex_customer_care', customerCarePhone);
             updateCustomerCareDisplay();
-            alert('Customer care WhatsApp helpline updated successfully!');
+            showCustomModal('Success', 'Customer care WhatsApp helpline updated successfully!', '#22c55e');
         }
 
         function saveHotspotName() {
             const inputVal = document.getElementById('admin-custom-hotspot-name').value.trim();
             if (!inputVal) {
-                alert('Please enter a valid hotspot name.');
+                showCustomModal('Invalid Input', 'Please enter a valid hotspot name.', '#ef4444');
                 return;
             }
             hotspotBrandName = inputVal;
             localStorage.setItem('vortex_hotspot_name', hotspotBrandName);
             updateCustomerCareDisplay();
-            alert('Hotspot name updated successfully!');
+            showCustomModal('Success', 'Hotspot name updated successfully!', '#22c55e');
         }
 
         function saveMonetizationSettings() {
             const tillVal = document.getElementById('admin-till-input').value.trim();
             const markupVal = document.getElementById('admin-markup-input').value.trim();
             if (!tillVal) {
-                alert('Please enter a valid M-Pesa Till or Paybill number.');
+                showCustomModal('Invalid Input', 'Please enter a valid M-Pesa Till or Paybill number.', '#ef4444');
                 return;
             }
             monetizationTill = tillVal;
             monetizationMarkup = markupVal;
             localStorage.setItem('vortex_monetization_till', monetizationTill);
             localStorage.setItem('vortex_monetization_markup', monetizationMarkup);
-            alert(`Monetization updated! Revenue will route to Till: ${monetizationTill} with ${monetizationMarkup}% pricing markup.`);
+            showCustomModal('Monetization Saved', `Revenue routing configurations updated successfully with ${monetizationMarkup}% pricing markup.`, '#22c55e');
         }
 
         function openWhatsAppChat() {
@@ -600,7 +613,7 @@
 
         function saveRouterManualConfig(idx) {
             localStorage.setItem('vortex_routers_config', JSON.stringify(routersList));
-            alert(`Router "${routersList[idx].name}" updated successfully!\n- SSID: ${routersList[idx].ssid}\n- MAC: ${routersList[idx].mac}\n- IP: ${routersList[idx].ip}`);
+            showCustomModal('Router Saved', `Router "${routersList[idx].name}" updated successfully!`, '#22c55e');
         }
 
         function addNewRouterNode() {
@@ -655,13 +668,86 @@
         }
 
         function submitMpesaPayment() {
-            const phone = document.getElementById('mpesa-phone-input').value;
+            const phone = document.getElementById('mpesa-phone-input').value.trim();
             if(!phone || phone.length < 9) {
-                alert('Please enter a valid M-Pesa phone number.');
+                showCustomModal('Invalid Phone', 'Please enter a valid M-Pesa phone number.', '#ef4444');
                 return;
             }
-            alert(`STK Push prompt successfully sent to +254${phone} for ${selectedPackageData.name} (KSH ${selectedPackageData.price}) routed to Till ${monetizationTill}. Enter PIN to complete.`);
-            switchTab('plans');
+
+            // Show custom green loading modal without exposing backend till number
+            showModalLoading("Processing Payment", "A prompt is being sent to your phone. Enter your M-Pesa PIN to complete.");
+
+            // Simulate STK push and webhook confirmation response lifecycle
+            setTimeout(() => {
+                updateModalLoadingState("STK Push Sent", "Please check your phone, enter your M-Pesa PIN, and wait for confirmation...");
+                
+                // Simulate backend webhook confirmation after prompt entry
+                setTimeout(() => {
+                    showModalSuccessState("Payment successful! Connecting you to the internet...");
+                    
+                    setTimeout(() => {
+                        closeCustomModal();
+                        switchTab('plans');
+                    }, 3500);
+                }, 4000);
+            }, 2000);
+        }
+
+        function showCustomModal(title, message, color) {
+            const modal = document.getElementById('payment-modal');
+            document.getElementById('spinner').style.display = 'none';
+            const titleElem = document.getElementById('modal-title');
+            titleElem.innerText = title;
+            titleElem.style.color = color;
+
+            const msgElem = document.getElementById('modal-message');
+            msgElem.innerText = message;
+            msgElem.style.color = "#cbd5e1";
+            msgElem.style.fontWeight = "normal";
+
+            modal.style.display = 'flex';
+
+            // Auto close after 3 seconds for non-interactive alerts
+            setTimeout(() => {
+                closeCustomModal();
+            }, 3000);
+        }
+
+        function showModalLoading(title, message) {
+            const modal = document.getElementById('payment-modal');
+            document.getElementById('spinner').style.display = 'block';
+            const titleElem = document.getElementById('modal-title');
+            titleElem.innerText = title;
+            titleElem.style.color = "#22c55e";
+
+            const msgElem = document.getElementById('modal-message');
+            msgElem.innerText = message;
+            msgElem.style.color = "#cbd5e1";
+            msgElem.style.fontWeight = "normal";
+
+            modal.style.display = 'flex';
+        }
+
+        function updateModalLoadingState(title, message) {
+            document.getElementById('spinner').style.display = 'block';
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+        }
+
+        function showModalSuccessState(message) {
+            document.getElementById('spinner').style.display = 'none';
+            const titleElem = document.getElementById('modal-title');
+            titleElem.innerText = "Payment Successful";
+            titleElem.style.color = "#22c55e";
+
+            const msgElem = document.getElementById('modal-message');
+            msgElem.innerText = message;
+            msgElem.style.color = "#22c55e";
+            msgElem.style.fontWeight = "bold";
+        }
+
+        function closeCustomModal() {
+            document.getElementById('payment-modal').style.display = 'none';
         }
 
         // Smart TV Billing & MAC Integration
@@ -673,11 +759,11 @@
             const priceVal = selectEl.value;
 
             if(!mac || mac.length < 10) {
-                alert('Please enter a valid Smart TV MAC address or decoder serial number.');
+                showCustomModal('Invalid Device MAC', 'Please enter a valid Smart TV MAC address or decoder serial number.', '#ef4444');
                 return;
             }
 
-            alert(`Smart TV (${brand.toUpperCase()}) MAC [${mac}] successfully bound to plan: ${planText}. STK Push initiated for KSH ${priceVal}.`);
+            showCustomModal('Smart TV Bound', `Smart TV (${brand.toUpperCase()}) successfully bound to plan: ${planText}.`, '#22c55e');
             switchTab('plans');
         }
 
@@ -698,12 +784,12 @@
             const pass = document.getElementById('auth-pass').value.trim();
 
             if(!username || username.length < 2) {
-                alert('Please enter a valid username.');
+                showCustomModal('Invalid Username', 'Please enter a valid username.', '#ef4444');
                 return;
             }
 
             if(!pass || pass.length < 4) {
-                alert('Please enter a password.');
+                showCustomModal('Invalid Password', 'Please enter a password.', '#ef4444');
                 return;
             }
 
@@ -711,7 +797,7 @@
 
             if (existingUser) {
                 if (existingUser.pass !== pass && !(username === 'vortex-admin' && pass === 'Steven_19.20@06')) {
-                    alert('Incorrect password for this account. Please check your credentials.');
+                    showCustomModal('Access Denied', 'Incorrect password for this account. Please check your credentials.', '#ef4444');
                     return;
                 }
 
@@ -720,13 +806,13 @@
                 if(role === 'superadmin') {
                     document.getElementById('tab-login').classList.add('hidden');
                     document.getElementById('tab-superadmin').classList.remove('hidden');
-                    alert('Super Admin Command Center logged in successfully.');
+                    showCustomModal('Welcome Super Admin', 'Super Admin Command Center logged in successfully.', '#22c55e');
                 } else {
                     document.getElementById('tab-login').classList.add('hidden');
                     document.getElementById('tab-admin').classList.remove('hidden');
                     document.getElementById('admin-welcome-title').innerText = `Tenant Dashboard: ${username}`;
                     renderAdminPackages();
-                    alert(`Welcome back, ${username}! Logged in successfully.`);
+                    showCustomModal('Login Success', `Welcome back, ${username}!`, '#22c55e');
                 }
             } else {
                 const newUser = { username: username, pass: pass, role: 'admin' };
@@ -737,7 +823,7 @@
                 document.getElementById('tab-admin').classList.remove('hidden');
                 document.getElementById('admin-welcome-title').innerText = `Tenant Dashboard: ${username}`;
                 renderAdminPackages();
-                alert(`New tenant account "${username}" successfully created and logged in!`);
+                showCustomModal('Account Created', `New tenant account "${username}" successfully created and logged in!`, '#22c55e');
             }
         }
 
@@ -782,20 +868,20 @@
         function verifyVoucherCode() {
             const code = document.getElementById('voucher-code-input').value.trim();
             if(code.length > 3) {
-                alert('Voucher code accepted! Internet access granted.');
+                showCustomModal('Voucher Accepted', 'Voucher code accepted! Internet access granted.', '#22c55e');
                 switchTab('plans');
             } else {
-                alert('Invalid voucher code.');
+                showCustomModal('Invalid Voucher', 'Please enter a valid activation code.', '#ef4444');
             }
         }
 
         function syncTransaction() {
             const ref = document.getElementById('sync-ref-input').value.trim();
             if(ref) {
-                alert(`Transaction reference ${ref} verified! Connection re-established.`);
+                showCustomModal('Sync Successful', `Transaction reference ${ref} verified! Connection re-established.`, '#22c55e');
                 switchTab('plans');
             } else {
-                alert('Please enter a valid M-Pesa transaction reference.');
+                showCustomModal('Invalid Reference', 'Please enter a valid M-Pesa transaction reference.', '#ef4444');
             }
         }
 
