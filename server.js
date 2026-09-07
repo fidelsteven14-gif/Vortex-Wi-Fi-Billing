@@ -243,7 +243,6 @@ app.post('/api/stk-push', async (req, res) => {
         const tenantId = req.body.tenantId || req.body.tenant;
         const macAddress = req.body.macAddress || req.body.mac;
 
-        // FIXED: Replaced invalid `.trim` function check with proper string truthiness/emptiness validation
         if (!rawPhone || String(rawPhone).trim() === '' || !rawPackage) {
             return res.status(400).json({ 
                 success: false, 
@@ -274,7 +273,6 @@ app.post('/api/stk-push', async (req, res) => {
         if (!activeTenant.consumerKey || activeTenant.env === 'sandbox') {
             const mockCheckoutId = `ws_CO_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
             
-            // Explicitly set to PENDING. Will NOT auto-complete until webhook or test simulation is fired.
             activeCheckouts.set(mockCheckoutId, {
                 status: 'PENDING',
                 phone: formattedPhone,
@@ -343,10 +341,6 @@ app.post('/api/stk-push', async (req, res) => {
  * =========================================================================
  * STEP 2 & 4: FRONTEND POLLING ENDPOINT (The Handshake Bridge)
  * =========================================================================
- * The frontend modal repeatedly calls this endpoint with the checkout_id.
- * It will continuously return 'PENDING' until the backend webhook updates 
- * the session state to 'COMPLETE' or 'FAILED'.
- * =========================================================================
  */
 app.get('/api/payment-status', (req, res) => {
     const { checkout_id } = req.query;
@@ -360,7 +354,7 @@ app.get('/api/payment-status', (req, res) => {
 
     const payment = activeCheckouts.get(checkout_id);
     res.json({
-        status: payment.status, // Remains 'PENDING' until STEP 3 processes the webhook
+        status: payment.status,
         receipt: payment.receipt || null,
         message: payment.message || (payment.status === 'FAILED' ? payment.reason : 'Waiting for M-Pesa PIN entry...')
     });
@@ -390,7 +384,6 @@ app.post('/api/test/simulate-success', async (req, res) => {
         const activeTenant = getActiveTenant(session.tenantId);
         await provisionMikroTikUser(session.phone, session.macAddress, session.packageProfile, activeTenant.router);
 
-        // Transition status from PENDING to COMPLETE
         activeCheckouts.set(checkout_id, {
             status: 'COMPLETE',
             receipt: fakeReceipt,
@@ -406,12 +399,6 @@ app.post('/api/test/simulate-success', async (req, res) => {
 /**
  * =========================================================================
  * STEP 3: SAFARICOM DARAIJA WEBHOOK (The Backend Notification Receiver)
- * =========================================================================
- * Safaricom calls this endpoint ONLY after the user enters their M-Pesa PIN 
- * and the transaction resolves. 
- * - If ResultCode === 0 (Success): It records the transaction, provisions the 
- *   router user, and changes state to 'COMPLETE'.
- * - If ResultCode !== 0 (Cancelled/Insufficient Funds): It changes state to 'FAILED'.
  * =========================================================================
  */
 app.post('/api/mpesa-webhook', async (req, res) => {
@@ -455,7 +442,6 @@ app.post('/api/mpesa-webhook', async (req, res) => {
                 await provisionMikroTikUser(customerPhone, customerMac, packageProfile, activeTenant.router);
             }
 
-            // MARK STATE AS COMPLETE SO THE FRONTEND POLLING GRABS IT
             activeCheckouts.set(checkoutId, {
                 status: 'COMPLETE',
                 receipt: mpesaReceiptNumber,
