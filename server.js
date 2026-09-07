@@ -237,16 +237,21 @@ async function provisionMikroTikUser(username, macAddress, packageProfile, route
  */
 app.post('/api/stk-push', async (req, res) => {
     try {
-        const { phone, packageId, tenantId, macAddress } = req.body;
+        // ENHANCEMENT: Added flexible property fallbacks (phoneNumber, amount) to prevent failures
+        console.log("Incoming STK Push Body:", req.body);
+        const rawPhone = req.body.phone || req.body.phoneNumber || req.body.msisdn;
+        const rawPackage = req.body.packageId || req.body.amount || req.body.package;
+        const tenantId = req.body.tenantId || req.body.tenant;
+        const macAddress = req.body.macAddress || req.body.mac;
 
-        if (!phone || phone.trim() === '' || !packageId) {
+        if (!rawPhone || String(rawPhone).trim === '' || !rawPackage) {
             return res.status(400).json({ 
                 success: false, 
                 message: 'A valid M-Pesa phone number and package selection are required.' 
             });
         }
 
-        let formattedPhone = phone.trim();
+        let formattedPhone = String(rawPhone).trim();
         if (formattedPhone.startsWith('0')) {
             formattedPhone = '254' + formattedPhone.substring(1);
         } else if (formattedPhone.startsWith('+')) {
@@ -261,8 +266,8 @@ app.post('/api/stk-push', async (req, res) => {
         }
 
         const activeTenant = getActiveTenant(tenantId || "router1");
-        const matchedPkg = activeTenant.packages.find(p => p.id == packageId || p.price == packageId);
-        const amount = matchedPkg ? matchedPkg.price : 10;
+        const matchedPkg = activeTenant.packages.find(p => p.id == rawPackage || p.price == rawPackage);
+        const amount = matchedPkg ? matchedPkg.price : (isNaN(Number(rawPackage)) ? 10 : Number(rawPackage));
         const selectedProfile = matchedPkg ? matchedPkg.profile : '1_Hour_Package';
 
         // Sandbox or Simulation fallback
