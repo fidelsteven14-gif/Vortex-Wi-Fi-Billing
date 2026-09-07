@@ -310,7 +310,7 @@ app.post('/api/stk-push', async (req, res) => {
             PartyA: formattedPhone,
             PartyB: activeTenant.tillNumber,
             PhoneNumber: formattedPhone,
-            CallBackURL: `https://${req.headers.host}/api/mpesa-webhook`,
+            CallBackURL: `https://hotspot-vortex-backend.onrender.com/api/mpesa-webhook`,
             AccountReference: activeTenant.businessName,
             TransactionDesc: `Hotspot Package ${amount}KES`
         }, {
@@ -466,7 +466,7 @@ app.post('/api/mpesa-webhook', async (req, res) => {
             if (resultCode === 1 || (resultDesc && resultDesc.toLowerCase().includes('balance'))) {
                 userFriendlyMessage = 'Insufficient balance in your M-Pesa account. Please top up and try again.';
             } else if (resultCode === 1032 || (resultDesc && resultDesc.toLowerCase().includes('cancel'))) {
-                userFriendlyMessage = 'Payment request was cancelled by the user.';
+                userFriendlyMessage = 'Payment request was cancelled by the user. Please try again.';
             }
 
             if (checkoutSession) {
@@ -479,7 +479,7 @@ app.post('/api/mpesa-webhook', async (req, res) => {
         }
 
         res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
-    }sch (err) {
+    } catch (err) {
         console.error('Webhook Error:', err);
         res.status(500).json({ ResultCode: 1, ResultDesc: 'Internal Server Error' });
     }
@@ -519,4 +519,3 @@ app.post('/api/sync-transaction', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
-
