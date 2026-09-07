@@ -26,7 +26,7 @@ const globalTransactions = [];
 // In-Memory Store for Active STK Push Checkouts and Payment Statuses
 const activeCheckouts = new Map();
 
-// 50+ Multi-Tenant & Attendant Registry with 5% Super Admin Commission tracking
+// Multi-Tenant & Attendant Registry with 5% Super Admin Commission tracking
 const tenants = {
     "router1": {
         businessName: "ELITE HOTSPOT",
@@ -149,7 +149,6 @@ app.get('/api/attendant/stats/:tenantId', async (req, res) => {
         console.log(`Could not fetch live router stats for ${tenantId}:`, err.message);
     }
 
-    // Filter transactions for this tenant
     const tenantTx = globalTransactions.filter(tx => tx.tenantId === tenantId);
     const now = new Date();
 
@@ -219,13 +218,17 @@ async function provisionMikroTikUser(username, macAddress, packageProfile, route
   }
 }
 
-// Trigger M-Pesa STK Push Endpoint
+// Trigger M-Pesa STK Push Endpoint with Strict Validation
 app.post('/api/stk-push', async (req, res) => {
     try {
         const { phone, packageId, tenantId, macAddress } = req.body;
 
-        if (!phone || !packageId) {
-            return res.status(400).json({ success: false, message: 'Phone number and package ID are required.' });
+        // Strict validation to prevent empty phone triggers
+        if (!phone || phone.trim() === '' || !packageId) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'A valid M-Pesa phone number and package selection are required.' 
+            });
         }
 
         let formattedPhone = phone.trim();
@@ -235,26 +238,32 @@ app.post('/api/stk-push', async (req, res) => {
             formattedPhone = formattedPhone.substring(1);
         }
 
-        const activeTenant = getActiveTenant(tenantId || "router1");
+        if (formattedPhone.length !== 12 || !formattedPhone.startsWith('254')) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Invalid phone number format. Use 07XXXXXXXX or 01XXXXXXXX.' 
+            });
+        }
 
+        const activeTenant = getActiveTenant(tenantId || "router1");
         const matchedPkg = activeTenant.packages.find(p => p.id == packageId || p.price == packageId);
         const amount = matchedPkg ? matchedPkg.price : 10;
         const selectedProfile = matchedPkg ? matchedPkg.profile : '1_Hour_Package';
 
-        // Simulation or Sandbox fallback if consumer keys are not provided
+        // Sandbox or Simulation fallback if consumer keys are missing
         if (!activeTenant.consumerKey || activeTenant.env === 'sandbox') {
             const mockCheckoutId = `ws_CO_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+            
+            // Explicitly set state to PENDING. It will NOT auto-succeed.
             activeCheckouts.set(mockCheckoutId, {
                 status: 'PENDING',
                 phone: formattedPhone,
                 amount,
                 packageProfile: selectedProfile,
                 tenantId: activeTenant.tenantId,
-                macAddress: macAddress || 'unknown'
+                macAddress: macAddress || 'unknown',
+                message: 'STK push prompt sent. Enter your M-Pesa PIN on your phone...'
             });
-
-            // FIXED: Removed the automatic 7-second fake success timer so it stays PENDING 
-            // until manually simulated or completed by real webhook/actions.
 
             return res.json({
                 success: true,
@@ -296,7 +305,8 @@ app.post('/api/stk-push', async (req, res) => {
                 amount,
                 packageProfile: selectedProfile,
                 tenantId: activeTenant.tenantId,
-                macAddress: macAddress || 'unknown'
+                macAddress: macAddress || 'unknown',
+                message: 'STK push prompt sent. Enter your M-Pesa PIN...'
             });
             return res.json({ success: true, checkout_request_id: checkoutId });
         } else {
@@ -309,18 +319,62 @@ app.post('/api/stk-push', async (req, res) => {
     }
 });
 
-// Payment Status Polling Endpoint for Frontend Modal
+// Payment Status Polling Endpoint for Frontend Modal Handshake
 app.get('/api/payment-status', (req, res) => {
     const { checkout_id } = req.query;
+    
     if (!checkout_id || !activeCheckouts.has(checkout_id)) {
-        return res.json({ status: 'PENDING', message: 'Waiting for payment confirmation...' });
+        return res.json({ 
+            status: 'PENDING', 
+            message: 'Awaiting payment initialization...' 
+        });
     }
+
     const payment = activeCheckouts.get(checkout_id);
     res.json({
-        status: payment.status,
+        status: payment.status, // Can be 'PENDING', 'COMPLETE', or 'FAILED'
         receipt: payment.receipt || null,
         message: payment.message || (payment.status === 'FAILED' ? payment.reason : 'Waiting for M-Pesa PIN entry...')
     });
+});
+
+// Developer/Testing Helper: Manually simulate a successful payment for sandbox testing UI
+app.post('/api/test/simulate-success', async (req, res) => {
+    try {
+        const { checkout_id } = req.body;
+        if (!checkout_id || !activeCheckouts.has(checkout_id)) {
+            return res.status(404).json({ success: false, message: 'Checkout session not found.' });
+        }
+
+        const session = activeCheckouts.get(checkout_id);
+        const fakeReceipt = `RND${Math.floor(100000000 + Math.random() * 900000000)}`;
+        const commission = session.amount * 0.05;
+
+        // Record transaction globally
+        globalTransactions.push({
+            tenantId: session.tenantId,
+            phoneNumber: session.phone,
+            amount: session.amount,
+            commission,
+            macAddress: session.macAddress,
+            timestamp: new Date().toISOString()
+        });
+
+        // Provision user on MikroTik router
+        const activeTenant = getActiveTenant(session.tenantId);
+        await provisionMikroTikUser(session.phone, session.macAddress, session.packageProfile, activeTenant.router);
+
+        // Update checkout state to COMPLETE
+        activeCheckouts.set(checkout_id, {
+            status: 'COMPLETE',
+            receipt: fakeReceipt,
+            message: 'Payment verified successfully! Connecting you to the internet...'
+        });
+
+        res.json({ success: true, message: 'Simulation successful. Checkout marked as COMPLETE.' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
 });
 
 // Safaricom Daraja Webhook & Callback Receiver
@@ -371,7 +425,6 @@ app.post('/api/mpesa-webhook', async (req, res) => {
                 message: 'Payment successful! Connecting you to the internet...'
             });
         } else {
-            // Handle failure reasons like Insufficient Balance or Cancellation
             let userFriendlyMessage = resultDesc;
             if (resultCode === 1 || (resultDesc && resultDesc.toLowerCase().includes('balance'))) {
                 userFriendlyMessage = 'Insufficient balance in your M-Pesa account. Please top up and try again.';
@@ -382,7 +435,8 @@ app.post('/api/mpesa-webhook', async (req, res) => {
             if (checkoutSession) {
                 activeCheckouts.set(checkoutId, {
                     status: 'FAILED',
-                    reason: userFriendlyMessage
+                    reason: userFriendlyMessage,
+                    message: userFriendlyMessage
                 });
             }
         }
@@ -392,47 +446,6 @@ app.post('/api/mpesa-webhook', async (req, res) => {
         console.error('Webhook Error:', err);
         res.status(500).json({ ResultCode: 1, ResultDesc: 'Internal Server Error' });
     }
-});
-
-// Legacy Payment Webhook compatibility route
-app.post('/api/payments/webhook', async (req, res) => {
-  try {
-    const paymentData = req.body;
-    const paymentStatus = paymentData.state || paymentData.status;
-    const phoneNumber = paymentData.api_ref || paymentData.phone_number || paymentData.account;
-    const amountPaid = parseFloat(paymentData.value || paymentData.amount || 0);
-    const customerMac = paymentData.narration || paymentData.mac_address || 'unknown-mac';
-    const tenantId = paymentData.tenant || "router1";
-
-    const activeTenant = getActiveTenant(tenantId);
-
-    if (paymentStatus === 'COMPLETE' || paymentStatus === 'Complete' || paymentStatus === 'SUCCESS') {
-      let selectedProfile = '1_Hour_Package';
-      const matchedPkg = activeTenant.packages.find(p => p.price === amountPaid);
-      if (matchedPkg) selectedProfile = matchedPkg.profile;
-
-      const commission = amountPaid * 0.05;
-
-      globalTransactions.push({
-          tenantId,
-          phoneNumber,
-          amount: amountPaid,
-          commission,
-          macAddress: customerMac,
-          timestamp: new Date().toISOString()
-      });
-
-      if (phoneNumber) {
-        await provisionMikroTikUser(phoneNumber, customerMac, selectedProfile, activeTenant.router);
-      }
-
-      return res.status(200).json({ success: true, message: "Payment verified and commission recorded." });
-    }
-
-    return res.status(400).json({ success: false, message: "Payment incomplete." });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
-  }
 });
 
 // Transaction Sync helper
