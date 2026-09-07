@@ -1,261 +1,136 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const path = require('path');
-const { RouterOSClient } = require('routeros-client');
+<!-- Payment Loading / Status Modal Overlay -->
+<div id="payment-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
+    <div id="payment-modal-content" style="background:#111; border: 2px solid #22c55e; padding:30px; border-radius:12px; text-align:center; max-width:400px; width:90%; color:#fff; font-family:sans-serif;">
+        <div id="spinner" style="border: 4px solid rgba(255,255,255,0.1); width: 40px; height: 40px; border-radius: 50%; border-left-color: #22c55e; animation: spin 1s linear infinite; margin: 0 auto 20px auto;"></div>
+        <h3 id="modal-title" style="color: #22c55e; margin-bottom: 10px; font-size: 20px;">Processing Payment</h3>
+        <p id="modal-message" style="color: #cbd5e1; font-size: 14px; line-height: 1.5;">Sending M-Pesa STK push to your phone...</p>
+    </div>
+</div>
 
-dotenv.config();
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname)));
-
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  next();
-});
-
-// Central Transaction Database & Super Admin Ledger
-const globalTransactions = [];
-
-// 50+ Multi-Tenant & Attendant Registry with 5% Super Admin Commission tracking
-const tenants = {
-    "router1": {
-        businessName: "ELITE HOTSPOT",
-        customerCare: "0712345678",
-        attendantUsername: "elite_admin",
-        attendantPassword: "password123",
-        router: { host: "192.168.88.1", user: "admin", password: "routerpassword1", port: 8728 },
-        packages: [
-            { id: 1, name: "1 Hour", price: 10, profile: "1_Hour_Package" },
-            { id: 2, name: "24 Hours", price: 50, profile: "24_Hours_Package" }
-        ]
-    },
-    "router2": {
-        businessName: "SAVANNAH WI-FI",
-        customerCare: "0722000000",
-        attendantUsername: "savannah_admin",
-        attendantPassword: "password123",
-        router: { host: "192.168.99.1", user: "admin", password: "routerpassword2", port: 8728 },
-        packages: [
-            { id: 1, name: "1 Hour", price: 10, profile: "1_Hour_Package" },
-            { id: 2, name: "24 Hours", price: 50, profile: "24_Hours_Package" }
-        ]
-    }
-};
-
-function getActiveTenant(identifier) {
-    if (identifier && tenants[identifier]) {
-        return { tenantId: identifier, ...tenants[identifier] };
-    }
-    return {
-        tenantId: "router1",
-        businessName: "VORTEX HOTSPOT",
-        customerCare: "0113660340",
-        router: { host: process.env.MIKROTIK_HOST || "192.168.88.1", user: process.env.MIKROTIK_USER || "admin", password: process.env.MIKROTIK_PASSWORD || "", port: 8728 },
-        packages: [
-            { id: 1, name: "1 Hour", price: 10, profile: "1_Hour_Package" },
-            { id: 2, name: "24 Hours", price: 50, profile: "24_Hours_Package" }
-        ]
-    };
+<style>
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
+</style>
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Attendant Login Route
-app.post('/api/attendant/login', (req, res) => {
-    const { username, password } = req.body;
-    for (const [tenantId, data] of Object.entries(tenants)) {
-        if (data.attendantUsername === username && data.attendantPassword === password) {
-            return res.json({
-                success: true,
-                tenantId: tenantId,
-                businessName: data.businessName,
-                message: "Login successful"
-            });
-        }
-    }
-    res.status(401).json({ success: false, message: "Invalid username or password." });
-});
-
-// Fetch Tenant Config
-app.get('/api/config/:tenantId', (req, res) => {
-    const tenantData = getActiveTenant(req.params.tenantId);
-    res.json({ success: true, data: tenantData });
-});
-
-// Attendant Dashboard Statistics & Revenue Endpoint
-app.get('/api/attendant/stats/:tenantId', async (req, res) => {
-    const tenantId = req.params.tenantId;
-    const activeTenant = getActiveTenant(tenantId);
+<script>
+// Function triggered when user clicks buy/pay on a package
+async function triggerMpesaCheckout(packageId, tenantId) {
+    const phoneInput = document.getElementById('phone-input').value.trim();
     
-    let activeUsers = [];
-    try {
-        const connection = new RouterOSClient({
-            host: activeTenant.router.host,
-            user: activeTenant.router.user,
-            password: activeTenant.router.password,
-            port: activeTenant.router.port,
-            tls: undefined
-        });
-        await connection.connect();
-        const chan = connection.openChannel('stats-channel');
-        activeUsers = await chan.write('/ip/hotspot/active/print');
-        await connection.close();
-    } catch (err) {
-        console.log(`Could not fetch live router stats for ${tenantId}:`, err.message);
+    // Basic validation
+    if (!phoneInput || phoneInput.length < 9) {
+        alert("Please enter a valid M-Pesa phone number.");
+        return;
     }
 
-    // Filter transactions for this tenant
-    const tenantTx = globalTransactions.filter(tx => tx.tenantId === tenantId);
-    const now = new Date();
+    showPaymentModal("Processing Payment", "A prompt is being sent to your phone. Please enter your M-Pesa PIN.");
 
-    let dailyRev = 0;
-    let weeklyRev = 0;
-    let monthlyRev = 0;
-    let superAdminCommissionTotal = 0;
+    try {
+        const response = await fetch('/api/stk-push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                phone: phoneInput,
+                packageId: packageId,
+                tenantId: tenantId || "router1",
+                macAddress: getClientMacAddress()
+            })
+        });
 
-    tenantTx.forEach(tx => {
-        const txDate = new Date(tx.timestamp);
-        superAdminCommissionTotal += tx.commission;
-
-        // Daily (Same day)
-        if (txDate.toDateString() === now.toDateString()) {
-            dailyRev += tx.amount;
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || 'Failed to initiate STK push.');
         }
-        // Weekly (Within last 7 days)
-        const diffTime = Math.abs(now - txDate);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        if (diffDays <= 7) {
-            weeklyRev += tx.amount;
-        }
-        // Monthly (Same month and year)
-        if (txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear()) {
-            monthlyRev += tx.amount;
-        }
-    });
 
-    res.json({
-        success: true,
-        stats: {
-            businessName: activeTenant.businessName,
-            activeConnectionsCount: activeUsers.length,
-            activeUsers: activeUsers.map(u => ({ user: u.user, mac: u['mac-address'], ip: u.address, uptime: u.uptime })),
-            revenue: {
-                daily: dailyRev,
-                weekly: weeklyRev,
-                monthly: monthlyRev,
-                superAdminCommission: superAdminCommissionTotal,
-                attendantNet: (dailyRev - (dailyRev * 0.05)) // Net after 5% super admin cut
-            },
-            recentTransactions: tenantTx.slice(-10).reverse()
-        }
-    });
-});
+        // Clean prompt without revealing any backend till or routing info
+        updateModalText(
+            "Enter M-Pesa PIN", 
+            "STK push sent successfully! Please check your phone, enter your M-Pesa PIN, and wait for confirmation."
+        );
 
-async function provisionMikroTikUser(username, macAddress, packageProfile, routerConfig) {
-  const connection = new RouterOSClient({
-    host: routerConfig.host,
-    user: routerConfig.user,
-    password: routerConfig.password,
-    port: routerConfig.port,
-    tls: undefined
-  });
+        // Start polling backend for webhook status confirmation
+        pollPaymentStatus(data.checkout_request_id);
 
-  try {
-    await connection.connect();
-    const chan = connection.openChannel('hotspot-provisioner');
-    await chan.write('/ip/hotspot/user/add', {
-      name: username,
-      password: username,
-      profile: packageProfile || 'default',
-      comment: `Paid via IntaSend - MAC: ${macAddress}`
-    });
-    await connection.close();
-    return true;
-  } catch (error) {
-    console.error(`Router API Error on ${routerConfig.host}:`, error.message);
-    throw new Error(`Router failure: ${error.message}`);
-  }
+    } catch (error) {
+        updateModalError(error.message);
+    }
 }
 
-// Payment Webhook with 5% Super Admin Commission calculation
-app.post('/api/payments/webhook', async (req, res) => {
-  try {
-    const paymentData = req.body;
-    const paymentStatus = paymentData.state || paymentData.status;
-    const phoneNumber = paymentData.api_ref || paymentData.phone_number || paymentData.account;
-    const amountPaid = parseFloat(paymentData.value || paymentData.amount || 0);
-    const customerMac = paymentData.narration || paymentData.mac_address || 'unknown-mac';
-    const tenantId = paymentData.tenant || "router1";
+function pollPaymentStatus(checkoutId) {
+    const startTime = Date.now();
+    const timeoutLimit = 60000; // 60 seconds timeout
 
-    const activeTenant = getActiveTenant(tenantId);
+    const interval = setInterval(async () => {
+        if (Date.now() - startTime > timeoutLimit) {
+            clearInterval(interval);
+            updateModalError("Payment confirmation timed out. If you entered your PIN, please try again.");
+            return;
+        }
 
-    if (paymentStatus === 'COMPLETE' || paymentStatus === 'Complete' || paymentStatus === 'SUCCESS') {
-      let selectedProfile = '1_Hour_Package';
-      const matchedPkg = activeTenant.packages.find(p => p.price === amountPaid);
-      if (matchedPkg) selectedProfile = matchedPkg.profile;
+        try {
+            const res = await fetch(`/api/payment-status?checkout_id=${checkoutId}`);
+            const result = await res.json();
 
-      const commission = amountPaid * 0.05; // 5% Super Admin Commission
+            if (result.status === 'COMPLETE') {
+                clearInterval(interval);
+                showPaymentSuccess("Payment successful! Connecting you to the internet...");
+                
+                setTimeout(() => {
+                    window.location.reload(); 
+                }, 3000);
 
-      globalTransactions.push({
-          tenantId,
-          phoneNumber,
-          amount: amountPaid,
-          commission,
-          macAddress: customerMac,
-          timestamp: new Date().toISOString()
-      });
+            } else if (result.status === 'FAILED') {
+                clearInterval(interval);
+                updateModalError("Payment failed or was cancelled. Please try again.");
+            }
+        } catch (err) {
+            console.error("Polling check failed:", err);
+        }
+    }, 3000);
+}
 
-      if (phoneNumber) {
-        await provisionMikroTikUser(phoneNumber, customerMac, selectedProfile, activeTenant.router);
-      }
+function showPaymentModal(title, message) {
+    const modal = document.getElementById('payment-modal');
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-message').innerText = message;
+    modal.style.display = 'flex';
+}
 
-      return res.status(200).json({ success: true, message: "Payment verified and commission recorded." });
-    }
+function updateModalText(title, message) {
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-message').innerText = message;
+}
 
-    return res.status(400).json({ success: false, message: "Payment incomplete." });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
-  }
-});
+function showPaymentSuccess(message) {
+    document.getElementById('spinner').style.display = 'none';
+    const titleElem = document.getElementById('modal-title');
+    titleElem.innerText = "Connected Successfully!";
+    titleElem.style.color = "#22c55e";
 
-// Transaction Sync helper
-app.post('/api/sync-transaction', async (req, res) => {
-    const { phoneNumber, amount, macAddress, tenant } = req.body;
-    const activeTenant = getActiveTenant(tenant || "router1");
-    const amountPaid = parseFloat(amount || 0);
-    const commission = amountPaid * 0.05;
+    const msgElem = document.getElementById('modal-message');
+    msgElem.innerText = message;
+    msgElem.style.color = "#22c55e";
+    msgElem.style.fontWeight = "bold";
+}
 
-    try {
-      if (phoneNumber && amountPaid) {
-        let profile = '1_Hour_Package';
-        const matchedPkg = activeTenant.packages.find(p => p.price === amountPaid);
-        if (matchedPkg) profile = matchedPkg.profile;
-        
-        globalTransactions.push({
-            tenantId: tenant || "router1",
-            phoneNumber,
-            amount: amountPaid,
-            commission,
-            macAddress: macAddress || 'unknown',
-            timestamp: new Date().toISOString()
-        });
+function updateModalError(errorMessage) {
+    document.getElementById('spinner').style.display = 'none';
+    const titleElem = document.getElementById('modal-title');
+    titleElem.innerText = "Payment Failed";
+    titleElem.style.color = "#ef4444"; 
 
-        await provisionMikroTikUser(phoneNumber, macAddress || 'unknown', profile, activeTenant.router);
-      }
-    } catch (err) {
-      console.error('Sync error:', err.message);
-    }
+    const msgElem = document.getElementById('modal-message');
+    msgElem.innerText = errorMessage;
+    msgElem.style.color = "#fca5a5";
 
-    res.json({ success: true, sessionActive: true });
-});
+    setTimeout(() => {
+        document.getElementById('payment-modal-content').innerHTML += `<button onclick="document.getElementById('payment-modal').style.display='none'" style="margin-top:15px; background:#ef4444; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">Close</button>`;
+    }, 500);
+}
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+function getClientMacAddress() {
+    return "00:00:00:00:00:00";
+}
+</script>
