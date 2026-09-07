@@ -49,7 +49,7 @@
         </div>
     </div>
 
-    <!-- Top Header / Banner (Attendant badge completely removed) -->
+    <!-- Top Header / Banner -->
     <header class="bg-[#0f172a] border-b border-[#1e293b] p-4 sticky top-0 z-50">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div>
@@ -264,12 +264,12 @@
                     </div>
                 </div>
 
-                <!-- Admin Sub: Manual Routers Configuration (Fully Editable Specs) -->
+                <!-- Admin Sub: Manual Routers Configuration -->
                 <div id="admin-sub-routers" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3 hidden">
                     <h3 class="text-xs font-bold text-white mb-2">Hardware Router Setup (Fully Editable Specs)</h3>
-                    <p class="text-[11px] text-slate-400">Configure your hardware nodes. You can now completely edit the Factory MAC Address, Default IP Address, and Factory SSID directly below.</p>
+                    <p class="text-[11px] text-slate-400">Configure your hardware nodes. You can completely edit the Factory MAC Address, Default IP Address, and Factory SSID directly below.</p>
                     <div id="admin-router-list" class="space-y-3">
-                        <!-- Populated dynamically with fully editable router specs -->
+                        <!-- Populated dynamically -->
                     </div>
                     <button onclick="addNewRouterNode()" class="w-full bg-[#1e293b] hover:bg-[#334155] text-cyan-400 border border-cyan-500/30 font-medium py-2 rounded-lg text-xs transition">+ Add Router Node</button>
                 </div>
@@ -446,7 +446,7 @@
             { id: 8, name: "3days plan", speed: "5 Mbps", price: 100 }
         ];
 
-        // Fully Editable Router Configuration Specs (MAC Address, Default IP, Factory SSID)
+        // Fully Editable Router Configuration Specs
         let routersList = JSON.parse(localStorage.getItem('vortex_routers_config')) || [
             { 
                 id: 1, 
@@ -674,14 +674,11 @@
                 return;
             }
 
-            // Show custom green loading modal without exposing backend till number
             showModalLoading("Processing Payment", "A prompt is being sent to your phone. Enter your M-Pesa PIN to complete.");
 
-            // Simulate STK push and webhook confirmation response lifecycle
             setTimeout(() => {
                 updateModalLoadingState("STK Push Sent", "Please check your phone, enter your M-Pesa PIN, and wait for confirmation...");
                 
-                // Simulate backend webhook confirmation after prompt entry
                 setTimeout(() => {
                     showModalSuccessState("Payment successful! Connecting you to the internet...");
                     
@@ -707,7 +704,6 @@
 
             modal.style.display = 'flex';
 
-            // Auto close after 3 seconds for non-interactive alerts
             setTimeout(() => {
                 closeCustomModal();
             }, 3000);
@@ -750,13 +746,11 @@
             document.getElementById('payment-modal').style.display = 'none';
         }
 
-        // Smart TV Billing & MAC Integration
         function activateTvBilling() {
             const brand = document.getElementById('tv-brand-select').value;
             const mac = document.getElementById('tv-mac-input').value.trim();
             const selectEl = document.getElementById('tv-plan-select');
             const planText = selectEl.options[selectEl.selectedIndex].text;
-            const priceVal = selectEl.value;
 
             if(!mac || mac.length < 10) {
                 showCustomModal('Invalid Device MAC', 'Please enter a valid Smart TV MAC address or decoder serial number.', '#ef4444');
@@ -778,7 +772,6 @@
             }
         }
 
-        // Tenant and Super Admin Authentication Handler via bottom-right LOGIN button
         function handlePrimaryAuthAction() {
             const username = document.getElementById('auth-username').value.trim().toLowerCase();
             const pass = document.getElementById('auth-pass').value.trim();
