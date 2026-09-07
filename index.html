@@ -667,27 +667,85 @@
             switchTab('payment');
         }
 
-        function submitMpesaPayment() {
+        async function submitMpesaPayment() {
             const phone = document.getElementById('mpesa-phone-input').value.trim();
             if(!phone || phone.length < 9) {
                 showCustomModal('Invalid Phone', 'Please enter a valid M-Pesa phone number.', '#ef4444');
                 return;
             }
 
+            if (!selectedPackageData) {
+                showCustomModal('No Package', 'Please select a package first.', '#ef4444');
+                return;
+            }
+
             showModalLoading("Processing Payment", "A prompt is being sent to your phone. Enter your M-Pesa PIN to complete.");
 
-            setTimeout(() => {
-                updateModalLoadingState("STK Push Sent", "Please check your phone, enter your M-Pesa PIN, and wait for confirmation...");
+            try {
+                // 1. Trigger the STK Push request on your backend
+                const response = await fetch('/api/stk-push', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone: phone,
+                        amount: selectedPackageData.price,
+                        packageName: selectedPackageData.name
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to initiate STK Push');
+                }
+
+                // Assume your backend returns a checkout id or tracking reference
+                const checkoutId = data.checkoutId || data.MerchantRequestID;
                 
-                setTimeout(() => {
-                    showModalSuccessState("Payment successful! Connecting you to the internet...");
-                    
-                    setTimeout(() => {
+                updateModalLoadingState("STK Push Sent", "Please check your phone, enter your M-Pesa PIN, and wait for confirmation...");
+
+                // 2. Start polling the backend payment status endpoint instead of using fake timers
+                pollPaymentStatus(checkoutId);
+
+            } catch (error) {
+                console.error('STK Error:', error);
+                closeCustomModal();
+                showCustomModal('Payment Failed', error.message || 'Could not connect to payment gateway.', '#ef4444');
+            }
+        }
+
+        // Polling loop function to check real backend payment confirmation
+        function pollPaymentStatus(checkoutId) {
+            let attempts = 0;
+            const maxAttempts = 20; // Try for up to 60 seconds (every 3 seconds)
+
+            const interval = setInterval(async () => {
+                attempts++;
+                
+                try {
+                    const res = await fetch(`/api/payment-status?checkout_id=${checkoutId}`);
+                    const statusData = await res.json();
+
+                    if (statusData.status === 'COMPLETE' || statusData.success === true) {
+                        clearInterval(interval);
+                        showModalSuccessState("Payment successful! Connecting you to the internet...");
+                        
+                        setTimeout(() => {
+                            closeCustomModal();
+                            switchTab('plans');
+                            // location.reload(); // Optional: uncomment if you need to refresh session state
+                        }, 3000);
+                    } 
+                    else if (statusData.status === 'FAILED' || attempts >= maxAttempts) {
+                        clearInterval(interval);
                         closeCustomModal();
-                        switchTab('plans');
-                    }, 3500);
-                }, 4000);
-            }, 2000);
+                        showCustomModal('Payment Timed Out', 'Payment confirmation was not received or failed.', '#ef4444');
+                    }
+                    // If status is 'PENDING' or still processing, the loop continues silently without triggering success
+                } catch (err) {
+                    console.error('Polling check error:', err);
+                }
+            }, 3000);
         }
 
         function showCustomModal(title, message, color) {
