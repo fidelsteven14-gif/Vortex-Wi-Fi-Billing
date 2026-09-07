@@ -237,14 +237,14 @@ async function provisionMikroTikUser(username, macAddress, packageProfile, route
  */
 app.post('/api/stk-push', async (req, res) => {
     try {
-        // ENHANCEMENT: Added flexible property fallbacks (phoneNumber, amount) to prevent failures
         console.log("Incoming STK Push Body:", req.body);
         const rawPhone = req.body.phone || req.body.phoneNumber || req.body.msisdn;
         const rawPackage = req.body.packageId || req.body.amount || req.body.package;
         const tenantId = req.body.tenantId || req.body.tenant;
         const macAddress = req.body.macAddress || req.body.mac;
 
-        if (!rawPhone || String(rawPhone).trim === '' || !rawPackage) {
+        // FIXED: Replaced invalid `.trim` function check with proper string truthiness/emptiness validation
+        if (!rawPhone || String(rawPhone).trim() === '' || !rawPackage) {
             return res.status(400).json({ 
                 success: false, 
                 message: 'A valid M-Pesa phone number and package selection are required.' 
@@ -479,7 +479,7 @@ app.post('/api/mpesa-webhook', async (req, res) => {
         }
 
         res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
-    } catch (err) {
+    }sch (err) {
         console.error('Webhook Error:', err);
         res.status(500).json({ ResultCode: 1, ResultDesc: 'Internal Server Error' });
     }
@@ -519,3 +519,4 @@ app.post('/api/sync-transaction', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
