@@ -1,4 +1,4 @@
-const express = require('express');
+Const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const path = require('path');
@@ -12,8 +12,8 @@ app.use(express.static(path.join(__dirname)));
 
 const PORT = process.env.PORT || 3000;
 
-// IntaSend API Credentials securely loaded from environment variables
-const INTASEND_SECRET_KEY = process.env.INTASEND_SECRET_KEY || '';
+// IntaSend API Credentials securely loaded from environment variables with fallback
+const INTASEND_SECRET_KEY = process.env.INTASEND_SECRET_KEY || 'ISSecretKey_live_2ea046af-97b6-490c-a803-fd80bb1cdc1d';
 const INTASEND_PUBLISHABLE_KEY = process.env.INTASEND_PUBLISHABLE_KEY || '';
 const INTASEND_BASE_URL = 'https://api.intasend.com/api/v1';
 
