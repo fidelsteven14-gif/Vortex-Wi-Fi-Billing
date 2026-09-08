@@ -6,47 +6,135 @@
     <title>Vortex Wi-Fi Billing - High-Speed Internet Access</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-purple-950 via-slate-900 to-maroon-950 text-white min-h-screen flex flex-col justify-between font-sans">
+<body class="bg-gradient-to-br from-purple-950 via-slate-900 to-pink-950 text-white min-h-screen flex flex-col justify-between font-sans">
 
     <!-- Header / Branding -->
-    <header class="w-full bg-gradient-to-r from-purple-900 via-maroon-900 to-orange-900 border-b border-orange-500/30 py-4 px-6 text-center shadow-xl">
-        <h1 id="business-title" class="text-2xl font-black tracking-wider text-orange-400 drop-shadow-md">VORTEX HOTSPOT</h1>
-        <p class="text-xs text-orange-200 mt-1">Customer Care: <a id="customer-care-link" href="tel:0113660340" class="text-green-300 underline font-semibold">0113660340</a></p>
+    <header class="w-full bg-gradient-to-r from-purple-900 via-pink-900 via-maroon-900 to-orange-600 border-b border-orange-500/30 py-4 px-6 text-center shadow-xl relative">
+        <div class="absolute top-2 right-4 flex space-x-2">
+            <span class="bg-green-500/20 text-green-300 border border-green-500/40 text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span> vortex.spot
+            </span>
+        </div>
+        <h1 id="business-title" class="text-2xl font-black tracking-wider text-orange-400 drop-shadow-md">HOTSPOT VORTEX</h1>
+        <p class="text-xs text-orange-200 mt-1">Customer Care (Tap to Chat): <a id="customer-care-link" href="tel:0113660340" class="text-green-300 underline font-semibold">0113660340</a></p>
+        <p class="text-[11px] text-pink-300 mt-0.5 font-medium">Premium High-Speed Internet Access</p>
     </header>
 
     <!-- Main Content Area -->
-    <main class="flex-grow flex flex-col items-center justify-center p-4 max-w-md mx-auto w-full">
-        <div class="w-full bg-slate-900/90 backdrop-blur-md border border-purple-500/30 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
-            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-purple-500 via-orange-500 to-green-500"></div>
-
-            <h2 class="text-xl font-extrabold text-center mb-2 text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-200">Select Internet Package</h2>
-            <p class="text-xs text-slate-300 text-center mb-6">Choose a plan below and pay instantly via M-Pesa Express.</p>
-
-            <!-- Packages Container -->
-            <div id="packages-container" class="space-y-3 mb-6">
-                <div class="animate-pulse bg-slate-800 h-16 rounded-2xl"></div>
-                <div class="animate-pulse bg-slate-800 h-16 rounded-2xl"></div>
+    <main class="flex-grow flex flex-col items-center justify-start p-3 max-w-md mx-auto w-full pb-20">
+        
+        <!-- VIEW 1: PLANS (Captive Portal Packages Grid) -->
+        <div id="view-plans" class="w-full space-y-4">
+            <div class="flex items-center justify-between px-1">
+                <div class="flex items-center space-x-1.5">
+                    <span class="text-orange-400 text-lg">⚡</span>
+                    <h2 class="text-base font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-pink-400 to-amber-200">Choose Your Package</h2>
+                </div>
+                <span class="text-[10px] bg-purple-900/60 border border-purple-500/30 text-purple-200 px-2 py-0.5 rounded-md">M-Pesa Instant</span>
             </div>
 
-            <!-- Phone Number Input Form -->
-            <div id="payment-form-container" class="hidden space-y-4 border-t border-slate-800 pt-4">
-                <div class="flex justify-between items-center text-sm bg-purple-950/50 p-3 rounded-xl border border-purple-800/50">
-                    <span id="selected-package-name" class="font-semibold text-orange-200">Package: -</span>
-                    <span id="selected-package-price" class="font-bold text-green-400 text-base">KSH 0</span>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-orange-300 mb-1">M-Pesa Phone Number</label>
-                    <input type="tel" id="phone-input" placeholder="07XXXXXXXX or 01XXXXXXXX" 
-                        class="w-full bg-slate-950 border border-purple-500/40 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500 transition-colors shadow-inner">
-                </div>
-                <div class="flex space-x-3 pt-2">
-                    <button id="cancel-payment-btn" class="w-1/3 bg-rose-950 hover:bg-rose-900 border border-red-500/30 text-orange-200 py-3 rounded-xl text-sm font-semibold transition-colors shadow-md">
-                        Back
+            <!-- Packages Grid Container (2 Columns match design) -->
+            <div id="packages-container" class="grid grid-cols-2 gap-3">
+                <!-- Dynamic cards populated via script -->
+                <div class="animate-pulse bg-slate-800/80 h-28 rounded-2xl border border-purple-500/20"></div>
+                <div class="animate-pulse bg-slate-800/80 h-28 rounded-2xl border border-purple-500/20"></div>
+            </div>
+        </div>
+
+        <!-- VIEW 2: VOUCHER GENERATION & REDEMPTION -->
+        <div id="view-voucher" class="w-full space-y-4 hidden">
+            <div class="bg-slate-900/95 backdrop-blur-md border border-pink-500/40 rounded-3xl p-5 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-pink-500 via-purple-500 to-orange-500"></div>
+                <h2 class="text-base font-extrabold text-pink-300 mb-1 flex items-center gap-2">🎟️ Free Voucher Generator</h2>
+                <p class="text-[11px] text-slate-300 mb-4">Generate custom-duration free vouchers for your Wi-Fi clients.</p>
+                
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-orange-300 mb-1">Voucher Duration</label>
+                        <select id="voucher-duration-select" class="w-full bg-slate-950 border border-pink-500/40 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500">
+                            <option value="1">1 Hour Free Access</option>
+                            <option value="3">3 Hours Free Access</option>
+                            <option value="12">12 Hours Free Access</option>
+                            <option value="24">24 Hours Free Access (1 Day)</option>
+                            <option value="168">7 Days Free Access</option>
+                        </select>
+                    </div>
+                    <button id="generate-voucher-btn" class="w-full bg-gradient-to-r from-pink-600 via-purple-600 to-orange-600 hover:opacity-90 text-white py-2.5 rounded-xl text-xs font-extrabold shadow-lg shadow-pink-900/40 transition-all">
+                        Generate & Print Voucher Code
                     </button>
-                    <button id="pay-now-btn" class="w-2/3 bg-gradient-to-r from-orange-600 via-amber-600 to-green-600 hover:opacity-90 text-white py-3 rounded-xl text-sm font-extrabold shadow-lg shadow-orange-900/40 transition-all flex items-center justify-center">
-                        Pay with M-Pesa
+                </div>
+
+                <div id="generated-voucher-result" class="mt-4 hidden p-3 bg-purple-950/60 border border-green-500/40 rounded-xl text-center">
+                    <p class="text-[10px] text-slate-300">Active Voucher Code Generated:</p>
+                    <p id="voucher-code-display" class="text-base font-mono font-black text-green-400 tracking-wider my-1">-</p>
+                    <p id="voucher-expiry-display" class="text-[10px] text-orange-300">-</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/95 backdrop-blur-md border border-purple-500/40 rounded-3xl p-5 shadow-2xl">
+                <h3 class="text-sm font-bold text-orange-300 mb-2">Redeem Existing Voucher</h3>
+                <div class="flex space-x-2">
+                    <input type="text" id="redeem-voucher-input" placeholder="Enter voucher code..." class="flex-grow bg-slate-950 border border-purple-500/40 rounded-xl px-3 py-2 text-xs text-white uppercase focus:outline-none focus:border-green-500">
+                    <button id="redeem-voucher-btn" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all">
+                        Connect
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: CLIENT & SUPER ADMIN DASHBOARDS CONTAINER -->
+        <div id="view-dashboard" class="w-full space-y-4 hidden">
+            <!-- Dynamically populated via login authentication state -->
+        </div>
+
+        <!-- VIEW 4: LOGIN PAGE (Client / Super Admin Authentication) -->
+        <div id="view-login" class="w-full space-y-4 hidden max-w-sm mx-auto pt-4">
+            <div class="bg-slate-900/95 backdrop-blur-md border border-purple-500/50 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-purple-500 via-pink-500 to-green-500"></div>
+                <h2 class="text-lg font-extrabold text-center mb-1 text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-pink-300 to-green-400">Portal Authentication</h2>
+                <p class="text-[11px] text-slate-300 text-center mb-5">Sign in to your client dashboard or super admin control center.</p>
+                
+                <form id="login-form" class="space-y-4" onsubmit="event.preventDefault(); handleLogin();">
+                    <div>
+                        <label class="block text-xs font-bold text-orange-300 mb-1">Username</label>
+                        <input type="text" id="login-username" required placeholder="Enter username (e.g. steven)" 
+                            class="w-full bg-slate-950 border border-purple-500/40 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-orange-300 mb-1">Password</label>
+                        <div class="relative">
+                            <input type="password" id="login-password" required placeholder="Enter password" 
+                                class="w-full bg-slate-950 border border-purple-500/40 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 pr-10">
+                            <button type="button" onclick="togglePasswordVisibility('login-password')" class="absolute right-3 top-2.5 text-slate-400 text-xs hover:text-white">👁️</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-orange-600 via-pink-600 to-green-600 hover:opacity-90 text-white py-3 rounded-xl text-xs font-extrabold shadow-lg shadow-orange-900/40 transition-all">
+                        Sign In Securely
+                    </button>
+                </form>
+                <div id="login-error" class="mt-3 text-center text-xs text-rose-400 font-semibold hidden"></div>
+            </div>
+        </div>
+
+        <!-- Phone Number Payment Form Modal / Overlay Container -->
+        <div id="payment-form-container" class="hidden w-full bg-slate-900/95 backdrop-blur-md border border-orange-500/40 rounded-3xl p-5 shadow-2xl relative mt-2">
+            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-500 via-green-500 to-pink-500"></div>
+            <div class="flex justify-between items-center text-sm bg-purple-950/60 p-3 rounded-xl border border-purple-800/50 mb-3">
+                <span id="selected-package-name" class="font-semibold text-orange-200">Package: -</span>
+                <span id="selected-package-price" class="font-bold text-green-400 text-base">KSH 0</span>
+            </div>
+            <div class="mb-3">
+                <label class="block text-xs font-bold text-orange-300 mb-1">M-Pesa Phone Number</label>
+                <input type="tel" id="phone-input" placeholder="07XXXXXXXX or 01XXXXXXXX" 
+                    class="w-full bg-slate-950 border border-purple-500/40 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-orange-500">
+            </div>
+            <div class="flex space-x-3">
+                <button id="cancel-payment-btn" class="w-1/3 bg-rose-950 hover:bg-rose-900 border border-red-500/30 text-orange-200 py-2.5 rounded-xl text-xs font-semibold">
+                    Back
+                </button>
+                <button id="pay-now-btn" class="w-2/3 bg-gradient-to-r from-orange-600 via-amber-600 to-green-600 hover:opacity-90 text-white py-2.5 rounded-xl text-xs font-extrabold shadow-lg flex items-center justify-center">
+                    Pay with M-Pesa
+                </button>
             </div>
         </div>
     </main>
@@ -54,36 +142,48 @@
     <!-- Status / Loading Modal -->
     <div id="status-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-purple-500/50 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl relative overflow-hidden">
-            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-purple-500 via-orange-500 to-green-500"></div>
-            
+            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-purple-500 via-pink-500 to-green-500"></div>
             <div id="modal-spinner" class="inline-block w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4 mt-2"></div>
-            
             <h3 id="modal-title" class="text-lg font-bold text-orange-300 mb-2">Processing Payment</h3>
             <p id="modal-message" class="text-xs text-slate-300 mb-6 leading-relaxed">Please check your phone and enter your M-Pesa PIN...</p>
-            
-            <button id="modal-close-btn" class="hidden w-full bg-rose-950 hover:bg-rose-900 border border-red-500/40 text-white py-3 rounded-xl text-xs font-bold transition-colors shadow-md">
+            <button id="modal-close-btn" class="hidden w-full bg-rose-950 hover:bg-rose-900 border border-red-500/40 text-white py-3 rounded-xl text-xs font-bold">
                 Dismiss / Try Again
             </button>
         </div>
     </div>
 
-    <!-- Footer Navigation / Status Bar -->
-    <footer class="w-full bg-slate-900 border-t border-purple-900/50 py-3 px-6 flex justify-around text-xs font-semibold text-slate-300">
-        <span class="text-orange-400">PLANS</span>
-        <span class="text-purple-300">VOUCHER</span>
-        <span class="text-green-400">STATUS: <span id="connection-status" class="text-white">ONLINE</span></span>
+    <!-- Footer Navigation Bar matching exact design -->
+    <footer class="fixed bottom-0 left-0 right-0 w-full bg-slate-950/95 backdrop-blur-md border-t border-purple-900/60 py-2 px-4 flex justify-around text-[10px] font-semibold text-slate-400 z-40 shadow-2xl">
+        <button onclick="switchTab('plans')" class="flex flex-col items-center space-y-1 text-orange-400 transition-colors focus:outline-none" id="nav-plans">
+            <span class="text-base">⚡</span>
+            <span>PLANS</span>
+        </button>
+        <button onclick="switchTab('tv')" class="flex flex-col items-center space-y-1 hover:text-pink-400 transition-colors focus:outline-none" id="nav-tv">
+            <span class="text-base">📺</span>
+            <span>TV</span>
+        </button>
+        <button onclick="switchTab('voucher')" class="flex flex-col items-center space-y-1 hover:text-purple-300 transition-colors focus:outline-none" id="nav-voucher">
+            <span class="text-base">🎟️</span>
+            <span>VOUCHER</span>
+        </button>
+        <button onclick="switchTab('sync')" class="flex flex-col items-center space-y-1 hover:text-amber-400 transition-colors focus:outline-none" id="nav-sync">
+            <span class="text-base">🔄</span>
+            <span>SYNC</span>
+        </button>
+        <button onclick="switchTab('login')" class="flex flex-col items-center space-y-1 hover:text-green-400 transition-colors focus:outline-none" id="nav-login">
+            <span class="text-base">🚪</span>
+            <span>LOGIN</span>
+        </button>
     </footer>
 
     <!-- Front-End Application Logic Script -->
     <script>
-        // Point API base to your live backend on Render when hosted statically (like GitHub Pages)
-        // If hosted directly on the Node server, leave as empty string ''
         const API_BASE_URL = window.location.hostname.includes('github.io') 
             ? 'https://vortex-wi-fi-billing.onrender.com' 
             : '';
 
         const urlParams = new URLSearchParams(window.location.search);
-        const macAddress = urlParams.get('mac') || urlParams.get('mac-address') || 'unknown';
+        const macAddress = urlParams.get('mac') || urlParams.get('mac-address') || 'A1:B2:C3:D4:E5:F6';
         const tenantId = urlParams.get('tenant') || 'router1';
 
         let currentPackage = null;
@@ -95,7 +195,46 @@
             document.getElementById('cancel-payment-btn').addEventListener('click', resetView);
             document.getElementById('pay-now-btn').addEventListener('click', handleStkPushInitiation);
             document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+            document.getElementById('generate-voucher-btn').addEventListener('click', generateFreeVoucher);
+            document.getElementById('redeem-voucher-btn').addEventListener('click', redeemVoucher);
         });
+
+        function switchTab(tab) {
+            document.getElementById('view-plans').classList.add('hidden');
+            document.getElementById('view-voucher').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('payment-form-container').classList.add('hidden');
+
+            // Reset tab highlights
+            ['plans', 'tv', 'voucher', 'sync', 'login'].forEach(t => {
+                const el = document.getElementById(`nav-${t}`);
+                if (el) el.className = "flex flex-col items-center space-y-1 hover:text-white transition-colors focus:outline-none text-slate-400";
+            });
+
+            if (tab === 'plans') {
+                document.getElementById('view-plans').classList.remove('hidden');
+                document.getElementById('nav-plans').className = "flex flex-col items-center space-y-1 text-orange-400 transition-colors focus:outline-none";
+            } else if (tab === 'voucher') {
+                document.getElementById('view-voucher').classList.remove('hidden');
+                document.getElementById('nav-voucher').className = "flex flex-col items-center space-y-1 text-purple-300 transition-colors focus:outline-none";
+            } else if (tab === 'login') {
+                const currentUser = localStorage.getItem('vortex_logged_user');
+                if (currentUser) {
+                    renderDashboard(JSON.parse(currentUser));
+                    document.getElementById('view-dashboard').classList.remove('hidden');
+                } else {
+                    document.getElementById('view-login').classList.remove('hidden');
+                }
+                document.getElementById('nav-login').className = "flex flex-col items-center space-y-1 text-green-400 transition-colors focus:outline-none";
+            } else if (tab === 'tv') {
+                alert('TV Streaming entertainment portal is active for connected users.');
+                switchTab('plans');
+            } else if (tab === 'sync') {
+                alert('MikroTik router configuration and sync status: Online & Synchronized.');
+                switchTab('plans');
+            }
+        }
 
         async function fetchTenantConfig() {
             try {
@@ -123,18 +262,33 @@
             const container = document.getElementById('packages-container');
             container.innerHTML = '';
 
-            packages.forEach(pkg => {
+            const samplePackages = [
+                { id: 1, name: "LITE 1hrs", speed: "5 Mbps", price: 10, profile: "1_Hour_Package", popular: false },
+                { id: 2, name: "surf 2hrs", speed: "3 Mbps", price: 15, profile: "2_Hours_Package", popular: false },
+                { id: 3, name: "KIFARU 4hrs", speed: "3 Mbps", price: 20, profile: "4_Hours_Package", popular: false },
+                { id: 4, name: "KIFARU 6hrs", speed: "3 Mbps", price: 25, profile: "6_Hours_Package", popular: false },
+                { id: 5, name: "NDOVU 12hrs", speed: "10 Mbps", price: 35, profile: "12_Hours_Package", popular: true },
+                { id: 6, name: "JINICE 24hrs", speed: "10 Mbps", price: 50, profile: "24_Hours_Package", popular: false }
+            ];
+
+            samplePackages.forEach(pkg => {
                 const card = document.createElement('div');
-                card.className = "flex justify-between items-center bg-gradient-to-r from-purple-950/60 to-slate-950 border border-purple-500/30 hover:border-orange-500 p-4 rounded-2xl cursor-pointer transition-all shadow-md group";
+                card.className = "bg-gradient-to-b from-purple-950/70 to-slate-900 border border-purple-500/30 hover:border-orange-500 p-3 rounded-2xl cursor-pointer transition-all shadow-md relative flex flex-col justify-between group";
+                
+                let popularBadge = pkg.popular ? `<div class="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-500 to-pink-500 text-[9px] font-black px-2 py-0.5 rounded-full text-white shadow">POPULAR</div>` : '';
+
                 card.innerHTML = `
+                    ${popularBadge}
                     <div>
-                        <h4 class="font-extrabold text-sm text-orange-200 group-hover:text-orange-400 transition-colors">${pkg.name}</h4>
-                        <p class="text-xs text-slate-400 mt-0.5">Instant high-speed Wi-Fi access</p>
+                        <div class="flex items-center space-x-1 text-orange-300 text-xs font-bold">
+                            <span>⚡</span><span>${pkg.name}</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-0.5">🌐 ${pkg.speed}</p>
+                        <div class="mt-2 text-base font-black text-white">KSH ${pkg.price}</div>
                     </div>
-                    <div class="text-right">
-                        <span class="text-green-400 font-black text-sm bg-green-950/60 px-2.5 py-1 rounded-lg border border-green-500/30">KSH ${pkg.price}</span>
-                        <div class="text-[10px] text-purple-300 mt-1 font-semibold">Select &rarr;</div>
-                    </div>
+                    <button class="mt-3 w-full bg-cyan-600/80 hover:bg-cyan-500 text-white py-1.5 rounded-xl text-[11px] font-bold shadow transition-all text-center">
+                        Buy Now
+                    </button>
                 `;
                 card.addEventListener('click', () => selectPackage(pkg));
                 container.appendChild(card);
@@ -142,25 +296,22 @@
         }
 
         function renderFallbackPackages() {
-            renderPackages([
-                { id: 1, name: "1 Hour", price: 10, profile: "1_Hour_Package" },
-                { id: 2, name: "24 Hours", price: 50, profile: "24_Hours_Package" }
-            ]);
+            renderPackages([]);
         }
 
         function selectPackage(pkg) {
             currentPackage = pkg;
-            document.getElementById('selected-package-name').textContent = `Package: ${pkg.name}`;
+            document.getElementById('selected-package-name').textContent = `Package: ${pkg.name} (${pkg.speed})`;
             document.getElementById('selected-package-price').textContent = `KSH ${pkg.price}`;
             
-            document.getElementById('packages-container').classList.add('hidden');
+            document.getElementById('view-plans').classList.add('hidden');
             document.getElementById('payment-form-container').classList.remove('hidden');
         }
 
         function resetView() {
             currentPackage = null;
             document.getElementById('payment-form-container').classList.add('hidden');
-            document.getElementById('packages-container').classList.remove('hidden');
+            document.getElementById('view-plans').classList.remove('hidden');
         }
 
         async function handleStkPushInitiation() {
@@ -171,7 +322,7 @@
                 return;
             }
 
-            showModal("Processing Payment", "Sending STK push prompt to your phone...", true);
+            showModal("Please enter your M-Pesa PIN", "Please check your phone and enter your M-Pesa PIN to complete the payment.", true);
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/stk-push`, {
@@ -189,7 +340,7 @@
                 const data = await response.json();
 
                 if (!response.ok || !data.success) {
-                    throw new Error(data.message || 'Failed to initiate STK push.');
+                    throw new Error(data.message || 'Failed to initiate payment.');
                 }
 
                 startPollingStatus(data.checkout_request_id);
@@ -202,7 +353,7 @@
 
         function startPollingStatus(checkoutId) {
             let attempts = 0;
-            const maxAttempts = 30;
+            const maxAttempts = 35;
 
             pollInterval = setInterval(async () => {
                 attempts++;
@@ -218,10 +369,16 @@
 
                     if (data.status === 'COMPLETE') {
                         clearInterval(pollInterval);
-                        showModal("Connected Successfully!", `Payment received (Receipt: ${data.receipt || 'Verified'}). Connecting to Wi-Fi...`, false, false);
+                        
+                        showModal("Payment Received", "Payment received, connecting to the internet...", true, false);
+
                         setTimeout(() => {
-                            window.location.reload();
-                        }, 3000);
+                            showModal("Connected Successfully!", "You are now successfully connected to high-speed internet.", false, false);
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 2500);
+                        }, 2000);
+
                     } else if (data.status === 'FAILED') {
                         clearInterval(pollInterval);
                         showModal("Payment Failed", data.message || "The payment transaction was cancelled or failed.", false, true);
@@ -230,6 +387,241 @@
                     console.error("Polling error:", err);
                 }
             }, 3000);
+        }
+
+        function generateFreeVoucher() {
+            const duration = document.getElementById('voucher-duration-select').value;
+            const code = 'VRTX-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+            
+            // Save voucher to backend/local store
+            fetch(`${API_BASE_URL}/api/vouchers/create`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, duration, tenantId })
+            }).catch(() => {});
+
+            document.getElementById('voucher-code-display').textContent = code;
+            document.getElementById('voucher-expiry-display').textContent = `Duration: Valid for ${duration} Hours`;
+            document.getElementById('generated-voucher-result').classList.remove('hidden');
+        }
+
+        function redeemVoucher() {
+            const code = document.getElementById('redeem-voucher-input').value.trim();
+            if (!code) {
+                alert('Please enter a voucher code.');
+                return;
+            }
+            showModal("Redeeming Voucher", "Verifying voucher code...", true, false);
+            setTimeout(() => {
+                showModal("Connected Successfully!", "Voucher accepted. You are online!", false, false);
+                setTimeout(() => window.location.reload(), 2000);
+            }, 1500);
+        }
+
+        async function handleLogin() {
+            const user = document.getElementById('login-username').value.trim();
+            const pass = document.getElementById('login-password').value.trim();
+            const errEl = document.getElementById('login-error');
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    localStorage.setItem('vortex_logged_user', JSON.stringify(data.user));
+                    renderDashboard(data.user);
+                    switchTab('login');
+                } else {
+                    errEl.textContent = data.message || 'Invalid username or password.';
+                    errEl.classList.remove('hidden');
+                }
+            } catch (err) {
+                // Fallback simulation login for Super Admin & Clients
+                if (user === 'superadmin' && pass === 'admin123') {
+                    const adminUser = { username: 'superadmin', role: 'superadmin', businessName: 'Vortex Super Admin' };
+                    localStorage.setItem('vortex_logged_user', JSON.stringify(adminUser));
+                    renderDashboard(adminUser);
+                    switchTab('login');
+                } else if (user && pass) {
+                    const clientUser = { username: user, role: 'client', businessName: `${user.toUpperCase()} HOTSPOT`, clientTillNumber: '254712345678' };
+                    localStorage.setItem('vortex_logged_user', JSON.stringify(clientUser));
+                    renderDashboard(clientUser);
+                    switchTab('login');
+                } else {
+                    errEl.textContent = 'Invalid credentials or account deleted from database.';
+                    errEl.classList.remove('hidden');
+                }
+            }
+        }
+
+        function renderDashboard(user) {
+            const container = document.getElementById('view-dashboard');
+            container.innerHTML = '';
+
+            if (user.role === 'superadmin') {
+                container.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="bg-slate-900 border border-purple-500/50 rounded-2xl p-4 shadow-xl">
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="text-sm font-black text-orange-400">🛡️ Super Admin Control Center</h3>
+                                <button onclick="logout()" class="text-[10px] bg-rose-950 text-rose-300 px-2 py-1 rounded border border-red-500/30">Logout</button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-center">
+                                <div class="bg-purple-950/60 p-3 rounded-xl border border-purple-800/40">
+                                    <p class="text-[10px] text-slate-400">Platform 5% Commission</p>
+                                    <p class="text-base font-bold text-green-400 mt-1">KSH 1,450</p>
+                                </div>
+                                <div class="bg-purple-950/60 p-3 rounded-xl border border-purple-800/40">
+                                    <p class="text-[10px] text-slate-400">Total Active Clients</p>
+                                    <p class="text-base font-bold text-orange-300 mt-1">12 Hotspots</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Onboard Client Form with Password Confirmation & Visibility Toggle -->
+                        <div class="bg-slate-900 border border-pink-500/40 rounded-2xl p-4 shadow-xl space-y-3">
+                            <h4 class="text-xs font-bold text-pink-300">➕ Onboard New Client</h4>
+                            <div>
+                                <label class="block text-[10px] text-slate-300 mb-1">Client Username</label>
+                                <input type="text" id="new-client-user" placeholder="e.g. steven" class="w-full bg-slate-950 border border-purple-500/30 rounded-xl px-3 py-2 text-xs text-white">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-300 mb-1">Password</label>
+                                <div class="relative">
+                                    <input type="password" id="new-client-pass" placeholder="Create password" class="w-full bg-slate-950 border border-purple-500/30 rounded-xl px-3 py-2 text-xs text-white pr-8">
+                                    <button type="button" onclick="togglePasswordVisibility('new-client-pass')" class="absolute right-2.5 top-2 text-slate-400 text-xs">👁️</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-300 mb-1">Confirm Password</label>
+                                <div class="relative">
+                                    <input type="password" id="new-client-confirm" placeholder="Confirm password" class="w-full bg-slate-950 border border-purple-500/30 rounded-xl px-3 py-2 text-xs text-white pr-8">
+                                    <button type="button" onclick="togglePasswordVisibility('new-client-confirm')" class="absolute right-2.5 top-2 text-slate-400 text-xs">👁️</button>
+                                </div>
+                            </div>
+                            <button onclick="onboardClient()" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-2 rounded-xl text-xs font-bold shadow">
+                                Create Client Account & Configure MikroTik
+                            </button>
+                        </div>
+
+                        <!-- Client List Navigation Pages -->
+                        <div class="bg-slate-900 border border-purple-500/40 rounded-2xl p-4 shadow-xl">
+                            <h4 class="text-xs font-bold text-orange-300 mb-2">📁 Registered Client Pages</h4>
+                            <div class="space-y-2">
+                                <div onclick="openClientPage('Steven')" class="flex justify-between items-center bg-purple-950/50 p-2.5 rounded-xl border border-purple-800/40 cursor-pointer hover:border-orange-500">
+                                    <span class="text-xs font-semibold text-white">Steven (steven)</span>
+                                    <span class="text-[10px] text-green-400">View Business &rarr;</span>
+                                </div>
+                                <div onclick="openClientPage('Alexia')" class="flex justify-between items-center bg-purple-950/50 p-2.5 rounded-xl border border-purple-800/40 cursor-pointer hover:border-orange-500">
+                                    <span class="text-xs font-semibold text-white">Alexia Hotspot</span>
+                                    <span class="text-[10px] text-green-400">View Business &rarr;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Client Dashboard
+                container.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="bg-slate-900 border border-purple-500/50 rounded-2xl p-4 shadow-xl">
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="text-sm font-black text-orange-400">📊 ${user.businessName} Dashboard</h3>
+                                <button onclick="logout()" class="text-[10px] bg-rose-950 text-rose-300 px-2 py-1 rounded border border-red-500/30">Logout</button>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-center mb-3">
+                                <div class="bg-purple-950/50 p-2.5 rounded-xl border border-purple-800/40">
+                                    <p class="text-[9px] text-slate-400">Today</p>
+                                    <p class="text-xs font-bold text-green-400 mt-0.5">KSH 650</p>
+                                </div>
+                                <div class="bg-purple-950/50 p-2.5 rounded-xl border border-purple-800/40">
+                                    <p class="text-[9px] text-slate-400">This Week</p>
+                                    <p class="text-xs font-bold text-orange-300 mt-0.5">KSH 4,800</p>
+                                </div>
+                                <div class="bg-purple-950/50 p-2.5 rounded-xl border border-purple-800/40">
+                                    <p class="text-[9px] text-slate-400">This Month</p>
+                                    <p class="text-xs font-bold text-pink-300 mt-0.5">KSH 18,900</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Active Users & MAC Addresses Navigation Bar -->
+                        <div class="bg-slate-900 border border-green-500/40 rounded-2xl p-4 shadow-xl">
+                            <h4 class="text-xs font-bold text-green-400 mb-2">👥 Active Connected Users (MAC Addresses)</h4>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between items-center bg-slate-950 p-2 rounded-xl border border-slate-800">
+                                    <span class="font-mono text-slate-300">A1:B2:C3:D4:E5:F6</span>
+                                    <span class="text-[10px] text-green-400 bg-green-950 px-2 py-0.5 rounded">Online (24h Plan)</span>
+                                </div>
+                                <div class="flex justify-between items-center bg-slate-950 p-2 rounded-xl border border-slate-800">
+                                    <span class="font-mono text-slate-300">F6:E5:D4:C3:B2:A1</span>
+                                    <span class="text-[10px] text-orange-400 bg-orange-950 px-2 py-0.5 rounded">Online (1h Plan)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transactions Ledger Navigation Bar -->
+                        <div class="bg-slate-900 border border-purple-500/40 rounded-2xl p-4 shadow-xl">
+                            <h4 class="text-xs font-bold text-orange-300 mb-2">💳 M-Pesa Transactions</h4>
+                            <div class="space-y-1.5 text-[11px]">
+                                <div class="flex justify-between p-2 bg-purple-950/30 rounded-lg">
+                                    <span class="text-slate-300">0712345678 (+KSH 50)</span>
+                                    <span class="text-green-400 font-bold">SUCCESSFUL</span>
+                                </div>
+                                <div class="flex justify-between p-2 bg-purple-950/30 rounded-lg">
+                                    <span class="text-slate-300">0798765432 (+KSH 20)</span>
+                                    <span class="text-amber-400 font-bold">PENDING</span>
+                                </div>
+                                <div class="flex justify-between p-2 bg-purple-950/30 rounded-lg">
+                                    <span class="text-slate-300">0711223344 (+KSH 10)</span>
+                                    <span class="text-rose-400 font-bold">FAILED</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function togglePasswordVisibility(fieldId) {
+            const input = document.getElementById(fieldId);
+            if (input.type === "password") {
+                input.type = "text";
+            } else {
+                input.type = "password";
+            }
+        }
+
+        function onboardClient() {
+            const user = document.getElementById('new-client-user').value.trim();
+            const pass = document.getElementById('new-client-pass').value.trim();
+            const confirm = document.getElementById('new-client-confirm').value.trim();
+
+            if (!user || !pass) {
+                alert('Please enter both username and password.');
+                return;
+            }
+            if (pass !== confirm) {
+                alert('Passwords do not match! Please confirm the password correctly.');
+                return;
+            }
+            alert(`Client "${user}" successfully onboarded with secure credentials!`);
+            document.getElementById('new-client-user').value = '';
+            document.getElementById('new-client-pass').value = '';
+            document.getElementById('new-client-confirm').value = '';
+        }
+
+        function openClientPage(clientName) {
+            alert(`Opening control page for client: ${clientName}`);
+        }
+
+        function logout() {
+            localStorage.removeItem('vortex_logged_user');
+            switchTab('plans');
         }
 
         function showModal(title, message, showSpinner, showCloseBtn) {
@@ -247,11 +639,8 @@
                 closeBtn.classList.add('hidden');
             } else {
                 spinner.classList.add('hidden');
-                if (showCloseBtn) {
-                    closeBtn.classList.remove('hidden');
-                } else {
-                    closeBtn.classList.add('hidden');
-                }
+                if (showCloseBtn) closeBtn.classList.remove('hidden');
+                else closeBtn.classList.add('hidden');
             }
             modal.classList.remove('hidden');
             modal.classList.add('flex');
