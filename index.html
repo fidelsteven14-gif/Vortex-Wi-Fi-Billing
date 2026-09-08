@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in to HOTSPOT VORTEX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #0b1120;
+            color: #f8fafc;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b1120;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="font-sans pb-24">
+
+    <!-- Top Header / Banner -->
+    <header class="bg-[#0f172a] border-b border-[#1e293b] p-4 sticky top-0 z-50">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div>
+                <h1 id="header-title" class="text-sm font-bold tracking-tight text-cyan-400">Sign in to HOTSPOT VORTEX</h1>
+                <p id="header-subtitle" class="text-[11px] text-slate-400">vortex.spot</p>
+            </div>
+            <div class="bg-[#1e293b] p-2.5 rounded-full border border-cyan-500/30 text-cyan-400 shadow-inner">
+                <i class="fa-solid fa-wifi text-base"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-md mx-auto p-4">
+
+        <!-- Customer Care Banner -->
+        <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 mb-5 text-center shadow-md">
+            <p class="text-[11px] text-slate-400 tracking-wider">Customer Care: <span id="customer-care" class="text-cyan-400 font-bold">0702975065</span></p>
+            <p class="text-[11px] text-slate-400 mt-1 font-medium">Premium High-Speed Internet Access</p>
+        </div>
+
+        <!-- TAB CONTENT: PLANS -->
+        <section id="tab-plans" class="tab-content">
+            <div class="flex items-center gap-2 mb-4">
+                <i class="fa-solid fa-bolt text-amber-400 text-sm"></i>
+                <h2 class="text-sm font-semibold tracking-wide text-slate-200">Choose Your Package</h2>
+            </div>
+
+            <!-- Package Grid -->
+            <div id="package-grid" class="grid grid-cols-2 gap-3">
+                <!-- Populated dynamically to support admin edits -->
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: PAYMENT PROMPT (Triggered on Buy Now) -->
+        <section id="tab-payment" class="tab-content hidden">
+            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2 text-cyan-400">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                        <h2 class="text-sm font-semibold text-white">M-Pesa Express Checkout</h2>
+                    </div>
+                    <button onclick="switchTab('plans')" class="text-xs text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i> Back</button>
+                </div>
+                <div class="bg-[#0b1120] border border-[#1f2937] rounded-lg p-3 mb-4 text-xs">
+                    <p class="text-slate-400">Selected Package: <span id="pay-pkg-name" class="text-cyan-400 font-bold">--</span></p>
+                    <p class="text-slate-400 mt-1">Amount to Pay: <span id="pay-pkg-price" class="text-white font-extrabold">--</span></p>
+                </div>
+                <label class="block text-xs text-slate-400 mb-2">M-Pesa Phone Number</label>
+                <div class="relative mb-4">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-xs text-slate-400">+254</span>
+                    <input type="tel" id="mpesa-phone-input" placeholder="702975065" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-3 pl-14 text-xs text-white focus:outline-none focus:border-cyan-500">
+                </div>
+                <button onclick="submitMpesaPayment()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">Stk Push Payment</button>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: TV -->
+        <section id="tab-tv" class="tab-content hidden">
+            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5 text-center">
+                <div class="text-cyan-400 text-xl mb-2"><i class="fa-solid fa-tv"></i></div>
+                <h2 class="text-sm font-semibold text-white mb-1">Streaming & TV Access</h2>
+                <p class="text-xs text-slate-400">Configure media streaming bundles and localized channel packages here.</p>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: VOUCHER -->
+        <section id="tab-voucher" class="tab-content hidden">
+            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
+                <div class="flex items-center gap-2 mb-4 text-cyan-400">
+                    <i class="fa-solid fa-ticket"></i>
+                    <h2 class="text-sm font-semibold text-white">Activate Voucher Code</h2>
+                </div>
+                <label class="block text-xs text-slate-400 mb-2">Access Code</label>
+                <input type="text" id="voucher-code-input" placeholder="Enter your activation code" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-3 text-xs text-white mb-4 uppercase focus:outline-none focus:border-cyan-500">
+                <button onclick="verifyVoucherCode()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition">Activate Now</button>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: SYNC -->
+        <section id="tab-sync" class="tab-content hidden">
+            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
+                <div class="flex items-center gap-2 mb-2 text-cyan-400">
+                    <i class="fa-solid fa-rotate"></i>
+                    <h2 class="text-sm font-semibold text-white">Re-establish Connection</h2>
+                </div>
+                <p class="text-xs text-slate-400 mb-4">Already paid? Enter your M-Pesa code to go online instantly.</p>
+                <label class="block text-xs text-slate-400 mb-2">Transaction Reference</label>
+                <input type="text" id="sync-ref-input" placeholder="e.g. QJI5HNTXYZ" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-3 text-xs text-white mb-4 uppercase focus:outline-none focus:border-cyan-500">
+                <button onclick="syncTransaction()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition">Go Online Now</button>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: LOGIN / REGISTER -->
+        <section id="tab-login" class="tab-content hidden">
+            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
+                <div class="flex border-b border-[#1f2937] mb-4 text-xs font-semibold">
+                    <button id="btn-mode-signin" onclick="setAuthMode('signin')" class="flex-1 pb-2 text-cyan-400 border-b-2 border-cyan-400 transition">Sign In</button>
+                    <button id="btn-mode-signup" onclick="setAuthMode('signup')" class="flex-1 pb-2 text-slate-400 hover:text-slate-200 transition">Create Account</button>
+                </div>
+                <div id="auth-form-container"></div>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: ADMIN PORTAL -->
+        <section id="tab-admin" class="tab-content hidden">
+            <div class="space-y-4">
+                <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 flex justify-between items-center">
+                    <div>
+                        <h2 id="admin-welcome-title" class="text-xs font-bold text-cyan-400">Hotspot Admin Portal</h2>
+                        <p class="text-[10px] text-slate-400">Manage packages, vouchers, and MikroTik integration</p>
+                    </div>
+                    <button onclick="handleLogout()" class="bg-red-500/20 text-red-400 hover:bg-red-500/30 text-[10px] font-bold px-3 py-1.5 rounded-lg transition">Logout</button>
+                </div>
+
+                <!-- Admin Tab Controller -->
+                <div class="grid grid-cols-3 gap-2 text-center text-[11px] font-semibold">
+                    <button onclick="switchAdminSub('packages')" id="sub-btn-packages" class="bg-[#0891b2] text-white py-2 rounded-lg transition">Packages</button>
+                    <button onclick="switchAdminSub('vouchers')" id="sub-btn-vouchers" class="bg-[#111827] border border-[#1f2937] text-slate-300 py-2 rounded-lg transition">Vouchers</button>
+                    <button onclick="switchAdminSub('mikrotik')" id="sub-btn-mikrotik" class="bg-[#111827] border border-[#1f2937] text-slate-300 py-2 rounded-lg transition">MikroTik</button>
+                </div>
+
+                <!-- Admin Sub: Packages -->
+                <div id="admin-sub-packages" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3">
+                    <h3 class="text-xs font-bold text-white mb-2">Edit Billing Packages</h3>
+                    <div id="admin-package-editor-list" class="space-y-2"></div>
+                    <button onclick="addNewPackage()" class="w-full bg-[#1e293b] hover:bg-[#334155] text-cyan-400 border border-cyan-500/30 font-medium py-2 rounded-lg text-xs transition">+ Add New Package</button>
+                </div>
+
+                <!-- Admin Sub: Vouchers -->
+                <div id="admin-sub-vouchers" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3 hidden">
+                    <h3 class="text-xs font-bold text-white mb-2">Free Voucher Code Generator</h3>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Quantity of Vouchers</label>
+                        <input type="number" id="voucher-gen-qty" value="5" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Package Assignment</label>
+                        <select id="voucher-gen-pkg" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                            <option>NDOVU 12hrs (KSH 35)</option>
+                            <option>JINICE 24hrs (KSH 50)</option>
+                        </select>
+                    </div>
+                    <button onclick="generateFreeVouchers()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition">Generate & Export Vouchers</button>
+                    <div id="generated-vouchers-output" class="bg-[#0b1120] p-3 rounded-lg text-[11px] text-slate-300 font-mono mt-2 hidden"></div>
+                </div>
+
+                <!-- Admin Sub: MikroTik -->
+                <div id="admin-sub-mikrotik" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3 hidden">
+                    <h3 class="text-xs font-bold text-white mb-2">MikroTik Router Configuration</h3>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Router IP Address / Hotspot DNS Name</label>
+                        <input type="text" value="hotspot.vortex.router" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">RADIUS Secret Key</label>
+                        <input type="password" value="vortex_radius_secret_99" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <button onclick="alert('MikroTik API configuration synced successfully!')" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition">Save Router Settings</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: SUPER ADMIN DASHBOARD -->
+        <section id="tab-superadmin" class="tab-content hidden">
+            <div class="space-y-4">
+                <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xs font-bold text-amber-400">Super Admin Command Center</h2>
+                        <p class="text-[10px] text-slate-400">System-wide performance, revenue & hotspot tracking</p>
+                    </div>
+                    <button onclick="handleLogout()" class="bg-red-500/20 text-red-400 hover:bg-red-500/30 text-[10px] font-bold px-3 py-1.5 rounded-lg transition">Logout</button>
+                </div>
+
+                <!-- Stats Overview Cards -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-3.5">
+                        <p class="text-[10px] text-slate-400">Total Hotspot Owners</p>
+                        <p class="text-lg font-extrabold text-white mt-1">48 Active</p>
+                    </div>
+                    <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-3.5">
+                        <p class="text-[10px] text-slate-400">Total System Revenue</p>
+                        <p class="text-lg font-extrabold text-emerald-400 mt-1">KSH 428,500</p>
+                    </div>
+                    <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-3.5">
+                        <p class="text-[10px] text-slate-400">Active Online Users</p>
+                        <p class="text-lg font-extrabold text-cyan-400 mt-1">1,420</p>
+                    </div>
+                    <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-3.5">
+                        <p class="text-[10px] text-slate-400">Failed M-Pesa Txns</p>
+                        <p class="text-lg font-extrabold text-amber-400 mt-1">12</p>
+                    </div>
+                </div>
+
+                <!-- Analytics Timeframe Filters -->
+                <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold text-white">Revenue & Traffic Analysis</h3>
+                        <select class="bg-[#0b1120] border border-[#1f2937] rounded text-[10px] text-slate-300 p-1">
+                            <option>Minute / Hourly</option>
+                            <option>Daily</option>
+                            <option>Weekly</option>
+                            <option>Monthly</option>
+                        </select>
+                    </div>
+                    <div class="h-28 bg-[#0b1120] border border-[#1f2937] rounded-lg p-3 flex flex-col justify-end">
+                        <div class="flex justify-between items-end h-20 gap-1">
+                            <div class="w-full bg-cyan-500/30 hover:bg-cyan-500/50 h-[40%] rounded-t transition"></div>
+                            <div class="w-full bg-cyan-500/40 hover:bg-cyan-500/60 h-[65%] rounded-t transition"></div>
+                            <div class="w-full bg-cyan-500/50 hover:bg-cyan-500/70 h-[50%] rounded-t transition"></div>
+                            <div class="w-full bg-cyan-500/60 hover:bg-cyan-500/80 h-[85%] rounded-t transition"></div>
+                            <div class="w-full bg-cyan-500 hover:bg-cyan-400 h-[100%] rounded-t transition"></div>
+                        </div>
+                        <div class="flex justify-between text-[9px] text-slate-500 mt-1">
+                            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registered Hotspot Owners Directory (Phone Numbers) -->
+                <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4">
+                    <h3 class="text-xs font-bold text-white mb-3">Hotspot Owners Directory & Contacts</h3>
+                    <div class="space-y-2 text-xs">
+                        <div class="bg-[#0b1120] p-2.5 rounded-lg flex justify-between items-center border border-[#1f2937]">
+                            <div>
+                                <p class="font-bold text-cyan-400">Steven Fidel (Super Admin)</p>
+                                <p class="text-[10px] text-slate-400">fidelsteven2@gmail.com</p>
+                            </div>
+                            <span class="text-xs text-emerald-400 font-mono">0702975065</span>
+                        </div>
+                        <div class="bg-[#0b1120] p-2.5 rounded-lg flex justify-between items-center border border-[#1f2937]">
+                            <div>
+                                <p class="font-bold text-white">Alexia Web Hotspot</p>
+                                <p class="text-[10px] text-slate-400">alexia@vortex.spot</p>
+                            </div>
+                            <span class="text-xs text-slate-300 font-mono">0712345678</span>
+                        </div>
+                        <div class="bg-[#0b1120] p-2.5 rounded-lg flex justify-between items-center border border-[#1f2937]">
+                            <div>
+                                <p class="font-bold text-white">Gendia Network Hub</p>
+                                <p class="text-[10px] text-slate-400">gendia@vortex.spot</p>
+                            </div>
+                            <span class="text-xs text-slate-300 font-mono">0734567890</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-[#0f172a] border-t border-[#1e293b] py-2.5 px-2 z-50">
+        <div class="max-w-md mx-auto flex justify-around items-center text-[10px] text-slate-400 font-medium">
+            <button onclick="switchTab('plans')" class="nav-btn flex flex-col items-center gap-0.5 text-cyan-400 transition" data-target="plans">
+                <i class="fa-solid fa-layer-group text-sm"></i>
+                <span>PLANS</span>
+            </button>
+            <button onclick="switchTab('tv')" class="nav-btn flex flex-col items-center gap-0.5 hover:text-cyan-400 transition" data-target="tv">
+                <i class="fa-solid fa-tv text-sm"></i>
+                <span>TV</span>
+            </button>
+            <button onclick="switchTab('voucher')" class="nav-btn flex flex-col items-center gap-0.5 hover:text-cyan-400 transition" data-target="voucher">
+                <i class="fa-solid fa-ticket text-sm"></i>
+                <span>VOUCHER</span>
+            </button>
+            <button onclick="switchTab('sync')" class="nav-btn flex flex-col items-center gap-0.5 hover:text-cyan-400 transition" data-target="sync">
+                <i class="fa-solid fa-rotate text-sm"></i>
+                <span>SYNC</span>
+            </button>
+            <button onclick="switchTab('login')" class="nav-btn flex flex-col items-center gap-0.5 hover:text-cyan-400 transition" data-target="login">
+                <i class="fa-solid fa-right-to-bracket text-sm"></i>
+                <span>LOGIN</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Modal for 4-Digit Google/Email Code Verification -->
+    <div id="otp-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5 max-w-sm w-full text-center shadow-xl">
+            <div class="text-cyan-400 text-xl mb-2"><i class="fa-solid fa-envelope-circle-check"></i></div>
+            <h3 class="text-sm font-bold text-white mb-1">Google Verification Code</h3>
+            <p class="text-[11px] text-slate-400 mb-2">Simulated email dispatch sent to <span id="target-email-display" class="text-cyan-300 font-semibold">your email</span>.</p>
+            <div class="bg-cyan-500/10 border border-cyan-500/30 rounded p-2 mb-4 text-cyan-300 text-[11px] font-mono">
+                Your 4-Digit Code is: <b id="simulated-code-badge" class="text-white tracking-widest text-sm">4912</b>
+            </div>
+            
+            <div class="flex justify-center gap-2 mb-4">
+                <input type="text" maxlength="1" class="otp-input w-10 h-10 text-center bg-[#0b1120] border border-[#1f2937] rounded-lg text-white font-bold text-sm focus:border-cyan-500 focus:outline-none" />
+                <input type="text" maxlength="1" class="otp-input w-10 h-10 text-center bg-[#0b1120] border border-[#1f2937] rounded-lg text-white font-bold text-sm focus:border-cyan-500 focus:outline-none" />
+                <input type="text" maxlength="1" class="otp-input w-10 h-10 text-center bg-[#0b1120] border border-[#1f2937] rounded-lg text-white font-bold text-sm focus:border-cyan-500 focus:outline-none" />
+                <input type="text" maxlength="1" class="otp-input w-10 h-10 text-center bg-[#0b1120] border border-[#1f2937] rounded-lg text-white font-bold text-sm focus:border-cyan-500 focus:outline-none" />
+            </div>
+
+            <button onclick="verifyOtpCode()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2 rounded-lg text-xs transition mb-2">Confirm Code</button>
+            <button onclick="closeOtpModal()" class="text-[11px] text-slate-400 hover:text-white transition">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // Packages Data Structure (Editable by Admin)
+        let packages = [
+            { id: 1, name: "LITE 1hrs", speed: "5 Mbps", price: 10 },
+            { id: 2, name: "surf 2hrs", speed: "3 Mbps", price: 15 },
+            { id: 3, name: "KIFARU 4hrs", speed: "3 Mbps", price: 20 },
+            { id: 4, name: "KIFARU 6hrs", speed: "3 Mbps", price: 25 },
+            { id: 5, name: "NDOVU 12hrs", speed: "10 Mbps", price: 35, popular: true },
+            { id: 6, name: "JINICE 24hrs", speed: "10 Mbps", price: 50 },
+            { id: 7, name: "6 hrs VIP plan", speed: "Unlimited", price: 60 },
+            { id: 8, name: "3days plan", speed: "5 Mbps", price: 100 }
+        ];
+
+        let selectedPackageData = null;
+        let generatedOtpCode = "4912";
+        let registeredUsers = [];
+
+        function renderPackages() {
+            const grid = document.getElementById('package-grid');
+            grid.innerHTML = '';
+            packages.forEach(pkg => {
+                grid.innerHTML += `
+                    <div class="bg-[#111827] border ${pkg.popular ? 'border-emerald-500/50' : 'border-[#1f2937]'} rounded-xl p-3.5 flex flex-col justify-between relative shadow-md">
+                        ${pkg.popular ? '<span class="absolute -top-2.5 right-3 bg-emerald-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">POPULAR</span>' : ''}
+                        <div>
+                            <div class="text-cyan-400 text-xs font-bold mb-1 flex items-center gap-1.5"><i class="fa-solid fa-bolt text-[10px]"></i> ${pkg.name}</div>
+                            <div class="text-[11px] text-slate-400 mb-3 flex items-center gap-1.5"><i class="fa-solid fa-gauge-high text-[10px]"></i> ${pkg.speed}</div>
+                        </div>
+                        <div>
+                            <div class="text-base font-extrabold text-white mb-2">KSH ${pkg.price}</div>
+                            <button onclick="openPaymentPage('${pkg.name}', ${pkg.price})" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-1.5 rounded-lg text-xs transition shadow-md">Buy Now</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderAdminPackages() {
+            const list = document.getElementById('admin-package-editor-list');
+            list.innerHTML = '';
+            packages.forEach((pkg, index) => {
+                list.innerHTML += `
+                    <div class="bg-[#0b1120] p-2.5 rounded-lg border border-[#1f2937] flex items-center justify-between gap-2 text-xs">
+                        <input type="text" value="${pkg.name}" onchange="updatePkgName(${index}, this.value)" class="bg-[#111827] border border-[#1f2937] rounded p-1 text-white w-1/3">
+                        <input type="number" value="${pkg.price}" onchange="updatePkgPrice(${index}, this.value)" class="bg-[#111827] border border-[#1f2937] rounded p-1 text-white w-1/4">
+                        <button onclick="deletePackage(${index})" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            });
+        }
+
+        function updatePkgName(index, val) { packages[index].name = val; renderPackages(); }
+        function updatePkgPrice(index, val) { packages[index].price = Number(val); renderPackages(); }
+        function deletePackage(index) { packages.splice(index, 1); renderPackages(); renderAdminPackages(); }
+        function addNewPackage() {
+            packages.push({ id: Date.now(), name: "New Plan", speed: "5 Mbps", price: 30 });
+            renderPackages();
+            renderAdminPackages();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-cyan-400');
+                btn.classList.add('text-slate-400');
+            });
+            const activeBtn = document.querySelector(`.nav-btn[data-target="${tabId}"]`);
+            if(activeBtn) {
+                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.add('text-cyan-400');
+            }
+
+            if(tabId === 'login') {
+                setAuthMode('signin');
+            }
+        }
+
+        function openPaymentPage(name, price) {
+            selectedPackageData = { name, price };
+            document.getElementById('pay-pkg-name').innerText = name;
+            document.getElementById('pay-pkg-price').innerText = `KSH ${price}`;
+            switchTab('payment');
+        }
+
+        function submitMpesaPayment() {
+            const phone = document.getElementById('mpesa-phone-input').value;
+            if(!phone || phone.length < 9) {
+                alert('Please enter a valid M-Pesa phone number.');
+                return;
+            }
+            alert(`STK Push prompt successfully sent to +254${phone} for ${selectedPackageData.name} (KSH ${selectedPackageData.price}). Enter PIN to complete.`);
+            switchTab('plans');
+        }
+
+        let currentAuthMode = 'signin';
+        function setAuthMode(mode) {
+            currentAuthMode = mode;
+            const container = document.getElementById('auth-form-container');
+            const btnSignin = document.getElementById('btn-mode-signin');
+            const btnSignup = document.getElementById('btn-mode-signup');
+
+            if (mode === 'signin') {
+                btnSignin.className = "flex-1 pb-2 text-cyan-400 border-b-2 border-cyan-400 transition";
+                btnSignup.className = "flex-1 pb-2 text-slate-400 hover:text-slate-200 transition";
+                
+                container.innerHTML = `
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Email or Username</label>
+                            <input type="text" id="signin-user" placeholder="name@gmail.com or username" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Password</label>
+                            <div class="relative">
+                                <input type="password" id="signin-pass" placeholder="Enter password" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 pr-10 text-xs text-white focus:outline-none focus:border-cyan-500">
+                                <button type="button" onclick="togglePasswordVisibility('signin-pass', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white text-xs">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button onclick="handleSignIn()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition mt-2">Sign In to Dashboard</button>
+                    </div>
+                `;
+            } else {
+                btnSignup.className = "flex-1 pb-2 text-cyan-400 border-b-2 border-cyan-400 transition";
+                btnSignin.className = "flex-1 pb-2 text-slate-400 hover:text-slate-200 transition";
+                
+                container.innerHTML = `
+                    <div class="space-y-2.5">
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Username</label>
+                            <input type="text" id="signup-user" placeholder="Choose a username" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Email Address</label>
+                            <input type="email" id="signup-email" placeholder="name@example.com" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Password</label>
+                            <div class="relative">
+                                <input type="password" id="signup-pass" placeholder="Create password" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2 pr-10 text-xs text-white focus:outline-none focus:border-cyan-500">
+                                <button type="button" onclick="togglePasswordVisibility('signup-pass', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white text-xs">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Confirm Password</label>
+                            <div class="relative">
+                                <input type="password" id="signup-confirm" placeholder="Confirm password" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2 pr-10 text-xs text-white focus:outline-none focus:border-cyan-500">
+                                <button type="button" onclick="togglePasswordVisibility('signup-confirm', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white text-xs">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button onclick="handleSignUp()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition mt-1">Create Account & Verify Email</button>
+                    </div>
+                `;
+            }
+        }
+
+        function togglePasswordVisibility(fieldId, btn) {
+            const input = document.getElementById(fieldId);
+            if(input.type === 'password') {
+                input.type = 'text';
+                btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+            } else {
+                input.type = 'password';
+                btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+            }
+        }
+
+        function handleSignIn() {
+            const user = document.getElementById('signin-user').value.trim();
+            const pass = document.getElementById('signin-pass').value.trim();
+
+            if(!user || !pass) {
+                alert('Please enter your credentials.');
+                return;
+            }
+
+            // Check Super Admin Exact Credentials
+            if ((user === 'fidelsteven2@gmail.com' || user === 'Steven Fidel') && pass === 'Steven_19') {
+                document.getElementById('tab-login').classList.add('hidden');
+                document.getElementById('tab-superadmin').classList.remove('hidden');
+                alert('Super Admin authenticated successfully.');
+                return;
+            }
+
+            // Regular Hotspot Business Admin Login
+            document.getElementById('tab-login').classList.add('hidden');
+            document.getElementById('tab-admin').classList.remove('hidden');
+            document.getElementById('admin-welcome-title').innerText = `Hotspot Admin: ${user}`;
+            renderAdminPackages();
+            alert(`Welcome to your Hotspot Admin Portal, ${user}!`);
+        }
+
+        function handleSignUp() {
+            const user = document.getElementById('signup-user').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const pass = document.getElementById('signup-pass').value;
+            const confirmPass = document.getElementById('signup-confirm').value;
+
+            if(!user || !email || !pass || !confirmPass) {
+                alert('Please fill in all fields.');
+                return;
+            }
+            if(pass !== confirmPass) {
+                alert('Passwords do not match.');
+                return;
+            }
+
+            generatedOtpCode = Math.floor(1000 + Math.random() * 9000).toString();
+            document.getElementById('simulated-code-badge').innerText = generatedOtpCode;
+            document.getElementById('target-email-display').innerText = email;
+            document.getElementById('otp-modal').classList.remove('hidden');
+        }
+
+        function closeOtpModal() {
+            document.getElementById('otp-modal').classList.add('hidden');
+        }
+
+        function verifyOtpCode() {
+            alert('Google Verification code confirmed successfully! Account created and activated.');
+            closeOtpModal();
+            switchTab('admin');
+            renderAdminPackages();
+        }
+
+        function handleLogout() {
+            document.getElementById('tab-admin').classList.add('hidden');
+            document.getElementById('tab-superadmin').classList.add('hidden');
+            switchTab('plans');
+        }
+
+        function switchAdminSub(subId) {
+            document.querySelectorAll('.admin-sub-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`admin-sub-${subId}`).classList.remove('hidden');
+
+            ['packages', 'vouchers', 'mikrotik'].forEach(s => {
+                const btn = document.getElementById(`sub-btn-${s}`);
+                if(s === subId) {
+                    btn.className = "bg-[#0891b2] text-white py-2 rounded-lg transition";
+                } else {
+                    btn.className = "bg-[#111827] border border-[#1f2937] text-slate-300 py-2 rounded-lg transition";
+                }
+            });
+        }
+
+        function generateFreeVouchers() {
+            const qty = document.getElementById('voucher-gen-qty').value;
+            const output = document.getElementById('generated-vouchers-output');
+            output.classList.remove('hidden');
+            let codes = [];
+            for(let i=0; i<qty; i++) {
+                codes.push(`VORTEX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`);
+            }
+            output.innerHTML = `<b>Generated ${qty} Free Vouchers:</b><br>` + codes.join('<br>');
+        }
+
+        function verifyVoucherCode() {
+            const code = document.getElementById('voucher-code-input').value.trim();
+            if(code.length > 3) {
+                alert('Voucher code accepted! Internet access granted.');
+                switchTab('plans');
+            } else {
+                alert('Invalid voucher code.');
+            }
+        }
+
+        function syncTransaction() {
+            const ref = document.getElementById('sync-ref-input').value.trim();
+            if(ref) {
+                alert(`Transaction reference ${ref} verified! Connection re-established.`);
+                switchTab('plans');
+            } else {
+                alert('Please enter a valid M-Pesa transaction reference.');
+            }
+        }
+
+        // Initialize App
+        renderPackages();
+    </script>
+</body>
+</html>
