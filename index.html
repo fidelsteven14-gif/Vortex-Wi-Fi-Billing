@@ -3,653 +3,612 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vortex Wi-Fi Billing - High-Speed Internet Access</title>
+    <title>Sign in to HOTSPOT VORTEX</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #0b1120;
+            color: #f8fafc;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b1120;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-purple-950 via-slate-900 to-pink-950 text-white min-h-screen flex flex-col justify-between font-sans">
+<body class="font-sans pb-24">
 
-    <!-- Header / Branding -->
-    <header class="w-full bg-gradient-to-r from-purple-900 via-pink-900 via-maroon-900 to-orange-600 border-b border-orange-500/30 py-4 px-6 text-center shadow-xl relative">
-        <div class="absolute top-2 right-4 flex space-x-2">
-            <span class="bg-green-500/20 text-green-300 border border-green-500/40 text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span> vortex.spot
-            </span>
+    <!-- Top Header / Banner -->
+    <header class="bg-[#0f172a] border-b border-[#1e293b] p-4 sticky top-0 z-50">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div>
+                <h1 id="header-title" class="text-sm font-bold tracking-tight text-cyan-400">Sign in to HOTSPOT VORTEX</h1>
+                <p id="header-subtitle" class="text-[11px] text-slate-400">vortex.spot</p>
+            </div>
+            <div class="bg-[#1e293b] p-2.5 rounded-full border border-cyan-500/30 text-cyan-400 shadow-inner">
+                <i class="fa-solid fa-wifi text-base"></i>
+            </div>
         </div>
-        <h1 id="business-title" class="text-2xl font-black tracking-wider text-orange-400 drop-shadow-md">HOTSPOT VORTEX</h1>
-        <p class="text-xs text-orange-200 mt-1">Customer Care (Tap to Chat): <a id="customer-care-link" href="tel:0113660340" class="text-green-300 underline font-semibold">0113660340</a></p>
-        <p class="text-[11px] text-pink-300 mt-0.5 font-medium">Premium High-Speed Internet Access</p>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="flex-grow flex flex-col items-center justify-start p-3 max-w-md mx-auto w-full pb-20">
-        
-        <!-- VIEW 1: PLANS (Captive Portal Packages Grid) -->
-        <div id="view-plans" class="w-full space-y-4">
-            <div class="flex items-center justify-between px-1">
-                <div class="flex items-center space-x-1.5">
-                    <span class="text-orange-400 text-sm font-bold">PWR</span>
-                    <h2 class="text-base font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-pink-400 to-amber-200">Choose Your Package</h2>
-                </div>
-                <span class="text-[10px] bg-purple-900/60 border border-purple-500/30 text-purple-200 px-2 py-0.5 rounded-md">M-Pesa Instant</span>
-            </div>
+    <!-- Main Container -->
+    <main class="max-w-md mx-auto p-4">
 
-            <!-- Packages Grid Container (2 Columns match design) -->
-            <div id="packages-container" class="grid grid-cols-2 gap-3">
-                <!-- Dynamic cards populated via script -->
-                <div class="animate-pulse bg-slate-800/80 h-28 rounded-2xl border border-purple-500/20"></div>
-                <div class="animate-pulse bg-slate-800/80 h-28 rounded-2xl border border-purple-500/20"></div>
-            </div>
+        <!-- Customer Care Banner -->
+        <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 mb-5 text-center shadow-md">
+            <p class="text-[11px] text-slate-400 tracking-wider">Customer Care: <span id="customer-care" class="text-cyan-400 font-bold">0702975065</span></p>
+            <p class="text-[11px] text-slate-400 mt-1 font-medium">Premium High-Speed Internet Access</p>
         </div>
 
-        <!-- VIEW 2: VOUCHER GENERATION & REDEMPTION -->
-        <div id="view-voucher" class="w-full space-y-4 hidden">
-            <div class="bg-slate-900/95 backdrop-blur-md border border-pink-500/40 rounded-3xl p-5 shadow-2xl relative overflow-hidden">
-                <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-pink-500 via-purple-500 to-orange-500"></div>
-                <h2 class="text-base font-extrabold text-pink-300 mb-1 flex items-center gap-2">Free Voucher Generator</h2>
-                <p class="text-[11px] text-slate-300 mb-4">Generate custom-duration free vouchers for your Wi-Fi clients.</p>
-                
-                <div class="space-y-3">
+        <!-- TAB CONTENT: PLANS -->
+        <section id="tab-plans" class="tab-content">
+            <div class="flex items-center gap-2 mb-4">
+                <i class="fa-solid fa-bolt text-amber-400 text-sm"></i>
+                <h2 class="text-sm font-semibold tracking-wide text-slate-200">Choose Your Package</h2>
+            </div>
+
+            <!-- Package Grid -->
+            <div id="package-grid" class="grid grid-cols-2 gap-3">
+                <!-- Populated dynamically to support admin edits -->
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: PAYMENT PROMPT (Triggered on Buy Now) -->
+        <section id="tab-payment" class="tab-content hidden">
+            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2 text-cyan-400">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                        <h2 class="text-sm font-semibold text-white">M-Pesa Express Checkout</h2>
+                    </div>
+                    <button onclick="switchTab('plans')" class="text-xs text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i> Back</button>
+                </div>
+                <div class="bg-[#0b1120] border border-[#1f2937] rounded-lg p-3 mb-4 text-xs">
+                    <p class="text-slate-400">Selected Package: <span id="pay-pkg-name" class="text-cyan-400 font-bold">--</span></p>
+                    <p class="text-slate-400 mt-1">Amount to Pay: <span id="pay-pkg-price" class="text-white font-extrabold">--</span></p>
+                </div>
+                <label class="block text-xs text-slate-400 mb-2">M-Pesa Phone Number</label>
+                <div class="relative mb-4">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-xs text-slate-400">+254</span>
+                    <input type="tel" id="mpesa-phone-input" placeholder="702975065" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-3 pl-14 text-xs text-white focus:outline-none focus:border-cyan-500">
+                </div>
+                <button onclick="submitMpesaPayment()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition shadow-md">Stk Push Payment</button>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: TV -->
+        <section id="tab-tv" class="tab-content hidden">
+            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5 text-center">
+                <div class="text-cyan-400 text-xl mb-2"><i class="fa-solid fa-tv"></i></div>
+                <h2 class="text-sm font-semibold text-white mb-1">Streaming & TV Access</h2>
+                <p class="text-xs text-slate-400">Configure media streaming bundles and localized channel packages here.</p>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: VOUCHER -->
+        <section id="tab-voucher" class="tab-content hidden">
+            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
+                <div class="flex items-center gap-2 mb-4 text-cyan-400">
+                    <i class="fa-solid fa-ticket"></i>
+                    <h2 class="text-sm font-semibold text-white">Activate Voucher Code</h2>
+                </div>
+                <label class="block text-xs text-slate-400 mb-2">Access Code</label>
+                <input type="text" id="voucher-code-input" placeholder="Enter your activation code" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-3 text-xs text-white mb-4 uppercase focus:outline-none focus:border-cyan-500">
+                <button onclick="verifyVoucherCode()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition">Activate Now</button>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: SYNC -->
+        <section id="tab-sync" class="tab-content hidden">
+            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
+                <div class="flex items-center gap-2 mb-2 text-cyan-400">
+                    <i class="fa-solid fa-rotate"></i>
+                    <h2 class="text-sm font-semibold text-white">Re-establish Connection</h2>
+                </div>
+                <p class="text-xs text-slate-400 mb-4">Already paid? Enter your M-Pesa code to go online instantly.</p>
+                <label class="block text-xs text-slate-400 mb-2">Transaction Reference</label>
+                <input type="text" id="sync-ref-input" placeholder="e.g. QJI5HNTXYZ" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-3 text-xs text-white mb-4 uppercase focus:outline-none focus:border-cyan-500">
+                <button onclick="syncTransaction()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition">Go Online Now</button>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: LOGIN / REGISTER -->
+        <section id="tab-login" class="tab-content hidden">
+            <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
+                <div class="flex border-b border-[#1f2937] mb-4 text-xs font-semibold">
+                    <button id="btn-mode-signin" onclick="setAuthMode('signin')" class="flex-1 pb-2 text-cyan-400 border-b-2 border-cyan-400 transition">Sign In</button>
+                    <button id="btn-mode-signup" onclick="setAuthMode('signup')" class="flex-1 pb-2 text-slate-400 hover:text-slate-200 transition">Create Account</button>
+                </div>
+                <div id="auth-form-container"></div>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: ADMIN PORTAL -->
+        <section id="tab-admin" class="tab-content hidden">
+            <div class="space-y-4">
+                <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 flex justify-between items-center">
                     <div>
-                        <label class="block text-[11px] font-bold text-orange-300 mb-1">Voucher Duration</label>
-                        <select id="voucher-duration-select" class="w-full bg-slate-950 border border-pink-500/40 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500">
-                            <option value="1">1 Hour Free Access</option>
-                            <option value="3">3 Hours Free Access</option>
-                            <option value="12">12 Hours Free Access</option>
-                            <option value="24">24 Hours Free Access (1 Day)</option>
-                            <option value="168">7 Days Free Access</option>
+                        <h2 id="admin-welcome-title" class="text-xs font-bold text-cyan-400">Hotspot Admin Portal</h2>
+                        <p class="text-[10px] text-slate-400">Manage packages, vouchers, and MikroTik integration</p>
+                    </div>
+                    <button onclick="handleLogout()" class="bg-red-500/20 text-red-400 hover:bg-red-500/30 text-[10px] font-bold px-3 py-1.5 rounded-lg transition">Logout</button>
+                </div>
+
+                <!-- Admin Tab Controller -->
+                <div class="grid grid-cols-3 gap-2 text-center text-[11px] font-semibold">
+                    <button onclick="switchAdminSub('packages')" id="sub-btn-packages" class="bg-[#0891b2] text-white py-2 rounded-lg transition">Packages</button>
+                    <button onclick="switchAdminSub('vouchers')" id="sub-btn-vouchers" class="bg-[#111827] border border-[#1f2937] text-slate-300 py-2 rounded-lg transition">Vouchers</button>
+                    <button onclick="switchAdminSub('mikrotik')" id="sub-btn-mikrotik" class="bg-[#111827] border border-[#1f2937] text-slate-300 py-2 rounded-lg transition">MikroTik</button>
+                </div>
+
+                <!-- Admin Sub: Packages -->
+                <div id="admin-sub-packages" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3">
+                    <h3 class="text-xs font-bold text-white mb-2">Edit Billing Packages</h3>
+                    <div id="admin-package-editor-list" class="space-y-2"></div>
+                    <button onclick="addNewPackage()" class="w-full bg-[#1e293b] hover:bg-[#334155] text-cyan-400 border border-cyan-500/30 font-medium py-2 rounded-lg text-xs transition">+ Add New Package</button>
+                </div>
+
+                <!-- Admin Sub: Vouchers -->
+                <div id="admin-sub-vouchers" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3 hidden">
+                    <h3 class="text-xs font-bold text-white mb-2">Free Voucher Code Generator</h3>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Quantity of Vouchers</label>
+                        <input type="number" id="voucher-gen-qty" value="5" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Package Assignment</label>
+                        <select id="voucher-gen-pkg" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                            <option>NDOVU 12hrs (KSH 35)</option>
+                            <option>JINICE 24hrs (KSH 50)</option>
                         </select>
                     </div>
-                    <button id="generate-voucher-btn" class="w-full bg-gradient-to-r from-pink-600 via-purple-600 to-orange-600 hover:opacity-90 text-white py-2.5 rounded-xl text-xs font-extrabold shadow-lg shadow-pink-900/40 transition-all">
-                        Generate & Print Voucher Code
-                    </button>
+                    <button onclick="generateFreeVouchers()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition">Generate & Export Vouchers</button>
+                    <div id="generated-vouchers-output" class="bg-[#0b1120] p-3 rounded-lg text-[11px] text-slate-300 font-mono mt-2 hidden"></div>
                 </div>
 
-                <div id="generated-voucher-result" class="mt-4 hidden p-3 bg-purple-950/60 border border-green-500/40 rounded-xl text-center">
-                    <p class="text-[10px] text-slate-300">Active Voucher Code Generated:</p>
-                    <p id="voucher-code-display" class="text-base font-mono font-black text-green-400 tracking-wider my-1">-</p>
-                    <p id="voucher-expiry-display" class="text-[10px] text-orange-300">-</p>
-                </div>
-            </div>
-
-            <div class="bg-slate-900/95 backdrop-blur-md border border-purple-500/40 rounded-3xl p-5 shadow-2xl">
-                <h3 class="text-sm font-bold text-orange-300 mb-2">Redeem Existing Voucher</h3>
-                <div class="flex space-x-2">
-                    <input type="text" id="redeem-voucher-input" placeholder="Enter voucher code..." class="flex-grow bg-slate-950 border border-purple-500/40 rounded-xl px-3 py-2 text-xs text-white uppercase focus:outline-none focus:border-green-500">
-                    <button id="redeem-voucher-btn" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all">
-                        Connect
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- VIEW 3: CLIENT & SUPER ADMIN DASHBOARDS CONTAINER -->
-        <div id="view-dashboard" class="w-full space-y-4 hidden">
-            <!-- Dynamically populated via login authentication state -->
-        </div>
-
-        <!-- VIEW 4: LOGIN PAGE (Client / Super Admin Authentication) -->
-        <div id="view-login" class="w-full space-y-4 hidden max-w-sm mx-auto pt-4">
-            <div class="bg-slate-900/95 backdrop-blur-md border border-purple-500/50 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
-                <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-purple-500 via-pink-500 to-green-500"></div>
-                <h2 class="text-lg font-extrabold text-center mb-1 text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-pink-300 to-green-400">Portal Authentication</h2>
-                <p class="text-[11px] text-slate-300 text-center mb-5">Sign in to your client dashboard or super admin control center.</p>
-                
-                <form id="login-form" class="space-y-4" onsubmit="event.preventDefault(); handleLogin();">
+                <!-- Admin Sub: MikroTik -->
+                <div id="admin-sub-mikrotik" class="admin-sub-content bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3 hidden">
+                    <h3 class="text-xs font-bold text-white mb-2">MikroTik Router Configuration</h3>
                     <div>
-                        <label class="block text-xs font-bold text-orange-300 mb-1">Username</label>
-                        <input type="text" id="login-username" required placeholder="Enter username (e.g. steven)" 
-                            class="w-full bg-slate-950 border border-purple-500/40 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500">
+                        <label class="block text-[11px] text-slate-400 mb-1">Router IP Address / Hotspot DNS Name</label>
+                        <input type="text" value="hotspot.vortex.router" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-orange-300 mb-1">Password</label>
-                        <div class="relative">
-                            <input type="password" id="login-password" required placeholder="Enter password" 
-                                class="w-full bg-slate-950 border border-purple-500/40 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 pr-10">
-                            <button type="button" onclick="togglePasswordVisibility('login-password')" class="absolute right-3 top-2.5 text-slate-400 text-[10px] font-bold hover:text-white uppercase tracking-wider">View</button>
+                        <label class="block text-[11px] text-slate-400 mb-1">RADIUS Secret Key</label>
+                        <input type="password" value="vortex_radius_secret_99" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <button onclick="alert('MikroTik API configuration synced successfully!')" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition">Save Router Settings</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: SUPER ADMIN DASHBOARD -->
+        <section id="tab-superadmin" class="tab-content hidden">
+            <div class="space-y-4">
+                <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xs font-bold text-amber-400">Super Admin Command Center</h2>
+                        <p class="text-[10px] text-slate-400">System-wide performance, revenue & hotspot tracking</p>
+                    </div>
+                    <button onclick="handleLogout()" class="bg-red-500/20 text-red-400 hover:bg-red-500/30 text-[10px] font-bold px-3 py-1.5 rounded-lg transition">Logout</button>
+                </div>
+
+                <!-- Stats Overview Cards -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-3.5">
+                        <p class="text-[10px] text-slate-400">Total Hotspot Owners</p>
+                        <p class="text-lg font-extrabold text-white mt-1">48 Active</p>
+                    </div>
+                    <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-3.5">
+                        <p class="text-[10px] text-slate-400">Total System Revenue</p>
+                        <p class="text-lg font-extrabold text-emerald-400 mt-1">KSH 428,500</p>
+                    </div>
+                    <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-3.5">
+                        <p class="text-[10px] text-slate-400">Active Online Users</p>
+                        <p class="text-lg font-extrabold text-cyan-400 mt-1">1,420</p>
+                    </div>
+                    <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-3.5">
+                        <p class="text-[10px] text-slate-400">Failed M-Pesa Txns</p>
+                        <p class="text-lg font-extrabold text-amber-400 mt-1">12</p>
+                    </div>
+                </div>
+
+                <!-- Analytics Timeframe Filters -->
+                <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold text-white">Revenue & Traffic Analysis</h3>
+                        <select class="bg-[#0b1120] border border-[#1f2937] rounded text-[10px] text-slate-300 p-1">
+                            <option>Minute / Hourly</option>
+                            <option>Daily</option>
+                            <option>Weekly</option>
+                            <option>Monthly</option>
+                        </select>
+                    </div>
+                    <div class="h-28 bg-[#0b1120] border border-[#1f2937] rounded-lg p-3 flex flex-col justify-end">
+                        <div class="flex justify-between items-end h-20 gap-1">
+                            <div class="w-full bg-cyan-500/30 hover:bg-cyan-500/50 h-[40%] rounded-t transition"></div>
+                            <div class="w-full bg-cyan-500/40 hover:bg-cyan-500/60 h-[65%] rounded-t transition"></div>
+                            <div class="w-full bg-cyan-500/50 hover:bg-cyan-500/70 h-[50%] rounded-t transition"></div>
+                            <div class="w-full bg-cyan-500/60 hover:bg-cyan-500/80 h-[85%] rounded-t transition"></div>
+                            <div class="w-full bg-cyan-500 hover:bg-cyan-400 h-[100%] rounded-t transition"></div>
+                        </div>
+                        <div class="flex justify-between text-[9px] text-slate-500 mt-1">
+                            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span>
                         </div>
                     </div>
-                    <button type="submit" class="w-full bg-gradient-to-r from-orange-600 via-pink-600 to-green-600 hover:opacity-90 text-white py-3 rounded-xl text-xs font-extrabold shadow-lg shadow-orange-900/40 transition-all">
-                        Sign In Securely
-                    </button>
-                </form>
-                <div id="login-error" class="mt-3 text-center text-xs text-rose-400 font-semibold hidden"></div>
-            </div>
-        </div>
+                </div>
 
-        <!-- Phone Number Payment Form Modal / Overlay Container -->
-        <div id="payment-form-container" class="hidden w-full bg-slate-900/95 backdrop-blur-md border border-orange-500/40 rounded-3xl p-5 shadow-2xl relative mt-2">
-            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-500 via-green-500 to-pink-500"></div>
-            <div class="flex justify-between items-center text-sm bg-purple-950/60 p-3 rounded-xl border border-purple-800/50 mb-3">
-                <span id="selected-package-name" class="font-semibold text-orange-200">Package: -</span>
-                <span id="selected-package-price" class="font-bold text-green-400 text-base">KSH 0</span>
+                <!-- Registered Hotspot Owners Directory (Phone Numbers) -->
+                <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-4">
+                    <h3 class="text-xs font-bold text-white mb-3">Hotspot Owners Directory & Contacts</h3>
+                    <div class="space-y-2 text-xs">
+                        <div class="bg-[#0b1120] p-2.5 rounded-lg flex justify-between items-center border border-[#1f2937]">
+                            <div>
+                                <p class="font-bold text-cyan-400">Steven Fidel (Super Admin)</p>
+                                <p class="text-[10px] text-slate-400">fidelsteven2@gmail.com</p>
+                            </div>
+                            <span class="text-xs text-emerald-400 font-mono">0702975065</span>
+                        </div>
+                        <div class="bg-[#0b1120] p-2.5 rounded-lg flex justify-between items-center border border-[#1f2937]">
+                            <div>
+                                <p class="font-bold text-white">Alexia Web Hotspot</p>
+                                <p class="text-[10px] text-slate-400">alexia@vortex.spot</p>
+                            </div>
+                            <span class="text-xs text-slate-300 font-mono">0712345678</span>
+                        </div>
+                        <div class="bg-[#0b1120] p-2.5 rounded-lg flex justify-between items-center border border-[#1f2937]">
+                            <div>
+                                <p class="font-bold text-white">Gendia Network Hub</p>
+                                <p class="text-[10px] text-slate-400">gendia@vortex.spot</p>
+                            </div>
+                            <span class="text-xs text-slate-300 font-mono">0734567890</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="mb-3">
-                <label class="block text-xs font-bold text-orange-300 mb-1">M-Pesa Phone Number</label>
-                <input type="tel" id="phone-input" placeholder="07XXXXXXXX or 01XXXXXXXX" 
-                    class="w-full bg-slate-950 border border-purple-500/40 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-orange-500">
-            </div>
-            <div class="flex space-x-3">
-                <button id="cancel-payment-btn" class="w-1/3 bg-rose-950 hover:bg-rose-900 border border-red-500/30 text-orange-200 py-2.5 rounded-xl text-xs font-semibold">
-                    Back
-                </button>
-                <button id="pay-now-btn" class="w-2/3 bg-gradient-to-r from-orange-600 via-amber-600 to-green-600 hover:opacity-90 text-white py-2.5 rounded-xl text-xs font-extrabold shadow-lg flex items-center justify-center">
-                    Pay with M-Pesa
-                </button>
-            </div>
-        </div>
+        </section>
+
     </main>
 
-    <!-- Status / Loading Modal -->
-    <div id="status-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-slate-900 border border-purple-500/50 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl relative overflow-hidden">
-            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-purple-500 via-pink-500 to-green-500"></div>
-            <div id="modal-spinner" class="inline-block w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4 mt-2"></div>
-            <h3 id="modal-title" class="text-lg font-bold text-orange-300 mb-2">Processing Payment</h3>
-            <p id="modal-message" class="text-xs text-slate-300 mb-6 leading-relaxed">Please check your phone and enter your M-Pesa PIN...</p>
-            <button id="modal-close-btn" class="hidden w-full bg-rose-950 hover:bg-rose-900 border border-red-500/40 text-white py-3 rounded-xl text-xs font-bold">
-                Dismiss / Try Again
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-[#0f172a] border-t border-[#1e293b] py-2.5 px-2 z-50">
+        <div class="max-w-md mx-auto flex justify-around items-center text-[10px] text-slate-400 font-medium">
+            <button onclick="switchTab('plans')" class="nav-btn flex flex-col items-center gap-0.5 text-cyan-400 transition" data-target="plans">
+                <i class="fa-solid fa-layer-group text-sm"></i>
+                <span>PLANS</span>
             </button>
+            <button onclick="switchTab('tv')" class="nav-btn flex flex-col items-center gap-0.5 hover:text-cyan-400 transition" data-target="tv">
+                <i class="fa-solid fa-tv text-sm"></i>
+                <span>TV</span>
+            </button>
+            <button onclick="switchTab('voucher')" class="nav-btn flex flex-col items-center gap-0.5 hover:text-cyan-400 transition" data-target="voucher">
+                <i class="fa-solid fa-ticket text-sm"></i>
+                <span>VOUCHER</span>
+            </button>
+            <button onclick="switchTab('sync')" class="nav-btn flex flex-col items-center gap-0.5 hover:text-cyan-400 transition" data-target="sync">
+                <i class="fa-solid fa-rotate text-sm"></i>
+                <span>SYNC</span>
+            </button>
+            <button onclick="switchTab('login')" class="nav-btn flex flex-col items-center gap-0.5 hover:text-cyan-400 transition" data-target="login">
+                <i class="fa-solid fa-right-to-bracket text-sm"></i>
+                <span>LOGIN</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Modal for 4-Digit Google/Email Code Verification -->
+    <div id="otp-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#111827] border border-[#1f2937] rounded-xl p-5 max-w-sm w-full text-center shadow-xl">
+            <div class="text-cyan-400 text-xl mb-2"><i class="fa-solid fa-envelope-circle-check"></i></div>
+            <h3 class="text-sm font-bold text-white mb-1">Google Verification Code</h3>
+            <p class="text-[11px] text-slate-400 mb-2">Simulated email dispatch sent to <span id="target-email-display" class="text-cyan-300 font-semibold">your email</span>.</p>
+            <div class="bg-cyan-500/10 border border-cyan-500/30 rounded p-2 mb-4 text-cyan-300 text-[11px] font-mono">
+                Your 4-Digit Code is: <b id="simulated-code-badge" class="text-white tracking-widest text-sm">4912</b>
+            </div>
+            
+            <div class="flex justify-center gap-2 mb-4">
+                <input type="text" maxlength="1" class="otp-input w-10 h-10 text-center bg-[#0b1120] border border-[#1f2937] rounded-lg text-white font-bold text-sm focus:border-cyan-500 focus:outline-none" />
+                <input type="text" maxlength="1" class="otp-input w-10 h-10 text-center bg-[#0b1120] border border-[#1f2937] rounded-lg text-white font-bold text-sm focus:border-cyan-500 focus:outline-none" />
+                <input type="text" maxlength="1" class="otp-input w-10 h-10 text-center bg-[#0b1120] border border-[#1f2937] rounded-lg text-white font-bold text-sm focus:border-cyan-500 focus:outline-none" />
+                <input type="text" maxlength="1" class="otp-input w-10 h-10 text-center bg-[#0b1120] border border-[#1f2937] rounded-lg text-white font-bold text-sm focus:border-cyan-500 focus:outline-none" />
+            </div>
+
+            <button onclick="verifyOtpCode()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2 rounded-lg text-xs transition mb-2">Confirm Code</button>
+            <button onclick="closeOtpModal()" class="text-[11px] text-slate-400 hover:text-white transition">Cancel</button>
         </div>
     </div>
 
-    <!-- Footer Navigation Bar matching exact design -->
-    <footer class="fixed bottom-0 left-0 right-0 w-full bg-slate-950/95 backdrop-blur-md border-t border-purple-900/60 py-2 px-4 flex justify-around text-[10px] font-semibold text-slate-400 z-40 shadow-2xl">
-        <button onclick="switchTab('plans')" class="flex flex-col items-center space-y-1 text-orange-400 transition-colors focus:outline-none" id="nav-plans">
-            <span class="text-xs font-black">PWR</span>
-            <span>PLANS</span>
-        </button>
-        <button onclick="switchTab('tv')" class="flex flex-col items-center space-y-1 hover:text-pink-400 transition-colors focus:outline-none" id="nav-tv">
-            <span class="text-xs font-black">NET</span>
-            <span>TV</span>
-        </button>
-        <button onclick="switchTab('voucher')" class="flex flex-col items-center space-y-1 hover:text-purple-300 transition-colors focus:outline-none" id="nav-voucher">
-            <span class="text-xs font-black">VOU</span>
-            <span>VOUCHER</span>
-        </button>
-        <button onclick="switchTab('sync')" class="flex flex-col items-center space-y-1 hover:text-amber-400 transition-colors focus:outline-none" id="nav-sync">
-            <span class="text-xs font-black">SYN</span>
-            <span>SYNC</span>
-        </button>
-        <button onclick="switchTab('login')" class="flex flex-col items-center space-y-1 hover:text-green-400 transition-colors focus:outline-none" id="nav-login">
-            <span class="text-xs font-black">ACC</span>
-            <span>LOGIN</span>
-        </button>
-    </footer>
-
-    <!-- Front-End Application Logic Script -->
     <script>
-        const API_BASE_URL = window.location.hostname.includes('github.io') 
-            ? 'https://vortex-wi-fi-billing.onrender.com' 
-            : '';
+        // Packages Data Structure (Editable by Admin)
+        let packages = [
+            { id: 1, name: "LITE 1hrs", speed: "5 Mbps", price: 10 },
+            { id: 2, name: "surf 2hrs", speed: "3 Mbps", price: 15 },
+            { id: 3, name: "KIFARU 4hrs", speed: "3 Mbps", price: 20 },
+            { id: 4, name: "KIFARU 6hrs", speed: "3 Mbps", price: 25 },
+            { id: 5, name: "NDOVU 12hrs", speed: "10 Mbps", price: 35, popular: true },
+            { id: 6, name: "JINICE 24hrs", speed: "10 Mbps", price: 50 },
+            { id: 7, name: "6 hrs VIP plan", speed: "Unlimited", price: 60 },
+            { id: 8, name: "3days plan", speed: "5 Mbps", price: 100 }
+        ];
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const macAddress = urlParams.get('mac') || urlParams.get('mac-address') || 'A1:B2:C3:D4:E5:F6';
-        const tenantId = urlParams.get('tenant') || 'router1';
+        let selectedPackageData = null;
+        let generatedOtpCode = "4912";
+        let registeredUsers = [];
 
-        let currentPackage = null;
-        let pollInterval = null;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchTenantConfig();
-            
-            document.getElementById('cancel-payment-btn').addEventListener('click', resetView);
-            document.getElementById('pay-now-btn').addEventListener('click', handleStkPushInitiation);
-            document.getElementById('modal-close-btn').addEventListener('click', closeModal);
-            document.getElementById('generate-voucher-btn').addEventListener('click', generateFreeVoucher);
-            document.getElementById('redeem-voucher-btn').addEventListener('click', redeemVoucher);
-        });
-
-        function switchTab(tab) {
-            document.getElementById('view-plans').classList.add('hidden');
-            document.getElementById('view-voucher').classList.add('hidden');
-            document.getElementById('view-dashboard').classList.add('hidden');
-            document.getElementById('view-login').classList.add('hidden');
-            document.getElementById('payment-form-container').classList.add('hidden');
-
-            // Reset tab highlights
-            ['plans', 'tv', 'voucher', 'sync', 'login'].forEach(t => {
-                const el = document.getElementById(`nav-${t}`);
-                if (el) el.className = "flex flex-col items-center space-y-1 hover:text-white transition-colors focus:outline-none text-slate-400";
-            });
-
-            if (tab === 'plans') {
-                document.getElementById('view-plans').classList.remove('hidden');
-                document.getElementById('nav-plans').className = "flex flex-col items-center space-y-1 text-orange-400 transition-colors focus:outline-none";
-            } else if (tab === 'voucher') {
-                document.getElementById('view-voucher').classList.remove('hidden');
-                document.getElementById('nav-voucher').className = "flex flex-col items-center space-y-1 text-purple-300 transition-colors focus:outline-none";
-            } else if (tab === 'login') {
-                const currentUser = localStorage.getItem('vortex_logged_user');
-                if (currentUser) {
-                    renderDashboard(JSON.parse(currentUser));
-                    document.getElementById('view-dashboard').classList.remove('hidden');
-                } else {
-                    document.getElementById('view-login').classList.remove('hidden');
-                }
-                document.getElementById('nav-login').className = "flex flex-col items-center space-y-1 text-green-400 transition-colors focus:outline-none";
-            } else if (tab === 'tv') {
-                alert('TV Streaming entertainment portal is active for connected users.');
-                switchTab('plans');
-            } else if (tab === 'sync') {
-                alert('MikroTik router configuration and sync status: Online & Synchronized.');
-                switchTab('plans');
-            }
-        }
-
-        async function fetchTenantConfig() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/config/${tenantId}`);
-                const data = await response.json();
-                
-                if (data.success && data.data) {
-                    const tenant = data.data;
-                    document.getElementById('business-title').textContent = tenant.businessName;
-                    const careLink = document.getElementById('customer-care-link');
-                    careLink.textContent = tenant.customerCare;
-                    careLink.href = `tel:${tenant.customerCare}`;
-                    
-                    renderPackages(tenant.packages);
-                } else {
-                    renderFallbackPackages();
-                }
-            } catch (err) {
-                console.error("Config fetch error:", err);
-                renderFallbackPackages();
-            }
-        }
-
-        function renderPackages(packages) {
-            const container = document.getElementById('packages-container');
-            container.innerHTML = '';
-
-            const samplePackages = [
-                { id: 1, name: "LITE 1hrs", speed: "5 Mbps", price: 10, profile: "1_Hour_Package", popular: false },
-                { id: 2, name: "surf 2hrs", speed: "3 Mbps", price: 15, profile: "2_Hours_Package", popular: false },
-                { id: 3, name: "KIFARU 4hrs", speed: "3 Mbps", price: 20, profile: "4_Hours_Package", popular: false },
-                { id: 4, name: "KIFARU 6hrs", speed: "3 Mbps", price: 25, profile: "6_Hours_Package", popular: false },
-                { id: 5, name: "NDOVU 12hrs", speed: "10 Mbps", price: 35, profile: "12_Hours_Package", popular: true },
-                { id: 6, name: "JINICE 24hrs", speed: "10 Mbps", price: 50, profile: "24_Hours_Package", popular: false }
-            ];
-
-            samplePackages.forEach(pkg => {
-                const card = document.createElement('div');
-                card.className = "bg-gradient-to-b from-purple-950/70 to-slate-900 border border-purple-500/30 hover:border-orange-500 p-3 rounded-2xl cursor-pointer transition-all shadow-md relative flex flex-col justify-between group";
-                
-                let popularBadge = pkg.popular ? `<div class="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-500 to-pink-500 text-[9px] font-black px-2 py-0.5 rounded-full text-white shadow">POPULAR</div>` : '';
-
-                card.innerHTML = `
-                    ${popularBadge}
-                    <div>
-                        <div class="flex items-center space-x-1 text-orange-300 text-xs font-bold">
-                            <span>[+]</span><span>${pkg.name}</span>
+        function renderPackages() {
+            const grid = document.getElementById('package-grid');
+            grid.innerHTML = '';
+            packages.forEach(pkg => {
+                grid.innerHTML += `
+                    <div class="bg-[#111827] border ${pkg.popular ? 'border-emerald-500/50' : 'border-[#1f2937]'} rounded-xl p-3.5 flex flex-col justify-between relative shadow-md">
+                        ${pkg.popular ? '<span class="absolute -top-2.5 right-3 bg-emerald-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">POPULAR</span>' : ''}
+                        <div>
+                            <div class="text-cyan-400 text-xs font-bold mb-1 flex items-center gap-1.5"><i class="fa-solid fa-bolt text-[10px]"></i> ${pkg.name}</div>
+                            <div class="text-[11px] text-slate-400 mb-3 flex items-center gap-1.5"><i class="fa-solid fa-gauge-high text-[10px]"></i> ${pkg.speed}</div>
                         </div>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Speed: ${pkg.speed}</p>
-                        <div class="mt-2 text-base font-black text-white">KSH ${pkg.price}</div>
+                        <div>
+                            <div class="text-base font-extrabold text-white mb-2">KSH ${pkg.price}</div>
+                            <button onclick="openPaymentPage('${pkg.name}', ${pkg.price})" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-1.5 rounded-lg text-xs transition shadow-md">Buy Now</button>
+                        </div>
                     </div>
-                    <button class="mt-3 w-full bg-cyan-600/80 hover:bg-cyan-500 text-white py-1.5 rounded-xl text-[11px] font-bold shadow transition-all text-center">
-                        Buy Now
-                    </button>
                 `;
-                card.addEventListener('click', () => selectPackage(pkg));
-                container.appendChild(card);
             });
         }
 
-        function renderFallbackPackages() {
-            renderPackages([]);
+        function renderAdminPackages() {
+            const list = document.getElementById('admin-package-editor-list');
+            list.innerHTML = '';
+            packages.forEach((pkg, index) => {
+                list.innerHTML += `
+                    <div class="bg-[#0b1120] p-2.5 rounded-lg border border-[#1f2937] flex items-center justify-between gap-2 text-xs">
+                        <input type="text" value="${pkg.name}" onchange="updatePkgName(${index}, this.value)" class="bg-[#111827] border border-[#1f2937] rounded p-1 text-white w-1/3">
+                        <input type="number" value="${pkg.price}" onchange="updatePkgPrice(${index}, this.value)" class="bg-[#111827] border border-[#1f2937] rounded p-1 text-white w-1/4">
+                        <button onclick="deletePackage(${index})" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            });
         }
 
-        function selectPackage(pkg) {
-            currentPackage = pkg;
-            document.getElementById('selected-package-name').textContent = `Package: ${pkg.name} (${pkg.speed})`;
-            document.getElementById('selected-package-price').textContent = `KSH ${pkg.price}`;
-            
-            document.getElementById('view-plans').classList.add('hidden');
-            document.getElementById('payment-form-container').classList.remove('hidden');
+        function updatePkgName(index, val) { packages[index].name = val; renderPackages(); }
+        function updatePkgPrice(index, val) { packages[index].price = Number(val); renderPackages(); }
+        function deletePackage(index) { packages.splice(index, 1); renderPackages(); renderAdminPackages(); }
+        function addNewPackage() {
+            packages.push({ id: Date.now(), name: "New Plan", speed: "5 Mbps", price: 30 });
+            renderPackages();
+            renderAdminPackages();
         }
 
-        function resetView() {
-            currentPackage = null;
-            document.getElementById('payment-form-container').classList.add('hidden');
-            document.getElementById('view-plans').classList.remove('hidden');
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-cyan-400');
+                btn.classList.add('text-slate-400');
+            });
+            const activeBtn = document.querySelector(`.nav-btn[data-target="${tabId}"]`);
+            if(activeBtn) {
+                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.add('text-cyan-400');
+            }
+
+            if(tabId === 'login') {
+                setAuthMode('signin');
+            }
         }
 
-        async function handleStkPushInitiation() {
-            const phoneInput = document.getElementById('phone-input').value.trim();
-            
-            if (!phoneInput || phoneInput.length < 10) {
+        function openPaymentPage(name, price) {
+            selectedPackageData = { name, price };
+            document.getElementById('pay-pkg-name').innerText = name;
+            document.getElementById('pay-pkg-price').innerText = `KSH ${price}`;
+            switchTab('payment');
+        }
+
+        function submitMpesaPayment() {
+            const phone = document.getElementById('mpesa-phone-input').value;
+            if(!phone || phone.length < 9) {
                 alert('Please enter a valid M-Pesa phone number.');
                 return;
             }
-
-            showModal("Please enter your M-Pesa PIN", "Please check your phone and enter your M-Pesa PIN to complete the payment.", true);
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/stk-push`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        phone: phoneInput,
-                        packageId: currentPackage.id,
-                        amount: currentPackage.price,
-                        tenantId: tenantId,
-                        macAddress: macAddress
-                    })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok || !data.success) {
-                    throw new Error(data.message || 'Failed to initiate payment.');
-                }
-
-                startPollingStatus(data.checkout_request_id);
-
-            } catch (err) {
-                console.error("STK Request Error:", err);
-                showModal("Payment Failed", err.message || "Network connection error. Check your connection and try again.", false, true);
-            }
-        }
-
-        function startPollingStatus(checkoutId) {
-            let attempts = 0;
-            const maxAttempts = 35;
-
-            pollInterval = setInterval(async () => {
-                attempts++;
-                if (attempts > maxAttempts) {
-                    clearInterval(pollInterval);
-                    showModal("Payment Timeout", "The payment request timed out. Please try again.", false, true);
-                    return;
-                }
-
-                try {
-                    const response = await fetch(`${API_BASE_URL}/api/payment-status?checkout_id=${checkoutId}`);
-                    const data = await response.json();
-
-                    if (data.status === 'COMPLETE') {
-                        clearInterval(pollInterval);
-                        
-                        showModal("Payment Received", "Payment received, connecting to the internet...", true, false);
-
-                        setTimeout(() => {
-                            showModal("Connected Successfully!", "You are now successfully connected to high-speed internet.", false, false);
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 2500);
-                        }, 2000);
-
-                    } else if (data.status === 'FAILED') {
-                        clearInterval(pollInterval);
-                        showModal("Payment Failed", data.message || "The payment transaction was cancelled or failed.", false, true);
-                    }
-                } catch (err) {
-                    console.error("Polling error:", err);
-                }
-            }, 3000);
-        }
-
-        function generateFreeVoucher() {
-            const duration = document.getElementById('voucher-duration-select').value;
-            const code = 'VRTX-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-            
-            fetch(`${API_BASE_URL}/api/vouchers/create`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code, duration, tenantId })
-            }).catch(() => {});
-
-            document.getElementById('voucher-code-display').textContent = code;
-            document.getElementById('voucher-expiry-display').textContent = `Duration: Valid for ${duration} Hours`;
-            document.getElementById('generated-voucher-result').classList.remove('hidden');
-        }
-
-        function redeemVoucher() {
-            const code = document.getElementById('redeem-voucher-input').value.trim();
-            if (!code) {
-                alert('Please enter a voucher code.');
-                return;
-            }
-            showModal("Redeeming Voucher", "Verifying voucher code...", true, false);
-            setTimeout(() => {
-                showModal("Connected Successfully!", "Voucher accepted. You are online!", false, false);
-                setTimeout(() => window.location.reload(), 2000);
-            }, 1500);
-        }
-
-        async function handleLogin() {
-            const user = document.getElementById('login-username').value.trim();
-            const pass = document.getElementById('login-password').value.trim();
-            const errEl = document.getElementById('login-error');
-
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: user, password: pass })
-                });
-                const data = await res.json();
-
-                if (data.success) {
-                    localStorage.setItem('vortex_logged_user', JSON.stringify(data.user));
-                    renderDashboard(data.user);
-                    switchTab('login');
-                } else {
-                    errEl.textContent = data.message || 'Invalid username or password.';
-                    errEl.classList.remove('hidden');
-                }
-            } catch (err) {
-                if (user === 'superadmin' && pass === 'admin123') {
-                    const adminUser = { username: 'superadmin', role: 'superadmin', businessName: 'Vortex Super Admin' };
-                    localStorage.setItem('vortex_logged_user', JSON.stringify(adminUser));
-                    renderDashboard(adminUser);
-                    switchTab('login');
-                } else if (user && pass) {
-                    const clientUser = { username: user, role: 'client', businessName: `${user.toUpperCase()} HOTSPOT`, clientTillNumber: '254712345678' };
-                    localStorage.setItem('vortex_logged_user', JSON.stringify(clientUser));
-                    renderDashboard(clientUser);
-                    switchTab('login');
-                } else {
-                    errEl.textContent = 'Invalid credentials or account deleted from database.';
-                    errEl.classList.remove('hidden');
-                }
-            }
-        }
-
-        function renderDashboard(user) {
-            const container = document.getElementById('view-dashboard');
-            container.innerHTML = '';
-
-            if (user.role === 'superadmin') {
-                container.innerHTML = `
-                    <div class="space-y-4">
-                        <div class="bg-slate-900 border border-purple-500/50 rounded-2xl p-4 shadow-xl">
-                            <div class="flex justify-between items-center mb-3">
-                                <h3 class="text-sm font-black text-orange-400">Super Admin Control Center</h3>
-                                <button onclick="logout()" class="text-[10px] bg-rose-950 text-rose-300 px-2 py-1 rounded border border-red-500/30">Logout</button>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2 text-center">
-                                <div class="bg-purple-950/60 p-3 rounded-xl border border-purple-800/40">
-                                    <p class="text-[10px] text-slate-400">Platform 5% Commission</p>
-                                    <p class="text-base font-bold text-green-400 mt-1">KSH 1,450</p>
-                                </div>
-                                <div class="bg-purple-950/60 p-3 rounded-xl border border-purple-800/40">
-                                    <p class="text-[10px] text-slate-400">Total Active Clients</p>
-                                    <p class="text-base font-bold text-orange-300 mt-1">12 Hotspots</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Onboard Client Form with Password Confirmation & Visibility Toggle -->
-                        <div class="bg-slate-900 border border-pink-500/40 rounded-2xl p-4 shadow-xl space-y-3">
-                            <h4 class="text-xs font-bold text-pink-300">Onboard New Client</h4>
-                            <div>
-                                <label class="block text-[10px] text-slate-300 mb-1">Client Username</label>
-                                <input type="text" id="new-client-user" placeholder="e.g. steven" class="w-full bg-slate-950 border border-purple-500/30 rounded-xl px-3 py-2 text-xs text-white">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-slate-300 mb-1">Password</label>
-                                <div class="relative">
-                                    <input type="password" id="new-client-pass" placeholder="Create password" class="w-full bg-slate-950 border border-purple-500/30 rounded-xl px-3 py-2 text-xs text-white pr-12">
-                                    <button type="button" onclick="togglePasswordVisibility('new-client-pass')" class="absolute right-2.5 top-2 text-slate-400 text-[10px] font-bold uppercase">View</button>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-slate-300 mb-1">Confirm Password</label>
-                                <div class="relative">
-                                    <input type="password" id="new-client-confirm" placeholder="Confirm password" class="w-full bg-slate-950 border border-purple-500/30 rounded-xl px-3 py-2 text-xs text-white pr-12">
-                                    <button type="button" onclick="togglePasswordVisibility('new-client-confirm')" class="absolute right-2.5 top-2 text-slate-400 text-[10px] font-bold uppercase">View</button>
-                                </div>
-                            </div>
-                            <button onclick="onboardClient()" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-2 rounded-xl text-xs font-bold shadow">
-                                Create Client Account & Configure MikroTik
-                            </button>
-                        </div>
-
-                        <!-- Client List Navigation Pages -->
-                        <div class="bg-slate-900 border border-purple-500/40 rounded-2xl p-4 shadow-xl">
-                            <h4 class="text-xs font-bold text-orange-300 mb-2">Registered Client Pages</h4>
-                            <div class="space-y-2">
-                                <div onclick="openClientPage('Steven')" class="flex justify-between items-center bg-purple-950/50 p-2.5 rounded-xl border border-purple-800/40 cursor-pointer hover:border-orange-500">
-                                    <span class="text-xs font-semibold text-white">Steven (steven)</span>
-                                    <span class="text-[10px] text-green-400">View Business &rarr;</span>
-                                </div>
-                                <div onclick="openClientPage('Alexia')" class="flex justify-between items-center bg-purple-950/50 p-2.5 rounded-xl border border-purple-800/40 cursor-pointer hover:border-orange-500">
-                                    <span class="text-xs font-semibold text-white">Alexia Hotspot</span>
-                                    <span class="text-[10px] text-green-400">View Business &rarr;</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = `
-                    <div class="space-y-4">
-                        <div class="bg-slate-900 border border-purple-500/50 rounded-2xl p-4 shadow-xl">
-                            <div class="flex justify-between items-center mb-3">
-                                <h3 class="text-sm font-black text-orange-400">${user.businessName} Dashboard</h3>
-                                <button onclick="logout()" class="text-[10px] bg-rose-950 text-rose-300 px-2 py-1 rounded border border-red-500/30">Logout</button>
-                            </div>
-                            <div class="grid grid-cols-3 gap-2 text-center mb-3">
-                                <div class="bg-purple-950/50 p-2.5 rounded-xl border border-purple-800/40">
-                                    <p class="text-[9px] text-slate-400">Today</p>
-                                    <p class="text-xs font-bold text-green-400 mt-0.5">KSH 650</p>
-                                </div>
-                                <div class="bg-purple-950/50 p-2.5 rounded-xl border border-purple-800/40">
-                                    <p class="text-[9px] text-slate-400">This Week</p>
-                                    <p class="text-xs font-bold text-orange-300 mt-0.5">KSH 4,800</p>
-                                </div>
-                                <div class="bg-purple-950/50 p-2.5 rounded-xl border border-purple-800/40">
-                                    <p class="text-[9px] text-slate-400">This Month</p>
-                                    <p class="text-xs font-bold text-pink-300 mt-0.5">KSH 18,900</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Active Users & MAC Addresses Navigation Bar -->
-                        <div class="bg-slate-900 border border-green-500/40 rounded-2xl p-4 shadow-xl">
-                            <h4 class="text-xs font-bold text-green-400 mb-2">Active Connected Users (MAC Addresses)</h4>
-                            <div class="space-y-2 text-xs">
-                                <div class="flex justify-between items-center bg-slate-950 p-2 rounded-xl border border-slate-800">
-                                    <span class="font-mono text-slate-300">A1:B2:C3:D4:E5:F6</span>
-                                    <span class="text-[10px] text-green-400 bg-green-950 px-2 py-0.5 rounded">Online (24h Plan)</span>
-                                </div>
-                                <div class="flex justify-between items-center bg-slate-950 p-2 rounded-xl border border-slate-800">
-                                    <span class="font-mono text-slate-300">F6:E5:D4:C3:B2:A1</span>
-                                    <span class="text-[10px] text-orange-400 bg-orange-950 px-2 py-0.5 rounded">Online (1h Plan)</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Transactions Ledger Navigation Bar -->
-                        <div class="bg-slate-900 border border-purple-500/40 rounded-2xl p-4 shadow-xl">
-                            <h4 class="text-xs font-bold text-orange-300 mb-2">M-Pesa Transactions</h4>
-                            <div class="space-y-1.5 text-[11px]">
-                                <div class="flex justify-between p-2 bg-purple-950/30 rounded-lg">
-                                    <span class="text-slate-300">0712345678 (+KSH 50)</span>
-                                    <span class="text-green-400 font-bold">SUCCESSFUL</span>
-                                </div>
-                                <div class="flex justify-between p-2 bg-purple-950/30 rounded-lg">
-                                    <span class="text-slate-300">0798765432 (+KSH 20)</span>
-                                    <span class="text-amber-400 font-bold">PENDING</span>
-                                </div>
-                                <div class="flex justify-between p-2 bg-purple-950/30 rounded-lg">
-                                    <span class="text-slate-300">0711223344 (+KSH 10)</span>
-                                    <span class="text-rose-400 font-bold">FAILED</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        function togglePasswordVisibility(fieldId) {
-            const input = document.getElementById(fieldId);
-            if (input.type === "password") {
-                input.type = "text";
-            } else {
-                input.type = "password";
-            }
-        }
-
-        function onboardClient() {
-            const user = document.getElementById('new-client-user').value.trim();
-            const pass = document.getElementById('new-client-pass').value.trim();
-            const confirm = document.getElementById('new-client-confirm').value.trim();
-
-            if (!user || !pass) {
-                alert('Please enter both username and password.');
-                return;
-            }
-            if (pass !== confirm) {
-                alert('Passwords do not match! Please confirm the password correctly.');
-                return;
-            }
-            alert(`Client "${user}" successfully onboarded with secure credentials!`);
-            document.getElementById('new-client-user').value = '';
-            document.getElementById('new-client-pass').value = '';
-            document.getElementById('new-client-confirm').value = '';
-        }
-
-        function openClientPage(clientName) {
-            alert(`Opening control page for client: ${clientName}`);
-        }
-
-        function logout() {
-            localStorage.removeItem('vortex_logged_user');
+            alert(`STK Push prompt successfully sent to +254${phone} for ${selectedPackageData.name} (KSH ${selectedPackageData.price}). Enter PIN to complete.`);
             switchTab('plans');
         }
 
-        function showModal(title, message, showSpinner, showCloseBtn) {
-            const modal = document.getElementById('status-modal');
-            const spinner = document.getElementById('modal-spinner');
-            const titleEl = document.getElementById('modal-title');
-            const msgEl = document.getElementById('modal-message');
-            const closeBtn = document.getElementById('modal-close-btn');
+        let currentAuthMode = 'signin';
+        function setAuthMode(mode) {
+            currentAuthMode = mode;
+            const container = document.getElementById('auth-form-container');
+            const btnSignin = document.getElementById('btn-mode-signin');
+            const btnSignup = document.getElementById('btn-mode-signup');
 
-            titleEl.textContent = title;
-            msgEl.textContent = message;
-
-            if (showSpinner) {
-                spinner.classList.remove('hidden');
-                closeBtn.classList.add('hidden');
+            if (mode === 'signin') {
+                btnSignin.className = "flex-1 pb-2 text-cyan-400 border-b-2 border-cyan-400 transition";
+                btnSignup.className = "flex-1 pb-2 text-slate-400 hover:text-slate-200 transition";
+                
+                container.innerHTML = `
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Email or Username</label>
+                            <input type="text" id="signin-user" placeholder="name@gmail.com or username" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Password</label>
+                            <div class="relative">
+                                <input type="password" id="signin-pass" placeholder="Enter password" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2.5 pr-10 text-xs text-white focus:outline-none focus:border-cyan-500">
+                                <button type="button" onclick="togglePasswordVisibility('signin-pass', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white text-xs">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button onclick="handleSignIn()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition mt-2">Sign In to Dashboard</button>
+                    </div>
+                `;
             } else {
-                spinner.classList.add('hidden');
-                if (showCloseBtn) closeBtn.classList.remove('hidden');
-                else closeBtn.classList.add('hidden');
+                btnSignup.className = "flex-1 pb-2 text-cyan-400 border-b-2 border-cyan-400 transition";
+                btnSignin.className = "flex-1 pb-2 text-slate-400 hover:text-slate-200 transition";
+                
+                container.innerHTML = `
+                    <div class="space-y-2.5">
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Username</label>
+                            <input type="text" id="signup-user" placeholder="Choose a username" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Email Address</label>
+                            <input type="email" id="signup-email" placeholder="name@example.com" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Password</label>
+                            <div class="relative">
+                                <input type="password" id="signup-pass" placeholder="Create password" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2 pr-10 text-xs text-white focus:outline-none focus:border-cyan-500">
+                                <button type="button" onclick="togglePasswordVisibility('signup-pass', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white text-xs">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Confirm Password</label>
+                            <div class="relative">
+                                <input type="password" id="signup-confirm" placeholder="Confirm password" class="w-full bg-[#0b1120] border border-[#1f2937] rounded-lg p-2 pr-10 text-xs text-white focus:outline-none focus:border-cyan-500">
+                                <button type="button" onclick="togglePasswordVisibility('signup-confirm', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white text-xs">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button onclick="handleSignUp()" class="w-full bg-[#0891b2] hover:bg-[#0e7490] text-white font-medium py-2.5 rounded-lg text-xs transition mt-1">Create Account & Verify Email</button>
+                    </div>
+                `;
             }
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
         }
 
-        function closeModal() {
-            if (pollInterval) clearInterval(pollInterval);
-            const modal = document.getElementById('status-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            resetView();
+        function togglePasswordVisibility(fieldId, btn) {
+            const input = document.getElementById(fieldId);
+            if(input.type === 'password') {
+                input.type = 'text';
+                btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+            } else {
+                input.type = 'password';
+                btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+            }
         }
+
+        function handleSignIn() {
+            const user = document.getElementById('signin-user').value.trim();
+            const pass = document.getElementById('signin-pass').value.trim();
+
+            if(!user || !pass) {
+                alert('Please enter your credentials.');
+                return;
+            }
+
+            // Check Super Admin Exact Credentials
+            if ((user === 'fidelsteven2@gmail.com' || user === 'Steven Fidel') && pass === 'Steven_19') {
+                document.getElementById('tab-login').classList.add('hidden');
+                document.getElementById('tab-superadmin').classList.remove('hidden');
+                alert('Super Admin authenticated successfully.');
+                return;
+            }
+
+            // Regular Hotspot Business Admin Login
+            document.getElementById('tab-login').classList.add('hidden');
+            document.getElementById('tab-admin').classList.remove('hidden');
+            document.getElementById('admin-welcome-title').innerText = `Hotspot Admin: ${user}`;
+            renderAdminPackages();
+            alert(`Welcome to your Hotspot Admin Portal, ${user}!`);
+        }
+
+        function handleSignUp() {
+            const user = document.getElementById('signup-user').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const pass = document.getElementById('signup-pass').value;
+            const confirmPass = document.getElementById('signup-confirm').value;
+
+            if(!user || !email || !pass || !confirmPass) {
+                alert('Please fill in all fields.');
+                return;
+            }
+            if(pass !== confirmPass) {
+                alert('Passwords do not match.');
+                return;
+            }
+
+            generatedOtpCode = Math.floor(1000 + Math.random() * 9000).toString();
+            document.getElementById('simulated-code-badge').innerText = generatedOtpCode;
+            document.getElementById('target-email-display').innerText = email;
+            document.getElementById('otp-modal').classList.remove('hidden');
+        }
+
+        function closeOtpModal() {
+            document.getElementById('otp-modal').classList.add('hidden');
+        }
+
+        function verifyOtpCode() {
+            alert('Google Verification code confirmed successfully! Account created and activated.');
+            closeOtpModal();
+            switchTab('admin');
+            renderAdminPackages();
+        }
+
+        function handleLogout() {
+            document.getElementById('tab-admin').classList.add('hidden');
+            document.getElementById('tab-superadmin').classList.add('hidden');
+            switchTab('plans');
+        }
+
+        function switchAdminSub(subId) {
+            document.querySelectorAll('.admin-sub-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`admin-sub-${subId}`).classList.remove('hidden');
+
+            ['packages', 'vouchers', 'mikrotik'].forEach(s => {
+                const btn = document.getElementById(`sub-btn-${s}`);
+                if(s === subId) {
+                    btn.className = "bg-[#0891b2] text-white py-2 rounded-lg transition";
+                } else {
+                    btn.className = "bg-[#111827] border border-[#1f2937] text-slate-300 py-2 rounded-lg transition";
+                }
+            });
+        }
+
+        function generateFreeVouchers() {
+            const qty = document.getElementById('voucher-gen-qty').value;
+            const output = document.getElementById('generated-vouchers-output');
+            output.classList.remove('hidden');
+            let codes = [];
+            for(let i=0; i<qty; i++) {
+                codes.push(`VORTEX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`);
+            }
+            output.innerHTML = `<b>Generated ${qty} Free Vouchers:</b><br>` + codes.join('<br>');
+        }
+
+        function verifyVoucherCode() {
+            const code = document.getElementById('voucher-code-input').value.trim();
+            if(code.length > 3) {
+                alert('Voucher code accepted! Internet access granted.');
+                switchTab('plans');
+            } else {
+                alert('Invalid voucher code.');
+            }
+        }
+
+        function syncTransaction() {
+            const ref = document.getElementById('sync-ref-input').value.trim();
+            if(ref) {
+                alert(`Transaction reference ${ref} verified! Connection re-established.`);
+                switchTab('plans');
+            } else {
+                alert('Please enter a valid M-Pesa transaction reference.');
+            }
+        }
+
+        // Initialize App
+        renderPackages();
     </script>
 </body>
 </html>

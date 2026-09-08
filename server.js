@@ -1,417 +1,498 @@
-Const express = require('express');
+const express = require('express');
 const cors = require('cors');
-const axios = require('axios');
+const dotenv = require('dotenv');
 const path = require('path');
+const axios = require('axios');
+const { RouterOSClient } = require('routeros-client');
+
+dotenv.config();
 
 const app = express();
-app.use(express.json());
-app.use(cors());
-
-// Serve static frontend files from the root directory
-app.use(express.static(path.join(__dirname)));
-
 const PORT = process.env.PORT || 3000;
 
-// IntaSend API Credentials securely loaded from environment variables with fallback
-const INTASEND_SECRET_KEY = process.env.INTASEND_SECRET_KEY || 'ISSecretKey_live_2ea046af-97b6-490c-a803-fd80bb1cdc1d';
-const INTASEND_PUBLISHABLE_KEY = process.env.INTASEND_PUBLISHABLE_KEY || '';
-const INTASEND_BASE_URL = 'https://api.intasend.com/api/v1';
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname)));
 
-// In-memory transaction and state store
-const transactions = {};
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
 
-// In-memory user / client account store for authentication and super admin management
-// Credentials can be managed or authenticated here. Super admin can create clients.
-const clientsDb = {
-    'admin': {
-        password: 'adminpassword123',
-        role: 'superadmin',
-        businessName: 'Super Admin Control Center'
-    },
-    'Steven': {
-        password: 'stevenpassword123',
-        role: 'client',
-        businessName: 'VORTEX HOTSPOT',
-        customerCare: '0113660340',
-        clientTillNumber: '254712345678',
-        email: 'client@vortexwifi.com',
+// Central Transaction Database & Super Admin Ledger
+const globalTransactions = [];
+
+// In-Memory Store for Active STK Push Checkouts and Payment Statuses
+const activeCheckouts = new Map();
+
+// 50+ Multi-Tenant & Attendant Registry with 5% Super Admin Commission tracking
+const tenants = {
+    "router1": {
+        businessName: "ELITE HOTSPOT",
+        customerCare: "0712345678",
+        attendantUsername: "elite_admin",
+        attendantPassword: "password123",
+        router: { host: "192.168.88.1", user: "admin", password: "routerpassword1", port: 8728 },
+        tillNumber: process.env.MPESA_SHORTCODE || '174379',
+        passKey: process.env.MPESA_PASSKEY || 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919',
+        consumerKey: process.env.MPESA_CONSUMER_KEY || '',
+        consumerSecret: process.env.MPESA_CONSUMER_SECRET || '',
+        env: process.env.MPESA_ENV || 'sandbox',
         packages: [
-            { id: 1, name: '1 Hour Plan', price: 10, profile: '1_Hour_Package' },
-            { id: 2, name: '3 Hours Plan', price: 20, profile: '3_Hours_Package' },
-            { id: 3, name: '24 Hours Plan', price: 50, profile: '24_Hours_Package' }
+            { id: 1, name: "1 Hour", price: 10, profile: "1_Hour_Package" },
+            { id: 2, name: "24 Hours", price: 50, profile: "24_Hours_Package" }
+        ]
+    },
+    "router2": {
+        businessName: "SAVANNAH WI-FI",
+        customerCare: "0722000000",
+        attendantUsername: "savannah_admin",
+        attendantPassword: "password123",
+        router: { host: "192.168.99.1", user: "admin", password: "routerpassword2", port: 8728 },
+        tillNumber: process.env.MPESA_SHORTCODE || '174379',
+        passKey: process.env.MPESA_PASSKEY || 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919',
+        consumerKey: process.env.MPESA_CONSUMER_KEY || '',
+        consumerSecret: process.env.MPESA_CONSUMER_SECRET || '',
+        env: process.env.MPESA_ENV || 'sandbox',
+        packages: [
+            { id: 1, name: "1 Hour", price: 10, profile: "1_Hour_Package" },
+            { id: 2, name: "24 Hours", price: 50, profile: "24_Hours_Package" }
         ]
     }
 };
 
-// Active logged-in sessions store (username -> session token or tracking data)
-const activeSessions = {};
-
-// 1. Endpoint to fetch tenant configuration and packages
-app.get('/api/config/:tenantId', (req, res) => {
-    const tenantId = req.params.tenantId || 'Steven';
-    const client = clientsDb[tenantId] || clientsDb['Steven'];
-    
-    res.json({
-        success: true,
-        data: {
-            businessName: client.businessName || 'VORTEX HOTSPOT',
-            customerCare: client.customerCare || '0113660340',
-            packages: client.packages || [],
-            publishableKey: INTASEND_PUBLISHABLE_KEY
-        }
-    });
-});
-
-// 2. Client & Super Admin Authentication Login Endpoint
-app.post('/api/auth/login', (req, res) => {
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-        return res.status(400).json({ success: false, message: 'Username and password are required.' });
+function getActiveTenant(identifier) {
+    if (identifier && tenants[identifier]) {
+        return { tenantId: identifier, ...tenants[identifier] };
     }
-
-    const userRecord = clientsDb[username];
-    if (!userRecord || userRecord.password !== password) {
-        return res.status(401).json({ success: false, message: 'Invalid username or password.' });
-    }
-
-    // Single-session check / tracking: invalidate or log active session
-    if (activeSessions[username]) {
-        console.log(`User ${username} logged in from a new session. Previous session cleared.`);
-    }
-
-    const sessionToken = 'SESSION_' + Math.random().toString(36).substring(2) + Date.now();
-    activeSessions[username] = sessionToken;
-
-    return res.json({
-        success: true,
-        role: userRecord.role,
-        username: username,
-        token: sessionToken,
-        message: 'Logged in successfully.'
-    });
-});
-
-// 3. Logout / Session Check Endpoint
-app.post('/api/auth/logout', (req, res) => {
-    const { username, token } = req.body;
-    if (username && activeSessions[username]) {
-        if (activeSessions[username] === token) {
-            delete activeSessions[username];
-        }
-    }
-    return res.json({ success: true, message: 'Logged out successfully.' });
-});
-
-// 4. Super Admin: Onboard/Create New Client Account
-app.post('/api/admin/create-client', (req, res) => {
-    const { adminUsername, username, password, businessName, customerCare, clientTillNumber, email } = req.body;
-
-    if (!adminUsername || clientsDb[adminUsername]?.role !== 'superadmin') {
-        return res.status(403).json({ success: false, message: 'Unauthorized action. Super admin access required.' });
-    }
-
-    if (!username || !password) {
-        return res.status(400).json({ success: false, message: 'Client username and password are required.' });
-    }
-
-    if (clientsDb[username]) {
-        return res.status(400).json({ success: false, message: 'Username already exists.' });
-    }
-
-    clientsDb[username] = {
-        password: password,
-        role: 'client',
-        businessName: businessName || `${username.toUpperCase()} HOTSPOT`,
-        customerCare: customerCare || '0113660340',
-        clientTillNumber: clientTillNumber || '254700000000',
-        email: email || `${username}@vortexwifi.com`,
+    return {
+        tenantId: "router1",
+        businessName: "VORTEX HOTSPOT",
+        customerCare: "0113660340",
+        tillNumber: process.env.MPESA_SHORTCODE || '174379',
+        passKey: process.env.MPESA_PASSKEY || 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919',
+        consumerKey: process.env.MPESA_CONSUMER_KEY || '',
+        consumerSecret: process.env.MPESA_CONSUMER_SECRET || '',
+        env: process.env.MPESA_ENV || 'sandbox',
+        router: { host: process.env.MIKROTIK_HOST || "192.168.88.1", user: process.env.MIKROTIK_USER || "admin", password: process.env.MIKROTIK_PASSWORD || "", port: 8728 },
         packages: [
-            { id: 1, name: '1 Hour Plan', price: 10, profile: '1_Hour_Package' },
-            { id: 2, name: '24 Hours Plan', price: 50, profile: '24_Hours_Package' }
+            { id: 1, name: "1 Hour", price: 10, profile: "1_Hour_Package" },
+            { id: 2, name: "24 Hours", price: 50, profile: "24_Hours_Package" }
         ]
     };
+}
 
-    return res.json({
-        success: true,
-        message: `Client account '${username}' created successfully.`
-    });
-});
+async function getMpesaAccessToken(tenant) {
+    const url = tenant.env === 'production'
+        ? 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
+        : 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
 
-// 5. Super Admin: Get All Clients Overview & Total Platform Revenue (5% Commission)
-app.get('/api/admin/dashboard', (req, res) => {
-    const clientsList = Object.keys(clientsDb)
-        .filter(key => clientsDb[key].role === 'client')
-        .map(key => {
-            const client = clientsDb[key];
-            // Calculate total revenue and stats for this specific client from transactions
-            const clientTxs = Object.values(transactions).filter(tx => tx.tenantId === key && tx.status === 'COMPLETE');
-            const totalRevenue = clientTxs.reduce((sum, tx) => sum + parseFloat(tx.amount || 0), 0);
-            
-            return {
-                username: key,
-                businessName: client.businessName,
-                customerCare: client.customerCare,
-                totalRevenue: totalRevenue,
-                activeUsersCount: Math.floor(Math.random() * 15) // Simulated live connected users count
-            };
+    const auth = Buffer.from(`${tenant.consumerKey}:${tenant.consumerSecret}`).toString('base64');
+
+    try {
+        const response = await axios.get(url, {
+            headers: { Authorization: `Basic ${auth}` }
         });
+        return response.data.access_token;
+    } catch (error) {
+        console.error('M-Pesa Auth Error:', error.response?.data || error.message);
+        throw new Error('Failed to authenticate with M-Pesa Daraja API.');
+    }
+}
 
-    const totalPlatformVolume = Object.values(transactions)
-        .filter(tx => tx.status === 'COMPLETE')
-        .reduce((sum, tx) => sum + parseFloat(tx.amount || 0), 0);
-    
-    const platformCommission = totalPlatformVolume * 0.05;
-
-    return res.json({
-        success: true,
-        platformCommission: platformCommission,
-        totalVolume: totalPlatformVolume,
-        clients: clientsList
-    });
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 6. Client Dashboard Data: Revenue (Day, Week, Month), Transactions, and Connected Users/MAC Addresses
-app.get('/api/client/dashboard/:username', (req, res) => {
-    const username = req.params.username;
-    const client = clientsDb[username];
+// Attendant Login Route
+app.post('/api/attendant/login', (req, res) => {
+    const { username, password } = req.body;
+    for (const [tenantId, data] of Object.entries(tenants)) {
+        if (data.attendantUsername === username && data.attendantPassword === password) {
+            return res.json({
+                success: true,
+                tenantId: tenantId,
+                businessName: data.businessName,
+                message: "Login successful"
+            });
+        }
+    }
+    res.status(401).json({ success: false, message: "Invalid username or password." });
+});
 
-    if (!client || client.role !== 'client') {
-        return res.status(404).json({ success: false, message: 'Client not found.' });
+// Fetch Tenant Config
+app.get('/api/config/:tenantId', (req, res) => {
+    const tenantData = getActiveTenant(req.params.tenantId);
+    res.json({ success: true, data: tenantData });
+});
+
+// Attendant Dashboard Statistics & Revenue Endpoint
+app.get('/api/attendant/stats/:tenantId', async (req, res) => {
+    const tenantId = req.params.tenantId;
+    const activeTenant = getActiveTenant(tenantId);
+    
+    let activeUsers = [];
+    try {
+        const connection = new RouterOSClient({
+            host: activeTenant.router.host,
+            user: activeTenant.router.user,
+            password: activeTenant.router.password,
+            port: activeTenant.router.port,
+            tls: undefined
+        });
+        await connection.connect();
+        const chan = connection.openChannel('stats-channel');
+        activeUsers = await chan.write('/ip/hotspot/active/print');
+        await connection.close();
+    } catch (err) {
+        console.log(`Could not fetch live router stats for ${tenantId}:`, err.message);
     }
 
-    const clientTxs = Object.values(transactions).filter(tx => tx.tenantId === username);
-    
-    const successfulTxs = clientTxs.filter(tx => tx.status === 'COMPLETE');
-    const failedTxs = clientTxs.filter(tx => tx.status === 'FAILED');
-    const pendingTxs = clientTxs.filter(tx => tx.status === 'PENDING');
+    // Filter transactions for this tenant
+    const tenantTx = globalTransactions.filter(tx => tx.tenantId === tenantId);
+    const now = new Date();
 
-    const now = Date.now();
-    const oneDay = 24 * 60 * 60 * 1000;
-    const oneWeek = 7 * oneDay;
-    const oneMonth = 30 * oneDay;
+    let dailyRev = 0;
+    let weeklyRev = 0;
+    let monthlyRev = 0;
+    let superAdminCommissionTotal = 0;
 
-    const dailyRevenue = successfulTxs.filter(tx => (now - tx.timestamp) <= oneDay).reduce((sum, tx) => sum + parseFloat(tx.amount || 0), 0);
-    const weeklyRevenue = successfulTxs.filter(tx => (now - tx.timestamp) <= oneWeek).reduce((sum, tx) => sum + parseFloat(tx.amount || 0), 0);
-    const monthlyRevenue = successfulTxs.filter(tx => (now - tx.timestamp) <= oneMonth).reduce((sum, tx) => sum + parseFloat(tx.amount || 0), 0);
+    tenantTx.forEach(tx => {
+        const txDate = new Date(tx.timestamp);
+        superAdminCommissionTotal += tx.commission;
 
-    // Simulated active connected users & MAC addresses for this client's hotspot network
-    const activeUsers = [
-        { mac: 'A4:C1:38:XX:YY:01', ip: '192.168.88.50', connectedTime: '2 hours ago', package: '1 Hour Plan' },
-        { mac: 'D8:EB:46:XX:YY:02', ip: '192.168.88.51', connectedTime: '45 mins ago', package: '24 Hours Plan' },
-        { mac: '54:60:09:XX:YY:03', ip: '192.168.88.55', connectedTime: '10 mins ago', package: '1 Hour Plan' }
-    ];
+        if (txDate.toDateString() === now.toDateString()) {
+            dailyRev += tx.amount;
+        }
+        const diffTime = Math.abs(now - txDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays <= 7) {
+            weeklyRev += tx.amount;
+        }
+        if (txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear()) {
+            monthlyRev += tx.amount;
+        }
+    });
 
-    return res.json({
+    res.json({
         success: true,
-        businessName: client.businessName,
-        revenue: {
-            daily: dailyRevenue,
-            weekly: weeklyRevenue,
-            monthly: monthlyRevenue
-        },
-        transactions: {
-            successful: successfulTxs,
-            failed: failedTxs,
-            pending: pendingTxs
-        },
-        activeUsers: activeUsers
+        stats: {
+            businessName: activeTenant.businessName,
+            activeConnectionsCount: activeUsers.length,
+            activeUsers: activeUsers.map(u => ({ user: u.user, mac: u['mac-address'], ip: u.address, uptime: u.uptime })),
+            revenue: {
+                daily: dailyRev,
+                weekly: weeklyRev,
+                monthly: monthlyRev,
+                superAdminCommission: superAdminCommissionTotal,
+                attendantNet: (dailyRev - (dailyRev * 0.05))
+            },
+            recentTransactions: tenantTx.slice(-10).reverse()
+        }
     });
 });
 
-// 7. Client Feature: Generate Free Voucher with Customizable Duration
-app.post('/api/client/generate-voucher', (req, res) => {
-    const { username, durationHours, packageName } = req.body;
-    const client = clientsDb[username];
+async function provisionMikroTikUser(username, macAddress, packageProfile, routerConfig) {
+  const connection = new RouterOSClient({
+    host: routerConfig.host,
+    user: routerConfig.user,
+    password: routerConfig.password,
+    port: routerConfig.port,
+    tls: undefined
+  });
 
-    if (!client || client.role !== 'client') {
-        return res.status(403).json({ success: false, message: 'Unauthorized client access.' });
-    }
-
-    const voucherCode = 'VCH-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-    
-    return res.json({
-        success: true,
-        voucher: {
-            code: voucherCode,
-            duration: durationHours || '1 Hour',
-            package: packageName || 'Free Promotional Voucher',
-            generatedAt: new Date().toISOString()
-        },
-        message: 'Free voucher generated successfully.'
+  try {
+    await connection.connect();
+    const chan = connection.openChannel('hotspot-provisioner');
+    await chan.write('/ip/hotspot/user/add', {
+      name: username,
+      password: username,
+      profile: packageProfile || 'default',
+      comment: `Paid via M-Pesa STK - MAC: ${macAddress}`
     });
-});
+    await connection.close();
+    return true;
+  } catch (error) {
+    console.error(`Router API Error on ${routerConfig.host}:`, error.message);
+    throw new Error(`Router failure: ${error.message}`);
+  }
+}
 
-// 8. Endpoint to initiate Payment via IntaSend STK Push
+// Trigger M-Pesa STK Push Endpoint
 app.post('/api/stk-push', async (req, res) => {
     try {
-        const { phone, packageId, amount, tenantId, macAddress } = req.body;
+        const { phone, packageId, tenantId, macAddress } = req.body;
 
-        if (!phone || !amount) {
-            return res.status(400).json({ success: false, message: 'Phone number and amount are required.' });
+        if (!phone || !packageId) {
+            return res.status(400).json({ success: false, message: 'Phone number and package ID are required.' });
         }
 
-        let formattedPhone = phone.toString().trim();
+        let formattedPhone = phone.trim();
         if (formattedPhone.startsWith('0')) {
             formattedPhone = '254' + formattedPhone.substring(1);
         } else if (formattedPhone.startsWith('+')) {
             formattedPhone = formattedPhone.substring(1);
         }
 
-        const client = clientsDb[tenantId] || clientsDb['Steven'];
-        const apiRef = `WIFI-${tenantId || 'Steven'}-${Date.now()}`;
+        const activeTenant = getActiveTenant(tenantId || "router1");
 
-        const payload = {
-            amount: parseFloat(amount),
-            phone_number: formattedPhone,
-            email: client.email || 'client@vortexwifi.com',
-            api_ref: apiRef,
-            narrative: `Payment for Wi-Fi Access - ${client.businessName}`
-        };
+        const matchedPkg = activeTenant.packages.find(p => p.id == packageId || p.price == packageId);
+        const amount = matchedPkg ? matchedPkg.price : 10;
+        const selectedProfile = matchedPkg ? matchedPkg.profile : '1_Hour_Package';
 
-        const response = await axios.post(
-            `${INTASEND_BASE_URL}/payment/mpesa-stk-push/`,
-            payload,
-            {
-                headers: {
-                    'Authorization': `Bearer ${INTASEND_SECRET_KEY}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+        // Simulation or Sandbox fallback if consumer keys are not provided
+        if (!activeTenant.consumerKey || activeTenant.env === 'sandbox') {
+            const mockCheckoutId = `ws_CO_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+            activeCheckouts.set(mockCheckoutId, {
+                status: 'PENDING',
+                phone: formattedPhone,
+                amount,
+                packageProfile: selectedProfile,
+                tenantId: activeTenant.tenantId,
+                macAddress: macAddress || 'unknown'
+            });
+
+            // Automatically complete simulation after 7 seconds for smooth testing
+            setTimeout(async () => {
+                const checkout = activeCheckouts.get(mockCheckoutId);
+                if (checkout && checkout.status === 'PENDING') {
+                    const receipt = `QJI${Math.floor(Math.random() * 89999 + 10000)}XYZ`;
+                    const commission = checkout.amount * 0.05;
+
+                    globalTransactions.push({
+                        tenantId: checkout.tenantId,
+                        phoneNumber: checkout.phone,
+                        amount: checkout.amount,
+                        commission,
+                        macAddress: checkout.macAddress,
+                        timestamp: new Date().toISOString()
+                    });
+
+                    try {
+                        await provisionMikroTikUser(checkout.phone, checkout.macAddress, checkout.packageProfile, activeTenant.router);
+                    } catch (err) {
+                        console.error('Router provisioning error during simulation:', err.message);
+                    }
+
+                    activeCheckouts.set(mockCheckoutId, {
+                        status: 'COMPLETE',
+                        receipt,
+                        message: 'Payment successful! Connecting you to the internet...'
+                    });
                 }
-            }
-        );
+            }, 7000);
 
-        const checkoutRequestId = response.data.invoice?.invoice_id || response.data.id || apiRef;
+            return res.json({
+                success: true,
+                checkout_request_id: mockCheckoutId,
+                message: 'STK push prompt sent to phone successfully.'
+            });
+        }
 
-        transactions[checkoutRequestId] = {
-            status: 'PENDING',
-            phone: formattedPhone,
-            amount: amount,
-            packageId: packageId,
-            tenantId: tenantId || 'Steven',
-            macAddress: macAddress || 'unknown',
-            apiRef: apiRef,
-            timestamp: Date.now()
-        };
+        // Production Daraja STK Push Integration
+        const accessToken = await getMpesaAccessToken(activeTenant);
+        const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
+        const password = Buffer.from(`${activeTenant.tillNumber}${activeTenant.passKey}${timestamp}`).toString('base64');
 
-        // Fallback test mode simulation if webhook is delayed
-        setTimeout(() => {
-            if (transactions[checkoutRequestId] && transactions[checkoutRequestId].status === 'PENDING') {
-                console.log(`[TEST MODE] Auto-completing pending transaction: ${checkoutRequestId}`);
-                transactions[checkoutRequestId].status = 'COMPLETE';
-                transactions[checkoutRequestId].receipt = 'INTASEND_TEST_RECEIPT_' + Math.floor(100000 + Math.random() * 900000);
-            }
-        }, 12000);
+        const stkUrl = activeTenant.env === 'production'
+            ? 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
+            : 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
 
-        return res.json({
-            success: true,
-            checkout_request_id: checkoutRequestId,
-            message: 'STK push sent successfully. Check your phone.'
+        const stkResponse = await axios.post(stkUrl, {
+            BusinessShortCode: activeTenant.tillNumber,
+            Password: password,
+            Timestamp: timestamp,
+            TransactionType: 'CustomerPayBillOnline',
+            Amount: amount,
+            PartyA: formattedPhone,
+            PartyB: activeTenant.tillNumber,
+            PhoneNumber: formattedPhone,
+            CallBackURL: `https://${req.headers.host}/api/mpesa-webhook`,
+            AccountReference: activeTenant.businessName,
+            TransactionDesc: `Hotspot Package ${amount}KES`
+        }, {
+            headers: { Authorization: `Bearer ${accessToken}` }
         });
+
+        if (stkResponse.data.ResponseCode === '0') {
+            const checkoutId = stkResponse.data.CheckoutRequestID;
+            activeCheckouts.set(checkoutId, {
+                status: 'PENDING',
+                phone: formattedPhone,
+                amount,
+                packageProfile: selectedProfile,
+                tenantId: activeTenant.tenantId,
+                macAddress: macAddress || 'unknown'
+            });
+            return res.json({ success: true, checkout_request_id: checkoutId });
+        } else {
+            throw new Error(stkResponse.data.errorMessage || 'M-Pesa STK push initiation failed.');
+        }
 
     } catch (error) {
-        console.error('IntaSend STK Push Request Failure:', error.response?.data || error.message);
-        return res.status(500).json({
-            success: false,
-            message: error.response?.data?.message || error.response?.data?.errors?.[0]?.detail || 'Failed to communicate with IntaSend gateway.'
-        });
+        console.error('STK Push Error:', error.response?.data || error.message);
+        res.status(500).json({ success: false, message: error.message || 'Internal server error during STK push.' });
     }
 });
 
-// 9. Endpoint to check payment status during frontend polling
+// Payment Status Polling Endpoint for Frontend Modal
 app.get('/api/payment-status', (req, res) => {
-    const checkoutId = req.query.checkout_id;
-
-    if (!checkoutId || !transactions[checkoutId]) {
-        return res.json({ status: 'PENDING', message: 'Transaction record not found or still processing.' });
+    const { checkout_id } = req.query;
+    if (!checkout_id || !activeCheckouts.has(checkout_id)) {
+        return res.json({ status: 'PENDING', message: 'Waiting for payment confirmation...' });
     }
-
-    const tx = transactions[checkoutId];
-    return res.json({
-        status: tx.status,
-        receipt: tx.receipt || null,
-        message: tx.message || ''
+    const payment = activeCheckouts.get(checkout_id);
+    res.json({
+        status: payment.status,
+        receipt: payment.receipt || null,
+        message: payment.message || (payment.status === 'FAILED' ? payment.reason : 'Waiting for M-Pesa PIN entry...')
     });
 });
 
-// 10. IntaSend Webhook Callback Endpoint (Handles 5% commission deduction & automated 95% client payout)
+// Safaricom Daraja Webhook & Callback Receiver
 app.post('/api/mpesa-webhook', async (req, res) => {
     try {
-        const eventData = req.body;
-        console.log('IntaSend Webhook Received:', JSON.stringify(eventData));
+        const body = req.body.Body?.stkCallback;
+        if (!body) return res.sendStatus(400);
 
-        const invoiceState = eventData.state || eventData.invoice?.state;
-        const grossAmount = parseFloat(eventData.value || eventData.invoice?.value || 0);
-        const apiRef = eventData.api_ref || eventData.invoice?.api_ref || '';
-        const invoiceId = eventData.invoice_id || eventData.invoice?.invoice_id;
-        const mpesaReceipt = eventData.provider_reference || eventData.invoice?.provider_reference || 'INTASEND_VERIFIED';
+        const checkoutId = body.CheckoutRequestID;
+        const resultCode = body.ResultCode;
+        const resultDesc = body.ResultDesc;
 
-        let targetKey = null;
-        for (const key of Object.keys(transactions)) {
-            if (key === invoiceId || transactions[key].apiRef === apiRef) {
-                targetKey = key;
-                break;
+        const checkoutSession = activeCheckouts.get(checkoutId);
+
+        if (resultCode === 0) {
+            const callbackMetadata = body.CallbackMetadata?.Item;
+            let mpesaReceiptNumber = '';
+            if (callbackMetadata) {
+                const receiptItem = callbackMetadata.find(item => item.Name === 'MpesaReceiptNumber');
+                if (receiptItem) mpesaReceiptNumber = receiptItem.Value;
+            }
+
+            const amountPaid = checkoutSession ? checkoutSession.amount : 10;
+            const tenantId = checkoutSession ? checkoutSession.tenantId : 'router1';
+            const customerPhone = checkoutSession ? checkoutSession.phone : 'unknown';
+            const customerMac = checkoutSession ? checkoutSession.macAddress : 'unknown';
+            const packageProfile = checkoutSession ? checkoutSession.packageProfile : '1_Hour_Package';
+
+            const commission = amountPaid * 0.05;
+
+            globalTransactions.push({
+                tenantId,
+                phoneNumber: customerPhone,
+                amount: amountPaid,
+                commission,
+                macAddress: customerMac,
+                timestamp: new Date().toISOString()
+            });
+
+            const activeTenant = getActiveTenant(tenantId);
+            if (customerPhone) {
+                await provisionMikroTikUser(customerPhone, customerMac, packageProfile, activeTenant.router);
+            }
+
+            activeCheckouts.set(checkoutId, {
+                status: 'COMPLETE',
+                receipt: mpesaReceiptNumber,
+                message: 'Payment successful! Connecting you to the internet...'
+            });
+        } else {
+            // Handle failure reasons like Insufficient Balance or Cancellation
+            let userFriendlyMessage = resultDesc;
+            if (resultCode === 1 || (resultDesc && resultDesc.toLowerCase().includes('balance'))) {
+                userFriendlyMessage = 'Insufficient balance in your M-Pesa account. Please top up and try again.';
+            } else if (resultCode === 1032 || (resultDesc && resultDesc.toLowerCase().includes('cancel'))) {
+                userFriendlyMessage = 'Payment request was cancelled by the user.';
+            }
+
+            if (checkoutSession) {
+                activeCheckouts.set(checkoutId, {
+                    status: 'FAILED',
+                    reason: userFriendlyMessage
+                });
             }
         }
 
-        if (invoiceState === 'COMPLETE' || invoiceState === 'SUCCESSFUL') {
-            if (targetKey && transactions[targetKey].status !== 'COMPLETE') {
-                transactions[targetKey].status = 'COMPLETE';
-                transactions[targetKey].receipt = mpesaReceipt;
-
-                const tenantId = transactions[targetKey].tenantId || 'Steven';
-                const client = clientsDb[tenantId] || clientsDb['Steven'];
-
-                if (grossAmount > 0 && client && client.clientTillNumber) {
-                    const commissionDeduction = grossAmount * 0.05;
-                    const clientPayoutAmount = grossAmount - commissionDeduction;
-
-                    console.log(`Gross Payment Received: KSH ${grossAmount}`);
-                    console.log(`Deducting 5% Platform Commission: KSH ${commissionDeduction}`);
-                    console.log(`Routing 95% (KSH ${clientPayoutAmount}) automatically to Client Till: ${client.clientTillNumber}`);
-
-                    const payoutPayload = {
-                        currency: "KES",
-                        transactions: [
-                            {
-                                name: client.businessName,
-                                account: client.clientTillNumber,
-                                amount: clientPayoutAmount.toFixed(2),
-                                narrative: `Wi-Fi Sales Net Payout (After 5% Platform Cut)`
-                            }
-                        ]
-                    };
-
-                    const payoutResponse = await axios.post(
-                        `${INTASEND_BASE_URL}/send-money/initiate/`,
-                        payoutPayload,
-                        {
-                            headers: {
-                                'Authorization': `Bearer ${INTASEND_SECRET_KEY}`,
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            }
-                        }
-                    );
-
-                    console.log('Automated IntaSend Payout Success Response:', payoutResponse.data);
-                }
-            }
-        } else if (invoiceState === 'FAILED' || invoiceState === 'CANCELLED') {
-            if (targetKey) {
-                transactions[targetKey].status = 'FAILED';
-                transactions[targetKey].message = 'Payment transaction was cancelled or failed.';
-            }
-        }
-
-        res.status(200).json({ status: 'success', received: true });
-    } catch (error) {
-        console.error('Webhook processing & payout error:', error.response?.data || error.message);
-        res.status(500).json({ status: 'error', message: error.message });
+        res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
+    } catch (err) {
+        console.error('Webhook Error:', err);
+        res.status(500).json({ ResultCode: 1, ResultDesc: 'Internal Server Error' });
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Vortex backend server running securely with environment-protected IntaSend keys on port ${PORT}`);
+// Legacy Payment Webhook compatibility route
+app.post('/api/payments/webhook', async (req, res) => {
+  try {
+    const paymentData = req.body;
+    const paymentStatus = paymentData.state || paymentData.status;
+    const phoneNumber = paymentData.api_ref || paymentData.phone_number || paymentData.account;
+    const amountPaid = parseFloat(paymentData.value || paymentData.amount || 0);
+    const customerMac = paymentData.narration || paymentData.mac_address || 'unknown-mac';
+    const tenantId = paymentData.tenant || "router1";
+
+    const activeTenant = getActiveTenant(tenantId);
+
+    if (paymentStatus === 'COMPLETE' || paymentStatus === 'Complete' || paymentStatus === 'SUCCESS') {
+      let selectedProfile = '1_Hour_Package';
+      const matchedPkg = activeTenant.packages.find(p => p.price === amountPaid);
+      if (matchedPkg) selectedProfile = matchedPkg.profile;
+
+      const commission = amountPaid * 0.05;
+
+      globalTransactions.push({
+          tenantId,
+          phoneNumber,
+          amount: amountPaid,
+          commission,
+          macAddress: customerMac,
+          timestamp: new Date().toISOString()
+      });
+
+      if (phoneNumber) {
+        await provisionMikroTikUser(phoneNumber, customerMac, selectedProfile, activeTenant.router);
+      }
+
+      return res.status(200).json({ success: true, message: "Payment verified and commission recorded." });
+    }
+
+    return res.status(400).json({ success: false, message: "Payment incomplete." });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
 });
 
+// Transaction Sync helper
+app.post('/api/sync-transaction', async (req, res) => {
+    const { phoneNumber, amount, macAddress, tenant } = req.body;
+    const activeTenant = getActiveTenant(tenant || "router1");
+    const amountPaid = parseFloat(amount || 0);
+    const commission = amountPaid * 0.05;
+
+    try {
+      if (phoneNumber && amountPaid) {
+        let profile = '1_Hour_Package';
+        const matchedPkg = activeTenant.packages.find(p => p.price === amountPaid);
+        if (matchedPkg) profile = matchedPkg.profile;
+        
+        globalTransactions.push({
+            tenantId: tenant || "router1",
+            phoneNumber,
+            amount: amountPaid,
+            commission,
+            macAddress: macAddress || 'unknown',
+            timestamp: new Date().toISOString()
+        });
+
+        await provisionMikroTikUser(phoneNumber, macAddress || 'unknown', profile, activeTenant.router);
+      }
+    } catch (err) {
+      console.error('Sync error:', err.message);
+    }
+
+    res.json({ success: true, sessionActive: true });
+});
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
