@@ -80,7 +80,7 @@ app.post('/api/auth/login', (req, res) => {
         console.log(`User ${username} logged in from a new session. Previous session cleared.`);
     }
 
-    const sessionToken = 'SESSION_' + Math.random().toString(36.substring(2)) + Date.now();
+    const sessionToken = 'SESSION_' + Math.random().toString(36).substring(2) + Date.now();
     activeSessions[username] = sessionToken;
 
     return res.json({
