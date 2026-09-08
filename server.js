@@ -231,9 +231,6 @@ async function provisionMikroTikUser(username, macAddress, packageProfile, route
  * =========================================================================
  * STEP 1: TRIGGER STK PUSH (Initial Handshake Start)
  * =========================================================================
- * Validates the phone number, sends the prompt to Safaricom, and stores the 
- * transaction state as 'PENDING'. It returns a checkout_request_id to the frontend.
- * =========================================================================
  */
 app.post('/api/stk-push', async (req, res) => {
     try {
