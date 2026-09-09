@@ -1,15 +1,22 @@
 {
-  "name": "vortex-wifi-billing",
+  "name": "vortex-hotspot-backend",
   "version": "1.0.0",
-  "description": "Vortex Wi-Fi Billing System with M-Pesa Integration",
-  "main": "backend-server.js",
+  "description": "Backend server for Vortex Hotspot Billing System with PostgreSQL, IntaSend Live Payments, and PDF generation",
+  "main": "server.js",
   "scripts": {
-    "start": "node backend-server.js"
+    "start": "node server.js"
   },
   "dependencies": {
-    "axios": "^1.7.9",
+    "axios": "^1.6.8",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2"
-  }
+    "express": "^4.19.2",
+    "pdfkit": "^0.14.0",
+    "pg": "^8.11.5"
+  },
+  "engines": {
+    "node": ">=18.x"
+  },
+  "private": true
 }
